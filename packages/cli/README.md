@@ -1,5 +1,5 @@
 # @tanstack-react-modules/cli
-
+ 
 Scaffolding CLI for the Reactive modular framework. Creates projects, modules, and stores with full wiring.
 
 ## Commands
