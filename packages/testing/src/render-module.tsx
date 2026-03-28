@@ -6,7 +6,8 @@ import {
   createRootRoute,
 } from '@tanstack/react-router'
 import { SharedDependenciesContext } from '@reactive/core'
-import type { ReactiveModuleDescriptor } from '@reactive/core'
+import type { ReactiveModuleDescriptor, SlotMap } from '@reactive/core'
+import { SlotsContext } from '@reactive/registry'
 import { RouterProvider } from '@tanstack/react-router'
 import type { StoreApi } from 'zustand'
 
@@ -26,6 +27,8 @@ export interface RenderModuleOptions<
       | TSharedDependencies[K]
   }>
 
+  /** Mock slot data for the module under test */
+  slots?: SlotMap
 }
 
 function isStoreApi(value: unknown): value is StoreApi<unknown> {
@@ -87,7 +90,9 @@ export async function renderModule<
 
   const result = render(
     <SharedDependenciesContext value={{ stores, services }}>
-      <RouterProvider router={router} />
+      <SlotsContext value={options.slots ?? {}}>
+        <RouterProvider router={router} />
+      </SlotsContext>
     </SharedDependenciesContext>,
   )
 

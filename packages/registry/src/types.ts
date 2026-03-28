@@ -1,7 +1,7 @@
 import type { StoreApi } from 'zustand'
 import type { Router } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
-import type { NavigationItem } from '@reactive/core'
+import type { NavigationItem, SlotMap } from '@reactive/core'
 
 /**
  * Configuration for creating a registry.
@@ -37,6 +37,7 @@ export interface NavigationManifest {
 
 export interface ApplicationManifest<
   TSharedDependencies extends Record<string, any>,
+  TSlots extends SlotMap = SlotMap,
 > {
   /** The root React component with all providers wired */
   readonly App: React.ComponentType
@@ -46,4 +47,6 @@ export interface ApplicationManifest<
   readonly queryClient: QueryClient
   /** Auto-generated navigation manifest from all modules */
   readonly navigation: NavigationManifest
+  /** Collected slot contributions from all modules */
+  readonly slots: TSlots
 }

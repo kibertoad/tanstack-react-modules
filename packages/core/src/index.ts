@@ -4,6 +4,7 @@ export type {
   LazyModuleDescriptor,
   NavigationItem,
   ModuleLifecycle,
+  SlotMap,
 } from './types.js'
 
 // Module definition

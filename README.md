@@ -15,6 +15,8 @@ Plug-and-play modular framework for React. Build frontend features as independen
 - [Shared Dependencies (DI)](#shared-dependencies-di)
 - [The Shell (Host App)](#the-shell-host-app)
 - [Navigation](#navigation)
+- [Slots](#slots)
+- [Shell Patterns](docs/shell-patterns.md) (separate guide)
 - [Cross-Module Communication](#cross-module-communication)
 - [React Compiler](#react-compiler)
 - [Testing Modules](#testing-modules)
@@ -41,11 +43,13 @@ Plug-and-play modular framework for React. Build frontend features as independen
 │  │  - Validates dependencies                          │ │
 │  │  - Composes TanStack Router route tree             │ │
 │  │  - Builds navigation manifest                      │ │
+│  │  - Collects slot contributions                     │ │
 │  │  - Wires provider tree:                            │ │
 │  │    QueryClientProvider                             │ │
 │  │      → SharedDependenciesContext                   │ │
 │  │        → NavigationContext                         │ │
-│  │          → RouterProvider                          │ │
+│  │          → SlotsContext                            │ │
+│  │            → RouterProvider                        │ │
 │  └────────────────────────────────────────────────────┘ │
 │                                                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
@@ -55,6 +59,7 @@ Plug-and-play modular framework for React. Build frontend features as independen
 │  │ Routes       │  │ Routes       │  │ Routes       │  │
 │  │ Pages        │  │ Pages        │  │ Pages        │  │
 │  │ Navigation   │  │ Navigation   │  │ Navigation   │  │
+│  │ Slots        │  │ Slots        │  │ Slots        │  │
 │  └──────────────┘  └──────────────┘  └──────────────┘  │
 │                                                         │
 │  ┌────────────────────────────────────────────────────┐ │
@@ -273,6 +278,7 @@ export default defineModule<AppDependencies>({
 | `version` | Yes | SemVer version string. |
 | `createRoutes` | Yes | Receives the root route as parent, returns a TanStack Router route subtree. Use `lazyRouteComponent()` for code splitting. |
 | `navigation` | No | Array of `NavigationItem` entries contributed to the shell's sidebar/nav. |
+| `slots` | No | Typed slot contributions (e.g. commands, tab types). See [Slots](#slots). |
 | `requires` | No | Array of `AppDependencies` keys this module needs. Validated at registry resolution. |
 | `lifecycle` | No | `{ onRegister, onMount, onUnmount }` hooks. |
 
@@ -637,7 +643,7 @@ defineModule<AppDependencies>({
 |---|---|---|
 | `label` | Yes | Display text |
 | `to` | Yes | Route path |
-| `icon` | No | Icon identifier (consumed by the shell's icon system) |
+| `icon` | No | Icon identifier (`string`) or React component (`React.ComponentType<{ className?: string }>`) |
 | `group` | No | Grouping key (e.g., `'finance'`, `'admin'`). Items with the same group are rendered together. |
 | `order` | No | Sort order within group. Lower = higher priority. Default: `999`. |
 | `hidden` | No | If `true`, registered but excluded from default nav rendering. |
@@ -678,6 +684,102 @@ function Sidebar() {
 1. Items sorted by `order` ascending (default `999`).
 2. Ties broken alphabetically by `label`.
 3. Grouped by `group` key. Items without a group go into `navigation.ungrouped`.
+
+---
+
+## Slots
+
+Slots let modules contribute typed data and components to named placeholders in the shell — beyond routes and navigation. Think command palette entries, workspace tab types, status badges, or anything the shell wants to collect from modules.
+
+The pattern mirrors navigation: the shell defines what slots exist (via `AppSlots` in app-shared), modules contribute to them, and the registry concatenates contributions from all modules.
+
+### Defining slots in app-shared
+
+```typescript
+// app-shared/src/index.ts
+
+export interface CommandDefinition {
+  readonly id: string
+  readonly label: string
+  readonly group?: string
+  readonly onSelect: () => void
+}
+
+export interface AppSlots {
+  commands: CommandDefinition[]
+}
+```
+
+Every slot value must be an array type — the registry concatenates contributions across modules.
+
+### Contributing from a module
+
+```typescript
+import { defineModule } from '@reactive/core'
+import type { AppDependencies, AppSlots } from '@myorg/app-shared'
+
+export default defineModule<AppDependencies, AppSlots>({
+  id: 'billing',
+  version: '0.1.0',
+  createRoutes: (parentRoute) => { /* ... */ },
+
+  slots: {
+    commands: [
+      { id: 'billing:dashboard', label: 'Open Billing', group: 'navigate', onSelect: () => {} },
+    ],
+  },
+
+  // ...
+})
+```
+
+Modules only contribute to the slots they care about — `slots` is `Partial<AppSlots>`.
+
+### Reading slots in the shell
+
+```typescript
+import { useSlots } from '@reactive/registry'
+import type { AppSlots } from '@myorg/app-shared'
+
+function CommandPalette() {
+  const { commands } = useSlots<AppSlots>()
+
+  return (
+    <ul>
+      {commands.map((cmd) => (
+        <li key={cmd.id}>
+          <button onClick={cmd.onSelect}>{cmd.label}</button>
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
+
+### Wiring the registry
+
+Pass `AppSlots` as the second type parameter to `createRegistry`:
+
+```typescript
+const registry = createRegistry<AppDependencies, AppSlots>({
+  stores: { auth: authStore, config: configStore },
+  services: { httpClient },
+})
+```
+
+### Lazy modules and slots
+
+Lazy modules (registered via `registerLazy()`) cannot contribute slots at registration time since their descriptors are not loaded yet. Only eager modules contribute to the slots manifest.
+
+### When to use slots vs stores
+
+| Use case | Mechanism |
+|---|---|
+| Static declarations known at module registration (commands, tab types, badges) | **Slots** |
+| Runtime state that changes over time (active tab, notifications, user preferences) | **Shared Zustand stores** |
+| Server data (API responses, cached queries) | **React Query** |
+
+For a detailed guide on building complex shell applications with slots, see [Shell Patterns](docs/shell-patterns.md).
 
 ---
 
@@ -1009,21 +1111,24 @@ npx playwright test
 | `defineModule(descriptor)` | Function | Identity function for type inference. Returns descriptor unchanged. |
 | `createSharedHooks<T>()` | Function | Returns typed `{ useStore, useService }` hooks. Call once in app-shared package. |
 | `SharedDependenciesContext` | Context | React context holding stores and services. Used internally. |
-| `ReactiveModuleDescriptor<T>` | Type | Module descriptor shape. |
-| `LazyModuleDescriptor<T>` | Type | Lazy module descriptor shape. |
-| `NavigationItem` | Type | Navigation entry shape. |
+| `ReactiveModuleDescriptor<T, S>` | Type | Module descriptor shape. `T` = shared deps, `S` = slots. |
+| `LazyModuleDescriptor<T, S>` | Type | Lazy module descriptor shape. |
+| `NavigationItem` | Type | Navigation entry shape. `icon` accepts `string \| React.ComponentType`. |
 | `ModuleLifecycle<T>` | Type | Lifecycle hooks shape. |
+| `SlotMap` | Type | Constraint type for slot definitions: `Record<string, readonly unknown[]>`. |
 
 ### @reactive/registry
 
 | Export | Type | Description |
 |---|---|---|
-| `createRegistry<T>(config)` | Function | Creates a module registry. Config has `{ stores, services }`. |
+| `createRegistry<T, S>(config)` | Function | Creates a module registry. `T` = shared deps, `S` = slots. Config has `{ stores, services }`. |
 | `useNavigation()` | Hook | Access the navigation manifest from any component inside `<App />`. |
+| `useSlots<S>()` | Hook | Access collected slot contributions from all modules. |
+| `SlotsContext` | Context | React context holding the slots manifest. Used internally. |
 | `ModuleErrorBoundary` | Component | Error boundary that isolates module-level crashes. |
-| `ReactiveRegistry<T>` | Type | Registry interface with `register()`, `registerLazy()`, `resolve()`. |
+| `ReactiveRegistry<T, S>` | Type | Registry interface with `register()`, `registerLazy()`, `resolve()`. |
 | `RegistryConfig<T>` | Type | Registry configuration shape. |
-| `ApplicationManifest<T>` | Type | Resolved app shape: `{ App, router, queryClient, navigation }`. |
+| `ApplicationManifest<T, S>` | Type | Resolved app shape: `{ App, router, queryClient, navigation, slots }`. |
 | `NavigationManifest` | Type | `{ items, groups, ungrouped }`. |
 | `NavigationGroup` | Type | `{ group, items }`. |
 | `ResolveOptions` | Type | `{ rootComponent, indexComponent, notFoundComponent }`. |
@@ -1032,6 +1137,6 @@ npx playwright test
 
 | Export | Type | Description |
 |---|---|---|
-| `renderModule(module, options)` | Function | Render a module in isolation. Returns `@testing-library/react` RenderResult. |
+| `renderModule(module, options)` | Function | Render a module in isolation. Returns `@testing-library/react` RenderResult. Options include `deps` and optional `slots`. |
 | `createMockStore<T>(state)` | Function | Create a zustand store pre-populated with given state. |
-| `RenderModuleOptions<T>` | Type | Options for `renderModule`. |
+| `RenderModuleOptions<T>` | Type | Options for `renderModule`: `{ route?, deps, slots? }`. |

@@ -1,6 +1,7 @@
 import { Outlet } from '@tanstack/react-router'
 import { useStore } from '@example/app-shared'
 import { Sidebar } from './Sidebar.js'
+import { CommandPalette } from './CommandPalette.js'
 
 export function Layout() {
   const user = useStore('auth', (s) => s.user)
@@ -20,6 +21,7 @@ export function Layout() {
           alignItems: 'center',
           gap: '1rem',
         }}>
+          <CommandPalette />
           {isAuthenticated ? (
             <>
               <span style={{ color: '#4a5568' }}>{user?.name}</span>

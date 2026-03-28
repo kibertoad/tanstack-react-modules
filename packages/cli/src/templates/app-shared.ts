@@ -79,6 +79,20 @@ export interface AppDependencies {
   httpClient: Wretch
 }
 
+// ---- Slots ----
+
+export interface CommandDefinition {
+  readonly id: string
+  readonly label: string
+  readonly group?: string
+  readonly icon?: string
+  readonly onSelect: () => void
+}
+
+export interface AppSlots {
+  commands: CommandDefinition[]
+}
+
 // ---- Typed hooks (use these in all modules) ----
 
 export const { useStore, useService } = createSharedHooks<AppDependencies>()

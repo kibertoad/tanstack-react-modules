@@ -99,7 +99,7 @@ export function shellMain(params: {
 }): string {
   return `import { createRoot } from 'react-dom/client'
 import { createRegistry } from '@reactive/registry'
-import type { AppDependencies } from '${params.scope}/app-shared'
+import type { AppDependencies, AppSlots } from '${params.scope}/app-shared'
 import ${params.importName} from '${params.scope}/${params.moduleName}-module'
 import { authStore } from './stores/auth.js'
 import { configStore } from './stores/config.js'
@@ -108,7 +108,7 @@ import { Layout } from './components/Layout.js'
 import { Home } from './components/Home.js'
 
 // Create the registry with shared dependencies
-const registry = createRegistry<AppDependencies>({
+const registry = createRegistry<AppDependencies, AppSlots>({
   stores: { auth: authStore, config: configStore },
   services: { httpClient },
 })

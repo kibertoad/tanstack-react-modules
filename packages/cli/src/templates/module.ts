@@ -71,9 +71,9 @@ export function moduleDescriptor(params: {
 
   return `import { defineModule } from '@reactive/core'
 import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
-import type { AppDependencies } from '${params.scope}/app-shared'
+import type { AppDependencies, AppSlots } from '${params.scope}/app-shared'
 
-export default defineModule<AppDependencies>({
+export default defineModule<AppDependencies, AppSlots>({
   id: '${params.name}',
   version: '0.1.0',
 

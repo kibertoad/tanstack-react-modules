@@ -78,6 +78,15 @@ describe('reactive init', { sequential: true }, () => {
     expect(mainTsx).toContain('@acme/app-shared')
     expect(mainTsx).toContain('@acme/billing-module')
     expect(mainTsx).toContain('registry.register(billing)')
+
+    // Verify slots support in generated files
+    const appSharedIndex = readFileSync(resolve(TMP, 'scoped-app/app-shared/src/index.ts'), 'utf-8')
+    expect(appSharedIndex).toContain('AppSlots')
+    expect(appSharedIndex).toContain('CommandDefinition')
+    expect(mainTsx).toContain('AppSlots')
+
+    const moduleIndex = readFileSync(resolve(TMP, 'scoped-app/modules/billing/src/index.ts'), 'utf-8')
+    expect(moduleIndex).toContain('AppSlots')
   })
 })
 

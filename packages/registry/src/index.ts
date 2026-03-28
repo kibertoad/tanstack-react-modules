@@ -13,5 +13,8 @@ export type {
 // Navigation
 export { useNavigation } from './navigation-context.js'
 
+// Slots
+export { useSlots, SlotsContext } from './slots-context.js'
+
 // Error boundary (for custom usage)
 export { ModuleErrorBoundary } from './error-boundary.js'

@@ -1,13 +1,23 @@
 import type { AnyRoute } from '@tanstack/react-router'
 
 /**
+ * Constraint type for slot definitions.
+ * Every slot value must be a readonly array — modules contribute items
+ * and the registry concatenates them across all registered modules.
+ */
+export type SlotMap = Record<string, readonly unknown[]>
+
+/**
  * Describes a reactive module — a self-contained piece of UI that declares
- * its routes, navigation items, shared dependency requirements, and lifecycle hooks.
+ * its routes, navigation items, slot contributions, shared dependency requirements,
+ * and lifecycle hooks.
  *
  * TSharedDependencies is the contract type defined by the host app (e.g. AppDependencies).
+ * TSlots is the slot map type defined by the host app (e.g. AppSlots).
  */
 export interface ReactiveModuleDescriptor<
   TSharedDependencies extends Record<string, any> = Record<string, any>,
+  TSlots extends SlotMap = SlotMap,
 > {
   /** Unique module identifier, e.g. "billing", "user-profile" */
   readonly id: string
@@ -24,6 +34,13 @@ export interface ReactiveModuleDescriptor<
   /** Navigation items this module contributes to the app shell */
   readonly navigation?: readonly NavigationItem[]
 
+  /**
+   * Typed slot contributions this module provides to the shell.
+   * Each key maps to an array of items that get concatenated with
+   * contributions from other modules at resolve() time.
+   */
+  readonly slots?: { readonly [K in keyof TSlots]?: TSlots[K] }
+
   /** Keys from TSharedDependencies that this module needs */
   readonly requires?: readonly (keyof TSharedDependencies)[]
 
@@ -38,8 +55,8 @@ export interface NavigationItem {
   /** Route path to navigate to */
   readonly to: string
 
-  /** Icon identifier (consumed by the host app's icon system) */
-  readonly icon?: string
+  /** Icon — either a string identifier or a React component */
+  readonly icon?: string | React.ComponentType<{ className?: string }>
 
   /** Grouping key for organizing nav items (e.g. "finance", "admin") */
   readonly group?: string
@@ -70,6 +87,7 @@ export interface ModuleLifecycle<
  */
 export interface LazyModuleDescriptor<
   TSharedDependencies extends Record<string, any> = Record<string, any>,
+  TSlots extends SlotMap = SlotMap,
 > {
   /** Unique module identifier */
   readonly id: string
@@ -79,6 +97,6 @@ export interface LazyModuleDescriptor<
 
   /** Dynamic import that returns the full module descriptor */
   readonly load: () => Promise<{
-    default: ReactiveModuleDescriptor<TSharedDependencies>
+    default: ReactiveModuleDescriptor<TSharedDependencies, TSlots>
   }>
 }

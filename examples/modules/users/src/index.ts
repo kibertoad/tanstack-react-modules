@@ -1,8 +1,8 @@
 import { defineModule } from '@reactive/core'
 import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
-import type { AppDependencies } from '@example/app-shared'
+import type { AppDependencies, AppSlots } from '@example/app-shared'
 
-export default defineModule<AppDependencies>({
+export default defineModule<AppDependencies, AppSlots>({
   id: 'users',
   version: '0.1.0',
 
@@ -30,6 +30,12 @@ export default defineModule<AppDependencies>({
   navigation: [
     { label: 'Users', to: '/users', icon: 'users', group: 'admin', order: 20 },
   ],
+
+  slots: {
+    commands: [
+      { id: 'users:list', label: 'View Users', group: 'navigate', onSelect: () => {} },
+    ],
+  },
 
   requires: ['auth', 'httpClient'],
 })

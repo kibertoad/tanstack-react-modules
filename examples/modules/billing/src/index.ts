@@ -1,8 +1,8 @@
 import { defineModule } from '@reactive/core'
 import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
-import type { AppDependencies } from '@example/app-shared'
+import type { AppDependencies, AppSlots } from '@example/app-shared'
 
-export default defineModule<AppDependencies>({
+export default defineModule<AppDependencies, AppSlots>({
   id: 'billing',
   version: '0.1.0',
 
@@ -37,6 +37,13 @@ export default defineModule<AppDependencies>({
     { label: 'Billing', to: '/billing', icon: 'credit-card', group: 'finance', order: 10 },
     { label: 'Invoices', to: '/billing/invoices', group: 'finance', order: 11 },
   ],
+
+  slots: {
+    commands: [
+      { id: 'billing:dashboard', label: 'Open Billing Dashboard', group: 'navigate', onSelect: () => {} },
+      { id: 'billing:invoices', label: 'View Invoices', group: 'navigate', onSelect: () => {} },
+    ],
+  },
 
   requires: ['auth', 'httpClient'],
 })

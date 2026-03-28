@@ -1,27 +1,29 @@
 import { createRouter } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import type { StoreApi } from 'zustand'
-import type { ReactiveModuleDescriptor, LazyModuleDescriptor } from '@reactive/core'
+import type { ReactiveModuleDescriptor, LazyModuleDescriptor, SlotMap } from '@reactive/core'
 import type { RegistryConfig, ApplicationManifest, NavigationManifest } from './types.js'
 import { validateNoDuplicateIds, validateDependencies } from './validation.js'
 import { buildNavigationManifest } from './navigation.js'
+import { buildSlotsManifest } from './slots.js'
 import { buildRouteTree, type RouteBuilderOptions } from './route-builder.js'
 import { createAppComponent } from './app.js'
 
 export interface ReactiveRegistry<
   TSharedDependencies extends Record<string, any>,
+  TSlots extends SlotMap = SlotMap,
 > {
   /** Register an eager module */
-  register(module: ReactiveModuleDescriptor<TSharedDependencies>): void
+  register(module: ReactiveModuleDescriptor<TSharedDependencies, TSlots>): void
 
   /** Register a lazily-loaded module */
-  registerLazy(descriptor: LazyModuleDescriptor<TSharedDependencies>): void
+  registerLazy(descriptor: LazyModuleDescriptor<TSharedDependencies, TSlots>): void
 
   /**
    * Resolve all modules and produce the application manifest.
    * Validates dependencies and builds the route tree.
    */
-  resolve(options?: ResolveOptions): ApplicationManifest<TSharedDependencies>
+  resolve(options?: ResolveOptions): ApplicationManifest<TSharedDependencies, TSlots>
 }
 
 export interface ResolveOptions {
@@ -35,11 +37,12 @@ export interface ResolveOptions {
 
 export function createRegistry<
   TSharedDependencies extends Record<string, any>,
+  TSlots extends SlotMap = SlotMap,
 >(
   config: RegistryConfig<TSharedDependencies>,
-): ReactiveRegistry<TSharedDependencies> {
-  const modules: ReactiveModuleDescriptor<TSharedDependencies>[] = []
-  const lazyModules: LazyModuleDescriptor<TSharedDependencies>[] = []
+): ReactiveRegistry<TSharedDependencies, TSlots> {
+  const modules: ReactiveModuleDescriptor<TSharedDependencies, TSlots>[] = []
+  const lazyModules: LazyModuleDescriptor<TSharedDependencies, TSlots>[] = []
   let resolved = false
 
   // Collect all available dependency keys from stores and services
@@ -101,8 +104,9 @@ export function createRegistry<
         defaultPreload: 'intent',
       })
 
-      // Build navigation
+      // Build navigation and slots
       const navigation: NavigationManifest = buildNavigationManifest(mods)
+      const slots = buildSlotsManifest<TSlots>(modules)
 
       // Build stores and services maps for the context
       const stores: Record<string, StoreApi<unknown>> = {}
@@ -129,9 +133,9 @@ export function createRegistry<
       })
 
       // Create App component
-      const App = createAppComponent({ router, queryClient, stores, services, navigation })
+      const App = createAppComponent({ router, queryClient, stores, services, navigation, slots })
 
-      return { App, router, queryClient, navigation }
+      return { App, router, queryClient, navigation, slots }
     },
   }
 }
