@@ -1,6 +1,6 @@
 {
   "name": "@tanstack-react-modules/runtime",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kibertoad/tanstack-react-modules.git",
@@ -27,7 +27,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@tanstack-react-modules/core": "^1.1.0"
+    "@tanstack-react-modules/core": "^1.2.0"
   },
   "devDependencies": {
     "@tanstack/react-router": "^1.120.0",
