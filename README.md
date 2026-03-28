@@ -998,14 +998,17 @@ function WorkspaceTab({ moduleId, context }: { moduleId: string; context: unknow
 }
 ```
 
-### When to use meta vs navigation vs slots
+### When to use meta vs navigation vs slots vs commands
 
 | Data | Mechanism | Why |
 |---|---|---|
 | Sidebar links | `navigation` | Framework builds NavigationManifest with grouping/sorting |
-| Commands, tab types, badges | `slots` | Aggregated arrays from all modules |
-| Module identity for directory/catalog | `meta` | Per-module descriptive data for discovery UIs |
+| Module-specific self-executing actions | `slots.commands` | "Create Invoice", "Export Report" — the module owns the handler |
+| Tab types, badges, other aggregated data | `slots` | Aggregated arrays from all modules |
+| Module identity for directory/catalog/command palette | `meta` | Per-module descriptive data for discovery UIs |
 | Route-specific panel/header content | `staticData` (zones) | Changes per route within a module |
+
+**Key rule:** Every command must have an `onSelect` handler — the module owns its actions. Don't use `slots.commands` for things the shell handles: journey launching comes from `meta` (discovered via `useModules()`), navigation comes from `navigation` entries, and system launching comes from domain-specific slots. If the module can't execute the action itself, it belongs in a different mechanism.
 
 ### Accessing modules outside the manifest
 
@@ -1020,9 +1023,47 @@ const { App, modules } = registry.resolve({ ... })
 
 ## Cross-Module Communication
 
-Modules communicate through **shared Zustand stores** (for reactive state) and **React Query cache invalidation** (for server data). No custom event bus is needed — native React patterns handle all cross-module coordination.
+Modules communicate through **shared Zustand stores** (for reactive state), **React Query cache invalidation** (for server data), and **shared services** (for imperative actions). No custom event bus is needed.
 
-### Via shared stores
+### Via shared services (imperative actions)
+
+When modules need to trigger actions that cross module boundaries, define a service interface in `AppDependencies`. The shell provides the implementation, modules consume it via `useService`:
+
+```typescript
+// app-shared/src/index.ts
+export interface NotificationService {
+  show: (message: string, severity?: 'info' | 'warning' | 'error') => void
+  dismiss: (id: string) => void
+}
+
+export interface AppDependencies {
+  auth: AuthStore
+  httpClient: Wretch
+  notifications: NotificationService
+}
+```
+
+```typescript
+// Inside any module component
+import { useService } from '@myorg/app-shared'
+
+function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
+  const notifications = useService('notifications')
+
+  async function handlePayment() {
+    await processPayment(invoiceId)
+    notifications.show('Payment processed successfully')
+  }
+
+  return <button onClick={handlePayment}>Pay Invoice</button>
+}
+```
+
+The service pattern works for any imperative cross-cutting concern: notifications, analytics, feature flags, modals. Define the interface in app-shared, implement in the shell, consume via `useService`.
+
+**Rule of thumb:** Zustand stores hold **reactive state** (what's selected, what's visible, user data). Services provide **imperative actions** (show a notification, track an event, send a message). Don't put action methods on stores.
+
+### Via shared stores (reactive state)
 
 When one module changes a Zustand store, all components in other modules that subscribe to that store automatically re-render:
 

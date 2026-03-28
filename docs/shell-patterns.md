@@ -156,9 +156,18 @@ function Workspace() {
 
 ## Command Palette Pattern
 
-A command palette collects actions from all modules and presents them in a searchable overlay.
+A command palette aggregates entries from multiple framework sources into a single searchable overlay. Each source serves a distinct purpose:
+
+| Source | What it provides | Example |
+|---|---|---|
+| `useSlots().systems` | Iframe-based external systems | "Open Salesforce" |
+| `useModules()` + `getModuleMeta()` | Journey/component modules | "Set up Direct Debit" |
+| `useSlots().commands` | Module-specific actions | "Create New Invoice" |
+| `useNavigation()` | Route-based navigation | "Go to Billing Dashboard" |
 
 ### Define the command slot
+
+Commands are always self-executing — the module provides `onSelect` and the shell calls it:
 
 ```typescript
 // app-shared/src/index.ts
@@ -176,47 +185,148 @@ export interface AppSlots {
 }
 ```
 
-### Modules contribute commands
+### When to use commands vs other mechanisms
+
+`slots.commands` is for actions the module can execute itself. Don't use it for:
+- **Journey launching** — use `meta` instead, the shell discovers journeys via `useModules()`
+- **Navigation** — use `navigation` on the module descriptor
+- **System launching** — use a domain-specific slot (e.g. `slots.systems`)
 
 ```typescript
 export default defineModule<AppDependencies, AppSlots>({
   id: 'billing',
   slots: {
     commands: [
-      { id: 'billing:dashboard', label: 'Open Billing Dashboard', group: 'navigate', onSelect: () => {} },
-      { id: 'billing:new-invoice', label: 'Create New Invoice', group: 'actions', onSelect: () => {} },
+      // Module owns the action — it knows what to do
+      { id: 'billing:new-invoice', label: 'Create New Invoice', group: 'actions',
+        onSelect: () => { /* open modal, navigate, etc. */ } },
     ],
   },
-  // ...
+  // Sidebar link — framework builds NavigationManifest
+  navigation: [{ label: 'Billing', to: '/billing', group: 'finance' }],
+  // Discovery in directory/command palette — shell reads via useModules()
+  meta: { name: 'Billing', category: 'finance', icon: 'CreditCard' },
 })
 ```
 
-The `onSelect` callbacks can use the router or shared stores to trigger navigation or state changes. For router access, define `onSelect` lazily inside a component or pass the router via a shared service.
+### How modules trigger workspace actions
+
+Modules should never import store instances directly. Instead, expose a workspace actions service via `AppDependencies`:
+
+```typescript
+// app-shared/src/index.ts
+export interface WorkspaceActions {
+  openModuleTab: (moduleId: string) => void
+  openSectionTab: (sectionId: string) => void
+}
+
+export interface AppDependencies {
+  // ...stores and other services...
+  workspace: WorkspaceActions
+}
+```
+
+The shell provides the implementation (wiring to its internal workspace store). Modules only know the interface:
+
+```typescript
+import { useService } from '@myorg/app-shared'
+
+function InvoiceActions({ invoiceId }: { invoiceId: string }) {
+  const workspace = useService('workspace')
+
+  return (
+    <button onClick={() => workspace.openModuleTab('payments')}>
+      Pay Invoice
+    </button>
+  )
+}
+```
+
+This applies to any app-specific imperative action. A workspace app might expose `openModuleTab` and `openSectionTab`. A CMS might expose `openEditor` and `publishDraft`. The pattern is the same: define the interface in app-shared, implement in the shell, consume via `useService`.
+
+### What about `onSelect` handlers that need shell context?
+
+`slots.commands` is for actions the module owns end-to-end: opening a module-internal modal, calling an API, exporting data. If a command needs shell actions, the module can capture `deps.shell` from `lifecycle.onRegister`:
+
+```typescript
+let workspace: WorkspaceActions
+
+export default defineModule<AppDependencies, AppSlots>({
+  id: 'billing',
+  lifecycle: {
+    onRegister(deps) {
+      workspace = deps.workspace
+    },
+  },
+  slots: {
+    commands: [{
+      id: 'billing:quick-payment',
+      label: 'Quick Payment',
+      group: 'actions',
+      onSelect: () => workspace.openModuleTab('payment-wizard'),
+    }],
+  },
+})
+```
+
+For most cases, prefer using `useService('shell')` inside a component over `onRegister` capture. The command palette, directory page, and workspace rendering are all handled by the shell via `useModules()` and `meta` — modules rarely need to open tabs programmatically from `onSelect`.
+
+### Decision guide for module-to-shell actions
+
+| "I want to..." | Use |
+|---|---|
+| Appear in the directory/command palette | `meta` — shell discovers via `useModules()` |
+| Add a sidebar link | `navigation` on module descriptor |
+| Open another module's tab from a component | `useService('workspace').openModuleTab(id)` |
+| Navigate to a section | `useService('workspace').openSectionTab(id)` |
+| Contribute a self-contained action | `slots.commands` with `onSelect` |
 
 ### Shell renders the palette
 
+The shell aggregates all sources. Journey modules appear via `useModules()`, not `slots.commands`:
+
 ```typescript
-import { useSlots } from '@reactive-framework/registry'
-import type { AppSlots } from '@myorg/app-shared'
+import { useSlots, useModules, getModuleMeta, useNavigation } from '@reactive-framework/registry'
+import type { AppSlots, JourneyMeta } from '@myorg/app-shared'
 
 function CommandPalette({ search }: { search: string }) {
-  const { commands } = useSlots<AppSlots>()
+  const { systems, commands } = useSlots<AppSlots>()
+  const modules = useModules()
+  const navigation = useNavigation()
 
-  const filtered = commands.filter((cmd) =>
-    cmd.label.toLowerCase().includes(search.toLowerCase()),
-  )
+  // Journey modules from catalog
+  const journeys = modules
+    .filter((m) => m.component && getModuleMeta<JourneyMeta>(m)?.category)
+    .map((m) => ({ entry: m, meta: getModuleMeta<JourneyMeta>(m)! }))
 
-  const groups = Map.groupBy(filtered, (cmd) => cmd.group ?? 'other')
+  // Module-contributed commands (self-executing actions)
+  const grouped = Map.groupBy(commands, (cmd) => cmd.group ?? 'other')
 
   return (
     <div>
-      {[...groups.entries()].map(([group, items]) => (
+      {/* Systems from slots */}
+      {systems.map((sys) => (
+        <button key={sys.id} onClick={() => openSystem(sys)}>{sys.name}</button>
+      ))}
+
+      {/* Journey modules from catalog */}
+      {journeys.map(({ entry, meta }) => (
+        <button key={entry.id} onClick={() => openJourney(entry, meta)}>{meta.name}</button>
+      ))}
+
+      {/* Module-contributed actions */}
+      {[...grouped.entries()].map(([group, items]) => (
         <div key={group}>
           <h3>{group}</h3>
           {items.map((cmd) => (
             <button key={cmd.id} onClick={cmd.onSelect}>{cmd.label}</button>
           ))}
         </div>
+      ))}
+
+      {/* Navigation from module descriptors */}
+      {navigation.items.map((item) => (
+        <button key={item.to} onClick={() => navigate(item.to)}>{item.label}</button>
       ))}
     </div>
   )
@@ -305,7 +415,7 @@ Use for things that don't change at runtime — what tab types exist, what comma
 ```typescript
 // Module declares once at registration
 slots: {
-  commands: [{ id: 'billing:open', label: 'Open Billing', onSelect: () => {} }],
+  commands: [{ id: 'billing:export', label: 'Export Report', onSelect: () => downloadReport() }],
   tabTypes: [{ type: 'invoice', component: InvoiceTab }],
 }
 ```
