@@ -16,6 +16,7 @@ export { useNavigation } from "./navigation-context.js";
 
 // Slots
 export { useSlots, SlotsContext } from "./slots-context.js";
+export { buildSlotsManifest } from "./slots.js";
 
 // Zones
 export { useZones } from "./zones.js";

@@ -132,8 +132,15 @@ export interface ReactiveModuleDescriptor<
    */
   readonly meta?: Readonly<TMeta>;
 
-  /** Keys from TSharedDependencies that this module needs */
+  /** Keys from TSharedDependencies that this module needs. Throws at resolve() if missing. */
   readonly requires?: readonly (keyof TSharedDependencies)[];
+
+  /**
+   * Keys from TSharedDependencies that this module can use but doesn't strictly need.
+   * Logs a warning at resolve() if missing, but does not throw.
+   * Access optional deps via useOptional() which returns null if not registered.
+   */
+  readonly optionalRequires?: readonly (keyof TSharedDependencies)[];
 
   /** Lifecycle hooks */
   readonly lifecycle?: ModuleLifecycle<TSharedDependencies>;

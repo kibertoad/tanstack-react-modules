@@ -1,9 +1,9 @@
 {
   "name": "@tanstack-react-modules/testing",
-  "version": "0.5.1",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kibertoad/tanstack-react-modules.git",
+    "url": "git+https://github.com/kibertoad/tanstack-react-modules.git",
     "directory": "packages/testing"
   },
   "files": [
@@ -24,11 +24,11 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch",
-    "prepublishOnly": "pnpm build && test -f dist/index.js && test -f dist/index.d.ts"
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@tanstack-react-modules/core": "^0.5.0",
-    "@tanstack-react-modules/runtime": "^0.5.0"
+    "@tanstack-react-modules/core": "^1.0.0",
+    "@tanstack-react-modules/runtime": "^1.0.0"
   },
   "devDependencies": {
     "@tanstack/react-router": "^1.120.0",

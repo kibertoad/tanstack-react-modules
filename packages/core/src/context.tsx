@@ -52,9 +52,15 @@ export function createSharedHooks<TSharedDependencies extends Record<string, any
     key: K,
     selector?: (state: any) => unknown,
   ): unknown {
-    const { stores } = useSharedDependencies();
+    const { stores, services } = useSharedDependencies();
     const store = stores[key];
     if (!store) {
+      if (services[key]) {
+        throw new Error(
+          `[@tanstack-react-modules/core] "${key}" is registered as a service, not a store. ` +
+            `Use useService('${key}') instead.`,
+        );
+      }
       throw new Error(
         `[@tanstack-react-modules/core] Store "${key}" is not registered. ` +
           `Available stores: ${Object.keys(stores).join(", ") || "(none)"}`,
@@ -70,9 +76,15 @@ export function createSharedHooks<TSharedDependencies extends Record<string, any
   function useService<K extends keyof TSharedDependencies & string>(
     key: K,
   ): TSharedDependencies[K] {
-    const { services } = useSharedDependencies();
+    const { stores, services } = useSharedDependencies();
     const service = services[key];
     if (!service) {
+      if (stores[key]) {
+        throw new Error(
+          `[@tanstack-react-modules/core] "${key}" is registered as a store, not a service. ` +
+            `Use useStore('${key}') instead.`,
+        );
+      }
       throw new Error(
         `[@tanstack-react-modules/core] Service "${key}" is not registered. ` +
           `Available services: ${Object.keys(services).join(", ") || "(none)"}`,
@@ -81,5 +93,29 @@ export function createSharedHooks<TSharedDependencies extends Record<string, any
     return service as TSharedDependencies[K];
   }
 
-  return { useStore, useService };
+  /**
+   * Returns the dependency value if registered (as either a store snapshot or service),
+   * or null if not registered. Use for optional dependencies that the module can
+   * function without.
+   *
+   * @example
+   * const analytics = useOptional('analytics')
+   * analytics?.track('journey_started')
+   */
+  function useOptional<K extends keyof TSharedDependencies & string>(
+    key: K,
+  ): TSharedDependencies[K] | null {
+    const { stores, services } = useSharedDependencies();
+    const store = stores[key];
+    if (store) {
+      return useZustandStore(store) as TSharedDependencies[K];
+    }
+    const service = services[key];
+    if (service) {
+      return service as TSharedDependencies[K];
+    }
+    return null;
+  }
+
+  return { useStore, useService, useOptional };
 }

@@ -28,14 +28,25 @@ export function validateDependencies(
   availableKeys: Set<string>,
 ): void {
   for (const mod of modules) {
-    if (!mod.requires) continue;
-    const missing = mod.requires.filter((key) => !availableKeys.has(key as string));
-    if (missing.length > 0) {
-      throw new Error(
-        `[@tanstack-react-modules/runtime] Module "${mod.id}" requires dependencies not provided by the registry: ` +
-          `${missing.map(String).join(", ")}. ` +
-          `Available: ${[...availableKeys].join(", ") || "(none)"}`,
-      );
+    if (mod.requires) {
+      const missing = mod.requires.filter((key) => !availableKeys.has(key as string));
+      if (missing.length > 0) {
+        throw new Error(
+          `[@tanstack-react-modules/runtime] Module "${mod.id}" requires dependencies not provided by the registry: ` +
+            `${missing.map(String).join(", ")}. ` +
+            `Available: ${[...availableKeys].join(", ") || "(none)"}`,
+        );
+      }
+    }
+
+    if (mod.optionalRequires) {
+      const missing = mod.optionalRequires.filter((key) => !availableKeys.has(key as string));
+      if (missing.length > 0) {
+        console.warn(
+          `[@tanstack-react-modules/runtime] Module "${mod.id}" has optional dependencies not provided: ` +
+            `${missing.map(String).join(", ")}. The module will still load but may have reduced functionality.`,
+        );
+      }
     }
   }
 }

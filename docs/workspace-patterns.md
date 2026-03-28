@@ -113,7 +113,7 @@ export interface JourneyMeta {
 
 // ---- Typed hooks ----
 
-export const { useStore, useService } = createSharedHooks<AppDependencies>();
+export const { useStore, useService, useOptional } = createSharedHooks<AppDependencies>();
 ```
 
 ## Step 2: Workspace tab state

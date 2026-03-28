@@ -142,6 +142,30 @@ describe("createRegistry", () => {
     );
   });
 
+  it("warns on missing optional dependencies without throwing", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const registry = createRegistry<TestDeps, TestSlots>({
+      stores: { auth: createTestAuthStore() },
+      services: {},
+    });
+
+    registry.register({
+      id: "test",
+      version: "1.0.0",
+      optionalRequires: ["api"] as any,
+    });
+
+    // Should NOT throw
+    const { App } = registry.resolve();
+    expect(App).toBeDefined();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('optional dependencies not provided: api'),
+    );
+
+    warnSpy.mockRestore();
+  });
+
   it("prevents calling resolve twice", () => {
     const registry = createRegistry<TestDeps, TestSlots>({
       stores: { auth: createTestAuthStore() },

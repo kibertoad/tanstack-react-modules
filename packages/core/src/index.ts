@@ -12,6 +12,7 @@ export type {
 
 // Module definition
 export { defineModule } from "./define-module.js";
+export { defineSlots } from "./define-slots.js";
 
 // Shared dependencies context + hooks
 export { SharedDependenciesContext, createSharedHooks } from "./context.js";

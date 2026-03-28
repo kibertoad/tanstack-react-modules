@@ -236,8 +236,8 @@ importers:
   packages/runtime:
     dependencies:
       '@tanstack-react-modules/core':
-        specifier: ^0.5.0
-        version: 0.5.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))
+        specifier: ^1.0.0
+        version: 1.0.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))
     devDependencies:
       '@tanstack/react-router':
         specifier: ^1.120.0
@@ -270,11 +270,11 @@ importers:
   packages/testing:
     dependencies:
       '@tanstack-react-modules/core':
-        specifier: ^0.5.0
-        version: 0.5.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))
+        specifier: ^1.0.0
+        version: 1.0.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))
       '@tanstack-react-modules/runtime':
-        specifier: ^0.5.0
-        version: 0.5.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))
+        specifier: ^1.0.0
+        version: 1.0.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))
     devDependencies:
       '@tanstack/react-router':
         specifier: ^1.120.0
@@ -1145,15 +1145,15 @@ packages:
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
-  '@tanstack-react-modules/core@0.5.0':
-    resolution: {integrity: sha512-/nPifjKxlAOvxLIwKvv/HfZi4RqiosRqwq/5SNEB5ygFKHo66B9bXr2DZ2zlnJuUaor3onGMw3+mli6Hxr1OrA==}
+  '@tanstack-react-modules/core@1.0.0':
+    resolution: {integrity: sha512-v2iSfZ8jkmZ926Xdk6IrX/3LQRf113jDYBGvxmWB/HUO5wxEdJSlS3Prs7D7QRn5AauG6n1+ReZMtjzLaGQTgQ==}
     peerDependencies:
       '@tanstack/react-router': ^1.120.0
       react: ^19.0.0
       zustand: ^5.0.0
 
-  '@tanstack-react-modules/runtime@0.5.0':
-    resolution: {integrity: sha512-S4ubexdu1BxaDBdB3McCiOfMnidfWohSURkrdFsEzv1XFkI7FC4NJu7toLvgJfVGofNVVJQYfZ3Q4BGBebWm9g==}
+  '@tanstack-react-modules/runtime@1.0.0':
+    resolution: {integrity: sha512-cQcZ5Glk1kD+ZltXhq3mSaIJEa6JuGciuP2mfWGoCC6ifIMdgDn7dU/rO++yDX0mVtuen5Ux26TCWfxY5cjDLw==}
     peerDependencies:
       '@tanstack/react-router': ^1.120.0
       react: ^19.0.0
@@ -2632,15 +2632,15 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@tanstack-react-modules/core@0.5.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))':
+  '@tanstack-react-modules/core@1.0.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))':
     dependencies:
       '@tanstack/react-router': 1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react: 19.2.4
       zustand: 5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
 
-  '@tanstack-react-modules/runtime@0.5.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))':
+  '@tanstack-react-modules/runtime@1.0.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))':
     dependencies:
-      '@tanstack-react-modules/core': 0.5.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))
+      '@tanstack-react-modules/core': 1.0.0(@tanstack/react-router@1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(zustand@5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)))
       '@tanstack/react-router': 1.168.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)

@@ -342,6 +342,51 @@ Deeper routes override shallower ones. A billing section root can set a default 
 | Does it come from an API?                          | React Query                                                              |
 | Does it need to trigger re-renders across modules? | Shared store (Zustand subscriptions) or React Query (cache invalidation) |
 
+## Headless Modules with defineSlots
+
+For modules that only contribute slot data (no component, no routes), use `defineSlots` instead of `defineModule` to reduce boilerplate:
+
+```typescript
+import { defineSlots } from '@tanstack-react-modules/core'
+import type { AppDependencies, AppSlots } from '@myorg/app-shared'
+
+export default defineSlots<AppDependencies, AppSlots>('external-systems', {
+  systems: [
+    { id: 'salesforce', name: 'Salesforce', iframeUrl: '...', icon: 'Building2', category: 'crm' },
+  ],
+})
+```
+
+This is syntactic sugar — the registry sees a normal `ReactiveModuleDescriptor` with `version: '0.0.0'` and no component or lifecycle. Use `defineModule` when the module has any of: `component`, `createRoutes`, `meta`, `zones`, `requires`, or `lifecycle`.
+
+## Optional Dependencies
+
+Modules can declare dependencies they can function without using `optionalRequires`. Missing optional deps log a warning at resolve time instead of throwing:
+
+```typescript
+export default defineModule<AppDependencies, AppSlots>({
+  id: 'billing',
+  version: '0.1.0',
+  requires: ['httpClient'],            // hard requirement — throws if missing
+  optionalRequires: ['analytics'],      // soft requirement — warns if missing
+  // ...
+})
+```
+
+In components, use `useOptional` to safely access deps that may not be registered:
+
+```typescript
+import { useOptional } from '@myorg/app-shared'
+
+function BillingDashboard() {
+  const analytics = useOptional('analytics')
+  analytics?.track('billing_viewed')  // no-op if analytics not registered
+  // ...
+}
+```
+
+`useOptional` checks both stores and services. Returns `null` if the key isn't registered in either bucket.
+
 ## Cross-Store Coordination
 
 When you split a monolith Zustand store into focused stores, you'll often need one store to react to changes in another. Use Zustand's built-in `subscribe` API — it's the idiomatic pattern and requires no framework involvement.
