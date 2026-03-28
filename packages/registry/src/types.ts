@@ -55,6 +55,8 @@ export interface ModuleEntry {
   readonly meta?: Readonly<Record<string, unknown>>
   /** A React component the shell can render outside of routes */
   readonly component?: React.ComponentType<any>
+  /** Zone components contributed when this module is active in a workspace tab */
+  readonly zones?: Readonly<Record<string, React.ComponentType<any>>>
 }
 
 export interface ApplicationManifest<

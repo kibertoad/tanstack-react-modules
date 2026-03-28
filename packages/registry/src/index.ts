@@ -19,6 +19,7 @@ export { useSlots, SlotsContext } from './slots-context.js'
 
 // Zones
 export { useZones } from './zones.js'
+export { useActiveZones } from './active-zones.js'
 
 // Modules
 export { useModules, getModuleMeta } from './modules-context.js'

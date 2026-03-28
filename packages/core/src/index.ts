@@ -7,6 +7,7 @@ export type {
   SlotMap,
   SlotMapOf,
   ZoneMap,
+  ZoneMapOf,
 } from './types.js'
 
 // Module definition

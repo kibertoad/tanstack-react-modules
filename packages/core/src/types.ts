@@ -42,6 +42,18 @@ export type SlotMapOf<T> = { [K in keyof T]: readonly unknown[] }
 export type ZoneMap = Record<string, React.ComponentType<any> | undefined>
 
 /**
+ * F-bounded constraint that accepts interfaces without index signatures.
+ * Use this as a generic bound for useZones<T>:
+ *
+ * ```ts
+ * function useZones<T extends ZoneMapOf<T>>(): Partial<T> {}
+ * ```
+ *
+ * This accepts `interface AppZones { contextualPanel?: ComponentType }` directly.
+ */
+export type ZoneMapOf<T> = { [K in keyof T]: React.ComponentType<any> | undefined }
+
+/**
  * Describes a reactive module — a self-contained piece of UI that declares
  * its routes, navigation items, slot contributions, shared dependency requirements,
  * and lifecycle hooks.
@@ -90,6 +102,20 @@ export interface ReactiveModuleDescriptor<
    * Route-based modules use createRoutes instead (or both).
    */
   readonly component?: React.ComponentType<any>
+
+  /**
+   * Zone components this module contributes to the shell when it is active.
+   * Used by workspace-style apps where the active module is a tab rather than
+   * a route — the shell reads zones from the active module's descriptor via
+   * `useActiveZones(activeModuleId)`.
+   *
+   * Keys match the app's zone names (e.g. "contextualPanel", "headerActions").
+   * Values are React components rendered by the shell in the corresponding
+   * layout region.
+   *
+   * Route-based modules use `staticData` on their routes instead.
+   */
+  readonly zones?: Readonly<Record<string, React.ComponentType<any>>>
 
   /**
    * Catalog metadata — descriptive information the shell uses for discovery

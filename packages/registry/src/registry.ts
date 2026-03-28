@@ -210,6 +210,7 @@ export function createRegistry<
         version: mod.version,
         meta: mod.meta,
         component: mod.component,
+        zones: mod.zones,
       }))
 
       // Build stores and services maps for the context

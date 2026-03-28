@@ -70,6 +70,7 @@ function buildModuleEntry(module: ReactiveModuleDescriptor): ModuleEntry {
     version: module.version,
     meta: module.meta,
     component: module.component,
+    zones: module.zones,
   }
 }
 

@@ -18,7 +18,8 @@ Plug-and-play modular framework for React. Build frontend features as independen
 - [Slots](#slots)
 - [Zones](#zones)
 - [Module Catalog](#module-catalog)
-- [Shell Patterns](docs/shell-patterns.md) (separate guide)
+- [Shell Patterns](docs/shell-patterns.md) — layout grids, command palettes, auth guards, cross-store coordination
+- [Workspace Patterns](docs/workspace-patterns.md) — tabbed workspaces, component-only modules, descriptor zones
 - [Cross-Module Communication](#cross-module-communication)
 - [Scoped Stores](#scoped-stores)
 - [React Compiler](#react-compiler)
@@ -704,15 +705,15 @@ The pattern mirrors navigation: the shell defines what slots exist (via `AppSlot
 ```typescript
 // app-shared/src/index.ts
 
-export interface CommandDefinition {
+export interface BadgeDefinition {
   readonly id: string
   readonly label: string
-  readonly group?: string
-  readonly onSelect: () => void
+  readonly color: 'info' | 'warning' | 'error'
+  readonly count: () => number
 }
 
 export interface AppSlots {
-  commands: CommandDefinition[]
+  badges: BadgeDefinition[]
 }
 ```
 
@@ -730,8 +731,9 @@ export default defineModule<AppDependencies, AppSlots>({
   createRoutes: (parentRoute) => { /* ... */ },
 
   slots: {
-    commands: [
-      { id: 'billing:dashboard', label: 'Open Billing', group: 'navigate', onSelect: () => {} },
+    badges: [
+      { id: 'billing:overdue', label: 'Overdue', color: 'error',
+        count: () => overdueInvoicesStore.getState().count },
     ],
   },
 
@@ -747,18 +749,17 @@ Modules only contribute to the slots they care about — `slots` is `Partial<App
 import { useSlots } from '@reactive-framework/registry'
 import type { AppSlots } from '@myorg/app-shared'
 
-function CommandPalette() {
-  const slots = useSlots<AppSlots>()
-  const commands = slots.commands ?? []
+function StatusBar() {
+  const { badges } = useSlots<AppSlots>()
 
   return (
-    <ul>
-      {commands.map((cmd) => (
-        <li key={cmd.id}>
-          <button onClick={cmd.onSelect}>{cmd.label}</button>
-        </li>
+    <div>
+      {badges.map((badge) => (
+        <span key={badge.id} className={badge.color}>
+          {badge.label}: {badge.count()}
+        </span>
       ))}
-    </ul>
+    </div>
   )
 }
 ```
@@ -789,25 +790,27 @@ Lazy modules (registered via `registerLazy()`) cannot contribute slots at regist
 | Runtime state that changes over time (active tab, notifications, user preferences) | **Shared Zustand stores** |
 | Server data (API responses, cached queries) | **React Query** |
 
-For a detailed guide on building complex shell applications with slots and zones, see [Shell Patterns](docs/shell-patterns.md).
+For a detailed guide on building shell applications, see [Shell Patterns](docs/shell-patterns.md). For workspace-style apps with tabbed workspaces and component-only modules, see [Workspace Patterns](docs/workspace-patterns.md).
 
 ---
 
 ## Zones
 
-Zones let the **currently active route** contribute UI components to named layout regions in the shell — a detail panel, header actions, a contextual sidebar. Unlike slots (which aggregate data from *all* modules at registration time), zones are per-route and change as the user navigates.
+Zones let the **currently active content** contribute UI components to named layout regions in the shell — a detail panel, header actions, a contextual sidebar. Unlike slots (which aggregate data from *all* modules at registration time), zones change based on what the user is currently viewing.
 
-Zones are built on TanStack Router's `staticData` — no custom context, no portals, no event bus.
+Zones have two contribution paths:
+- **Route-based modules** set zones via TanStack Router's `staticData` — different routes contribute different zone content as the user navigates.
+- **Tab-based modules** declare zones on their module descriptor — the shell reads them when the module's workspace tab is active.
 
 ### Slots vs Zones
 
 | | Slots | Zones |
 |---|---|---|
-| **Source** | All registered modules | The currently matched route |
-| **When resolved** | Once at `resolve()` time | On every navigation |
+| **Source** | All registered modules | Active route or active module tab |
+| **When resolved** | Once at `resolve()` time | On every navigation or tab switch |
 | **Value type** | Arrays (concatenated) | Single React component |
 | **Use case** | Commands, tab types, badges | Detail panel, header actions, sidebar |
-| **Hook** | `useSlots<AppSlots>()` | `useZones<AppZones>()` |
+| **Hook** | `useSlots<AppSlots>()` | `useActiveZones<AppZones>(moduleId?)` |
 
 ### Defining zones in app-shared
 
@@ -844,14 +847,38 @@ const userDetail = createRoute({
 
 Routes that don't set `staticData` simply contribute no zones — the shell renders nothing in those regions.
 
-### Reading zones in the shell
+### Setting zones on a module descriptor
+
+Tab-based modules (rendered in workspace tabs rather than via routes) declare zones directly on the descriptor:
 
 ```typescript
-import { useZones } from '@reactive-framework/registry'
+import { DDSetupContextualPanel } from './DDSetupContextualPanel.js'
+
+export default defineModule<AppDependencies, AppSlots, JourneyMeta>({
+  id: 'dd-setup',
+  version: '0.1.0',
+  component: lazy(() => import('./DDSetupJourney.js')),
+  zones: {
+    contextualPanel: DDSetupContextualPanel,
+  },
+  meta: { name: 'Set up Direct Debit', category: 'payments', icon: 'CreditCard' },
+})
+```
+
+The shell reads these zones via `useActiveZones(activeModuleId)` when the module's tab is active.
+
+### Reading zones in the shell
+
+Use `useActiveZones` to get a unified view of zones from both routes and the active module tab:
+
+```typescript
+import { useActiveZones } from '@reactive-framework/registry'
 import type { AppZones } from '@myorg/app-shared'
 
 function Layout() {
-  const zones = useZones<AppZones>()
+  // activeModuleId comes from the shell's tab state — null when no module tab is active
+  const activeModuleId = getActiveTab()?.moduleId ?? null
+  const zones = useActiveZones<AppZones>(activeModuleId)
   const HeaderActions = zones.headerActions
   const DetailPanel = zones.detailPanel
 
@@ -871,10 +898,17 @@ function Layout() {
 
 ### How it works
 
+**Route zones (`useZones`):**
 1. `useZones()` calls TanStack Router's `useMatches()` with a `select` function.
 2. The select function walks matched routes from root to leaf, merging `staticData` entries.
 3. **Deepest match wins** — a child route can override a parent route's zone. A parent can set a default sidebar, and a specific detail page can replace it.
 4. The shell conditionally renders zone components. If a zone is `undefined`, nothing renders.
+
+**Active module zones (`useActiveZones`):**
+1. `useActiveZones(moduleId)` first collects route zones via `useZones()`.
+2. If `moduleId` is provided, it looks up the module's `zones` field from `useModules()`.
+3. Module zones are merged on top of route zones — **active module wins** for the same key.
+4. When `moduleId` is `null` or `undefined`, only route zones are returned.
 
 ### Performance
 
@@ -902,9 +936,13 @@ With this augmentation, every `createRoute({ staticData: ... })` call across all
 
 Add `@tanstack/router-core` as a peer dependency of app-shared so the augmentation resolves.
 
-### Zones are not on the module descriptor
+### Route zones vs descriptor zones
 
-Zones live on routes, not on the module descriptor. This is intentional — a module with 5 routes might have different zone content for each one. The user detail page shows a user sidebar; the user list page shows nothing. This per-route granularity wouldn't work at the module level.
+**Route-based modules** set zones on individual routes via `staticData`. A module with 5 routes can have different zone content for each — the user detail page shows a sidebar, the user list page shows nothing. This per-route granularity is the right model for route-based apps.
+
+**Tab-based modules** (component-only, rendered in workspace tabs) use the `zones` field on the module descriptor. Since these modules don't own routes, they can't use `staticData`. The descriptor's zones apply whenever the module's tab is active.
+
+Use `useActiveZones(activeModuleId)` to unify both — one code path in the shell regardless of how the active content is rendered.
 
 ---
 
@@ -912,7 +950,7 @@ Zones live on routes, not on the module descriptor. This is intentional — a mo
 
 Modules can describe themselves with `meta` — a plain object with catalog metadata like name, description, icon, and category. The shell uses this for discovery UIs: directory pages, search, card grids.
 
-Modules can also export a `component` — a React component the shell renders outside of routes, in tabs, panels, or modals. This is how workspace-style apps render modules without tying them to URL routes.
+Modules can also export a `component` — a React component the shell renders outside of routes, in tabs, panels, or modals. This is how workspace-style apps render modules without tying them to URL routes. See [Workspace Patterns](docs/workspace-patterns.md) for the full pattern.
 
 ### Declaring meta and component
 
@@ -1007,6 +1045,7 @@ function WorkspaceTab({ moduleId, context }: { moduleId: string; context: unknow
 | Tab types, badges, other aggregated data | `slots` | Aggregated arrays from all modules |
 | Module identity for directory/catalog/command palette | `meta` | Per-module descriptive data for discovery UIs |
 | Route-specific panel/header content | `staticData` (zones) | Changes per route within a module |
+| Tab-active panel/header content | Descriptor `zones` | Shown when the module's tab is active |
 
 **Key rule:** Every command must have an `onSelect` handler — the module owns its actions. Don't use `slots.commands` for things the shell handles: journey launching comes from `meta` (discovered via `useModules()`), navigation comes from `navigation` entries, and system launching comes from domain-specific slots. If the module can't execute the action itself, it belongs in a different mechanism.
 
@@ -1540,6 +1579,7 @@ npx playwright test
 | `ModuleLifecycle<T>` | Type | Lifecycle hooks shape. |
 | `SlotMap` | Type | Constraint type for slot definitions: `Record<string, readonly unknown[]>`. |
 | `ZoneMap` | Type | Constraint type for zone definitions: `Record<string, ComponentType \| undefined>`. |
+| `ZoneMapOf<T>` | Type | F-bounded constraint for zone types — accepts interfaces without index signatures. |
 
 ### @reactive-framework/registry
 
@@ -1549,13 +1589,14 @@ npx playwright test
 | `useNavigation()` | Hook | Access the navigation manifest from any component inside `<App />`. |
 | `useSlots<S>()` | Hook | Access collected slot contributions from all modules. |
 | `useZones<Z>()` | Hook | Access zone components from the currently matched route's `staticData`. |
+| `useActiveZones<Z>(moduleId?)` | Hook | Merge route zones with the active module's descriptor zones. Module wins for same key. |
 | `useModules()` | Hook | Access registered module summaries (id, version, meta, component). |
 | `SlotsContext` | Context | React context holding the slots manifest. Used internally. |
 | `ModuleErrorBoundary` | Component | Error boundary that isolates module-level crashes. |
 | `ReactiveRegistry<T, S>` | Type | Registry interface with `register()`, `registerLazy()`, `resolve()`. |
 | `RegistryConfig<T>` | Type | Registry configuration shape. |
 | `ApplicationManifest<T, S>` | Type | Resolved app shape: `{ App, router, navigation, slots, modules }`. |
-| `ModuleEntry` | Type | `{ id, version, meta?, component? }`. |
+| `ModuleEntry` | Type | `{ id, version, meta?, component?, zones? }`. |
 | `NavigationManifest` | Type | `{ items, groups, ungrouped }`. |
 | `NavigationGroup` | Type | `{ group, items }`. |
 | `ResolveOptions` | Type | `{ rootComponent, indexComponent, notFoundComponent }`. |

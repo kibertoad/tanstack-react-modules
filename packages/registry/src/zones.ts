@@ -1,5 +1,5 @@
 import { useMatches } from '@tanstack/react-router'
-import type { ZoneMap } from '@reactive-framework/core'
+import type { ZoneMapOf } from '@reactive-framework/core'
 
 /**
  * Read zone components contributed by the currently matched route hierarchy.
@@ -31,7 +31,7 @@ import type { ZoneMap } from '@reactive-framework/core'
  *   },
  * })
  */
-export function useZones<TZones extends ZoneMap>(): Partial<TZones> {
+export function useZones<TZones extends ZoneMapOf<TZones>>(): Partial<TZones> {
   const matches = useMatches()
   const merged: Record<string, unknown> = {}
   for (const match of matches) {
