@@ -1,5 +1,5 @@
-import { createStore } from 'zustand'
-import type { StoreApi } from 'zustand'
+import { createStore } from "zustand";
+import type { StoreApi } from "zustand";
 
 /**
  * Creates a zustand store pre-populated with the given state.
@@ -15,5 +15,5 @@ import type { StoreApi } from 'zustand'
  * })
  */
 export function createMockStore<T>(initialState: T): StoreApi<T> {
-  return createStore<T>()(() => initialState)
+  return createStore<T>()(() => initialState);
 }

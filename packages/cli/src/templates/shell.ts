@@ -1,58 +1,55 @@
-export function shellPackageJson(params: {
-  scope: string
-  moduleName: string
-}): string {
+export function shellPackageJson(params: { scope: string; moduleName: string }): string {
   return JSON.stringify(
     {
-      name: 'shell',
-      version: '0.1.0',
+      name: "shell",
+      version: "0.1.0",
       private: true,
-      type: 'module',
+      type: "module",
       scripts: {
-        dev: 'vite',
-        build: 'vite build',
-        preview: 'vite preview',
+        dev: "vite",
+        build: "vite build",
+        preview: "vite preview",
       },
       dependencies: {
-        '@reactive-framework/core': '^0.1.0',
-        '@reactive-framework/registry': '^0.1.0',
-        [`${params.scope}/app-shared`]: 'workspace:*',
-        [`${params.scope}/${params.moduleName}-module`]: 'workspace:*',
-        '@lokalise/frontend-http-client': '^7.0.0',
-        wretch: '^2.11.0',
-        '@tanstack/react-query': '^5.95.0',
-        '@tanstack/react-router': '^1.120.0',
-        react: '^19.0.0',
-        'react-dom': '^19.0.0',
-        zustand: '^5.0.0',
+        "@tanstack-react-modules/core": "^0.1.0",
+        "@tanstack-react-modules/runtime": "^0.1.0",
+        [`${params.scope}/app-shared`]: "workspace:*",
+        [`${params.scope}/${params.moduleName}-module`]: "workspace:*",
+        "@lokalise/frontend-http-client": "^7.0.0",
+        wretch: "^2.11.0",
+        "@tanstack/react-query": "^5.95.0",
+        "@tanstack/react-router": "^1.120.0",
+        react: "^19.0.0",
+        "react-dom": "^19.0.0",
+        zustand: "^5.0.0",
       },
       devDependencies: {
-        '@rolldown/plugin-babel': '^0.2.2',
-        '@types/react': '^19.0.0',
-        '@types/react-dom': '^19.0.0',
-        '@vitejs/plugin-react': '^6.0.1',
-        'babel-plugin-react-compiler': '^1.0.0',
-        typescript: '^6.0.2',
-        vite: '^8.0.3',
+        "@rolldown/plugin-babel": "^0.2.2",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "@vitejs/plugin-react": "^6.0.1",
+        "babel-plugin-react-compiler": "^1.0.0",
+        typescript: "^6.0.2",
+        vite: "^8.0.3",
       },
     },
     null,
     2,
-  )
+  );
 }
 
 export function shellTsconfig(): string {
   return JSON.stringify(
     {
-      extends: '../tsconfig.base.json',
-      include: ['src'],
+      extends: "../tsconfig.base.json",
+      include: ["src"],
       compilerOptions: {
         noEmit: true,
       },
     },
     null,
     2,
-  )
+  );
 }
 
 export function shellViteConfig(): string {
@@ -69,7 +66,7 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', 'react/jsx-runtime', '@tanstack/react-router', '@tanstack/react-query', 'zustand'],
   },
 })
-`
+`;
 }
 
 export function shellIndexHtml(params: { projectName: string }): string {
@@ -89,16 +86,16 @@ export function shellIndexHtml(params: { projectName: string }): string {
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-`
+`;
 }
 
 export function shellMain(params: {
-  scope: string
-  moduleName: string
-  importName: string
+  scope: string;
+  moduleName: string;
+  importName: string;
 }): string {
   return `import { createRoot } from 'react-dom/client'
-import { createRegistry } from '@reactive-framework/registry'
+import { createRegistry } from '@tanstack-react-modules/runtime'
 import type { AppDependencies, AppSlots } from '${params.scope}/app-shared'
 import ${params.importName} from '${params.scope}/${params.moduleName}-module'
 import { authStore } from './stores/auth.js'
@@ -124,7 +121,7 @@ const { App } = registry.resolve({
 })
 
 createRoot(document.getElementById('root')!).render(<App />)
-`
+`;
 }
 
 export function shellAuthStore(params: { scope: string }): string {
@@ -155,13 +152,10 @@ export const authStore = createStore<AuthStore>((set) => ({
     set({ user: null, token: null, isAuthenticated: false })
   },
 }))
-`
+`;
 }
 
-export function shellConfigStore(params: {
-  scope: string
-  appName: string
-}): string {
+export function shellConfigStore(params: { scope: string; appName: string }): string {
   return `import { createStore } from 'zustand/vanilla'
 import type { ConfigStore } from '${params.scope}/app-shared'
 
@@ -170,7 +164,7 @@ export const configStore = createStore<ConfigStore>()(() => ({
   environment: 'dev' as const,
   appName: '${params.appName}',
 }))
-`
+`;
 }
 
 export function shellHttpClient(): string {
@@ -188,7 +182,7 @@ export const httpClient = wretch()
     }
     return instance
   })
-`
+`;
 }
 
 export function shellLayout(params: { scope: string }): string {
@@ -253,12 +247,12 @@ export function Layout() {
     </div>
   )
 }
-`
+`;
 }
 
 export function shellSidebar(params: { projectName: string }): string {
   return `import { Link, useLocation } from '@tanstack/react-router'
-import { useNavigation } from '@reactive-framework/registry'
+import { useNavigation } from '@tanstack-react-modules/runtime'
 
 export function Sidebar() {
   const navigation = useNavigation()
@@ -360,7 +354,7 @@ export function Sidebar() {
     </aside>
   )
 }
-`
+`;
 }
 
 export function shellHome(params: { scope: string }): string {
@@ -381,5 +375,5 @@ export function Home() {
     </div>
   )
 }
-`
+`;
 }

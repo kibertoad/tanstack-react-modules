@@ -1,11 +1,16 @@
 {
-  "name": "@reactive-framework/cli",
-  "version": "0.1.0",
-  "type": "module",
+  "name": "@tanstack-react-modules/cli",
+  "version": "0.5.0",
   "bin": {
     "reactive": "./dist/cli.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -13,10 +18,8 @@
     "test:e2e:setup": "node scripts/e2e-setup.ts",
     "test:e2e:server": "cd .e2e-output/smoke-app/shell && node node_modules/vite/bin/vite.js --port 5188",
     "test:e2e": "playwright test smoke.e2e.ts",
-    "clean": "rimraf dist .test-output .e2e-output"
-  },
-  "publishConfig": {
-    "access": "public"
+    "clean": "rimraf dist .test-output .e2e-output",
+    "prepublishOnly": "pnpm build && test -f dist/cli.js"
   },
   "dependencies": {
     "@clack/prompts": "^1.1.0",
@@ -24,14 +27,14 @@
     "magicast": "^0.5.2",
     "pathe": "^2.0.3"
   },
-  "engines": {
-    "node": ">=24.0.0"
-  },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@types/node": "^22.0.0",
     "cli-testlab": "^6.0.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=24.0.0"
   }
 }

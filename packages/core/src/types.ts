@@ -1,4 +1,4 @@
-import type { AnyRoute } from '@tanstack/react-router'
+import type { AnyRoute } from "@tanstack/react-router";
 
 /**
  * Default type for slot definitions when no explicit type is provided.
@@ -15,7 +15,7 @@ import type { AnyRoute } from '@tanstack/react-router'
  * The generic constraint accepts interfaces directly — no index signature needed.
  * Non-array values (e.g. `commands: string`) produce a compile error.
  */
-export type SlotMap = Record<string, readonly unknown[]>
+export type SlotMap = Record<string, readonly unknown[]>;
 
 /**
  * F-bounded constraint that enforces every value in T is a readonly array,
@@ -28,7 +28,7 @@ export type SlotMap = Record<string, readonly unknown[]>
  * This accepts `interface AppSlots { commands: Cmd[] }` (no index signature)
  * while rejecting `interface Bad { commands: string }` (not an array).
  */
-export type SlotMapOf<T> = { [K in keyof T]: readonly unknown[] }
+export type SlotMapOf<T> = { [K in keyof T]: readonly unknown[] };
 
 /**
  * Constraint type for zone definitions.
@@ -39,7 +39,7 @@ export type SlotMapOf<T> = { [K in keyof T]: readonly unknown[] }
  * single components contributed by the currently matched route via TanStack
  * Router's `staticData`.
  */
-export type ZoneMap = Record<string, React.ComponentType<any> | undefined>
+export type ZoneMap = Record<string, React.ComponentType<any> | undefined>;
 
 /**
  * F-bounded constraint that accepts interfaces without index signatures.
@@ -51,7 +51,7 @@ export type ZoneMap = Record<string, React.ComponentType<any> | undefined>
  *
  * This accepts `interface AppZones { contextualPanel?: ComponentType }` directly.
  */
-export type ZoneMapOf<T> = { [K in keyof T]: React.ComponentType<any> | undefined }
+export type ZoneMapOf<T> = { [K in keyof T]: React.ComponentType<any> | undefined };
 
 /**
  * Describes a reactive module — a self-contained piece of UI that declares
@@ -70,10 +70,10 @@ export interface ReactiveModuleDescriptor<
   TMeta extends { [K in keyof TMeta]: unknown } = Record<string, unknown>,
 > {
   /** Unique module identifier, e.g. "billing", "user-profile" */
-  readonly id: string
+  readonly id: string;
 
   /** SemVer version string */
-  readonly version: string
+  readonly version: string;
 
   /**
    * Receives a parent route and returns the module's route subtree.
@@ -82,17 +82,17 @@ export interface ReactiveModuleDescriptor<
    * Optional — omit for "headless" modules that contribute only
    * via slots, navigation, and lifecycle hooks without owning routes.
    */
-  readonly createRoutes?: (parentRoute: AnyRoute) => AnyRoute
+  readonly createRoutes?: (parentRoute: AnyRoute) => AnyRoute;
 
   /** Navigation items this module contributes to the app shell */
-  readonly navigation?: readonly NavigationItem[]
+  readonly navigation?: readonly NavigationItem[];
 
   /**
    * Typed slot contributions this module provides to the shell.
    * Each key maps to an array of items that get concatenated with
    * contributions from other modules at resolve() time.
    */
-  readonly slots?: { readonly [K in keyof TSlots]?: TSlots[K] }
+  readonly slots?: { readonly [K in keyof TSlots]?: TSlots[K] };
 
   /**
    * A React component the shell can render outside of routes — in a tab,
@@ -101,7 +101,7 @@ export interface ReactiveModuleDescriptor<
    *
    * Route-based modules use createRoutes instead (or both).
    */
-  readonly component?: React.ComponentType<any>
+  readonly component?: React.ComponentType<any>;
 
   /**
    * Zone components this module contributes to the shell when it is active.
@@ -115,7 +115,7 @@ export interface ReactiveModuleDescriptor<
    *
    * Route-based modules use `staticData` on their routes instead.
    */
-  readonly zones?: Readonly<Record<string, React.ComponentType<any>>>
+  readonly zones?: Readonly<Record<string, React.ComponentType<any>>>;
 
   /**
    * Catalog metadata — descriptive information the shell uses for discovery
@@ -130,46 +130,46 @@ export interface ReactiveModuleDescriptor<
    * defineModule<AppDeps, AppSlots, JourneyMeta>({ meta: { name: '...', ... } })
    * ```
    */
-  readonly meta?: Readonly<TMeta>
+  readonly meta?: Readonly<TMeta>;
 
   /** Keys from TSharedDependencies that this module needs */
-  readonly requires?: readonly (keyof TSharedDependencies)[]
+  readonly requires?: readonly (keyof TSharedDependencies)[];
 
   /** Lifecycle hooks */
-  readonly lifecycle?: ModuleLifecycle<TSharedDependencies>
+  readonly lifecycle?: ModuleLifecycle<TSharedDependencies>;
 }
 
 export interface NavigationItem {
   /** Display label */
-  readonly label: string
+  readonly label: string;
 
   /** Route path to navigate to */
-  readonly to: string
+  readonly to: string;
 
   /** Icon — either a string identifier or a React component */
-  readonly icon?: string | React.ComponentType<{ className?: string }>
+  readonly icon?: string | React.ComponentType<{ className?: string }>;
 
   /** Grouping key for organizing nav items (e.g. "finance", "admin") */
-  readonly group?: string
+  readonly group?: string;
 
   /** Sort order within group (lower = higher priority) */
-  readonly order?: number
+  readonly order?: number;
 
   /** If true, item is registered but hidden from default nav rendering */
-  readonly hidden?: boolean
+  readonly hidden?: boolean;
 }
 
 export interface ModuleLifecycle<
   TSharedDependencies extends Record<string, any> = Record<string, any>,
 > {
   /** Called once when the module is registered in the registry */
-  onRegister?(deps: TSharedDependencies): void | Promise<void>
+  onRegister?(deps: TSharedDependencies): void | Promise<void>;
 
   /** Called when the module's route subtree is first mounted */
-  onMount?(deps: TSharedDependencies): void | Promise<void>
+  onMount?(deps: TSharedDependencies): void | Promise<void>;
 
   /** Called when the module's route subtree is unmounted */
-  onUnmount?(): void | Promise<void>
+  onUnmount?(): void | Promise<void>;
 }
 
 /**
@@ -182,13 +182,13 @@ export interface LazyModuleDescriptor<
   TMeta extends { [K in keyof TMeta]: unknown } = Record<string, unknown>,
 > {
   /** Unique module identifier */
-  readonly id: string
+  readonly id: string;
 
   /** Base path prefix — used to create a catch-all route that triggers loading */
-  readonly basePath: string
+  readonly basePath: string;
 
   /** Dynamic import that returns the full module descriptor */
   readonly load: () => Promise<{
-    default: ReactiveModuleDescriptor<TSharedDependencies, TSlots, TMeta>
-  }>
+    default: ReactiveModuleDescriptor<TSharedDependencies, TSlots, TMeta>;
+  }>;
 }

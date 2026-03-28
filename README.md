@@ -43,7 +43,7 @@ Plug-and-play modular framework for React. Build frontend features as independen
 │  - Provides root layout                                 │
 │                                                         │
 │  ┌────────────────────────────────────────────────────┐ │
-│  │  @reactive-framework/registry                                │ │
+│  │  @tanstack-react-modules/runtime                                │ │
 │  │  - Validates dependencies                          │ │
 │  │  - Composes TanStack Router route tree             │ │
 │  │  - Builds navigation manifest                      │ │
@@ -97,7 +97,7 @@ Plug-and-play modular framework for React. Build frontend features as independen
 The CLI scaffolds a complete project with shell, app-shared, and a first module:
 
 ```bash
-npx @reactive-framework/cli init my-app --scope @myorg --module dashboard
+npx @tanstack-react-modules/cli init my-app --scope @myorg --module dashboard
 cd my-app
 pnpm install
 pnpm dev
@@ -170,37 +170,37 @@ app-shared/
 
 ```typescript
 // app-shared/src/index.ts
-import { createSharedHooks } from '@reactive-framework/core'
-import type { Wretch } from 'wretch'
+import { createSharedHooks } from "@tanstack-react-modules/core";
+import type { Wretch } from "wretch";
 
 export interface AuthStore {
-  user: User | null
-  token: string | null
-  isAuthenticated: boolean
-  login: (credentials: LoginCredentials) => Promise<void>
-  logout: () => void
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
 }
 
 export interface ConfigStore {
-  apiBaseUrl: string
-  environment: 'dev' | 'staging' | 'prod'
-  appName: string
+  apiBaseUrl: string;
+  environment: "dev" | "staging" | "prod";
+  appName: string;
 }
 
 export interface AppDependencies {
-  auth: AuthStore       // Zustand store — reactive
-  config: ConfigStore   // Zustand store — reactive
-  httpClient: Wretch    // Plain service — non-reactive
+  auth: AuthStore; // Zustand store — reactive
+  config: ConfigStore; // Zustand store — reactive
+  httpClient: Wretch; // Plain service — non-reactive
 }
 
 // These hooks are used by every module
-export const { useStore, useService } = createSharedHooks<AppDependencies>()
+export const { useStore, useService } = createSharedHooks<AppDependencies>();
 ```
 
 **Rules:**
 
 - The app-shared package is the **only** package that both the shell and modules depend on. It is the boundary between them.
-- Modules import `useStore` and `useService` from this package — never from `@reactive-framework/core` directly.
+- Modules import `useStore` and `useService` from this package — never from `@tanstack-react-modules/core` directly.
 - Zustand store types go in `AppDependencies` for reactive state. Non-reactive services (HTTP client, loggers) also go in `AppDependencies`.
 - The shell must provide implementations for every key in `AppDependencies`. The registry validates this at `resolve()` time against each module's `requires` list.
 - Keep this package lightweight. It should contain only types, hooks, zod schemas, and domain types — no React components, no business logic.
@@ -209,7 +209,7 @@ export const { useStore, useService } = createSharedHooks<AppDependencies>()
 
 ## Creating a Module
 
-> **CLI shortcut:** `npx @reactive-framework/cli create module billing` scaffolds the module, wires it into the shell's `main.tsx` and `package.json`, then run `pnpm install`.
+> **CLI shortcut:** `npx @tanstack-react-modules/cli create module billing` scaffolds the module, wires it into the shell's `main.tsx` and `package.json`, then run `pnpm install`.
 
 A module is an npm package that exports a `ReactiveModuleDescriptor` via `defineModule()`.
 
@@ -231,63 +231,63 @@ modules/billing/
 
 ```typescript
 // modules/billing/src/index.ts
-import { defineModule } from '@reactive-framework/core'
-import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
-import type { AppDependencies } from '@example/app-shared'
+import { defineModule } from "@tanstack-react-modules/core";
+import { createRoute, lazyRouteComponent } from "@tanstack/react-router";
+import type { AppDependencies } from "@example/app-shared";
 
 export default defineModule<AppDependencies>({
-  id: 'billing',
-  version: '0.1.0',
+  id: "billing",
+  version: "0.1.0",
 
   createRoutes: (parentRoute) => {
     const billingRoot = createRoute({
       getParentRoute: () => parentRoute,
-      path: 'billing',
-    })
+      path: "billing",
+    });
 
     const billingIndex = createRoute({
       getParentRoute: () => billingRoot,
-      path: '/',
-      component: lazyRouteComponent(() => import('./pages/BillingDashboard.js')),
-    })
+      path: "/",
+      component: lazyRouteComponent(() => import("./pages/BillingDashboard.js")),
+    });
 
     const invoiceList = createRoute({
       getParentRoute: () => billingRoot,
-      path: 'invoices',
-      component: lazyRouteComponent(() => import('./pages/InvoiceList.js')),
-    })
+      path: "invoices",
+      component: lazyRouteComponent(() => import("./pages/InvoiceList.js")),
+    });
 
     const invoiceDetail = createRoute({
       getParentRoute: () => billingRoot,
-      path: 'invoices/$invoiceId',
-      component: lazyRouteComponent(() => import('./pages/InvoiceDetail.js')),
-    })
+      path: "invoices/$invoiceId",
+      component: lazyRouteComponent(() => import("./pages/InvoiceDetail.js")),
+    });
 
-    return billingRoot.addChildren([billingIndex, invoiceList, invoiceDetail])
+    return billingRoot.addChildren([billingIndex, invoiceList, invoiceDetail]);
   },
 
   navigation: [
-    { label: 'Billing', to: '/billing', icon: 'credit-card', group: 'finance', order: 10 },
-    { label: 'Invoices', to: '/billing/invoices', group: 'finance', order: 11 },
+    { label: "Billing", to: "/billing", icon: "credit-card", group: "finance", order: 10 },
+    { label: "Invoices", to: "/billing/invoices", group: "finance", order: 11 },
   ],
 
-  requires: ['auth', 'httpClient'],
-})
+  requires: ["auth", "httpClient"],
+});
 ```
 
 ### Module descriptor fields
 
-| Field | Required | Description |
-|---|---|---|
-| `id` | Yes | Unique string identifier. Must be unique across all registered modules. |
-| `version` | Yes | SemVer version string. |
-| `createRoutes` | No | Receives the root route as parent, returns a TanStack Router route subtree. Use `lazyRouteComponent()` for code splitting. |
-| `component` | No | A React component the shell can render outside of routes — in a tab, modal, or panel. Use for workspace apps where the shell orchestrates rendering. |
-| `meta` | No | Catalog metadata for discovery UIs. Accepts a `TMeta` generic for type safety — see [Module Catalog](#module-catalog). |
-| `navigation` | No | Array of `NavigationItem` entries contributed to the shell's sidebar/nav. |
-| `slots` | No | Typed slot contributions (e.g. commands, tab types). See [Slots](#slots). |
-| `requires` | No | Array of `AppDependencies` keys this module needs. Validated at registry resolution. |
-| `lifecycle` | No | `{ onRegister, onMount, onUnmount }` hooks. |
+| Field          | Required | Description                                                                                                                                          |
+| -------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`           | Yes      | Unique string identifier. Must be unique across all registered modules.                                                                              |
+| `version`      | Yes      | SemVer version string.                                                                                                                               |
+| `createRoutes` | No       | Receives the root route as parent, returns a TanStack Router route subtree. Use `lazyRouteComponent()` for code splitting.                           |
+| `component`    | No       | A React component the shell can render outside of routes — in a tab, modal, or panel. Use for workspace apps where the shell orchestrates rendering. |
+| `meta`         | No       | Catalog metadata for discovery UIs. Accepts a `TMeta` generic for type safety — see [Module Catalog](#module-catalog).                               |
+| `navigation`   | No       | Array of `NavigationItem` entries contributed to the shell's sidebar/nav.                                                                            |
+| `slots`        | No       | Typed slot contributions (e.g. commands, tab types). See [Slots](#slots).                                                                            |
+| `requires`     | No       | Array of `AppDependencies` keys this module needs. Validated at registry resolution.                                                                 |
+| `lifecycle`    | No       | `{ onRegister, onMount, onUnmount }` hooks.                                                                                                          |
 
 ### Writing page components
 
@@ -340,7 +340,7 @@ export default function InvoiceList() {
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "@reactive-framework/core": "^0.1.0",
+    "@tanstack-react-modules/core": "^0.1.0",
     "@example/app-shared": "workspace:*",
     "@lokalise/frontend-http-client": "^7.0.0"
   },
@@ -363,43 +363,43 @@ The examples below show contracts defined locally in the app-shared package for 
 
 ```typescript
 // app-shared/src/contracts/invoices.ts
-import { buildRestContract } from '@lokalise/api-contracts'
-import { z } from 'zod/v4'
+import { buildRestContract } from "@lokalise/api-contracts";
+import { z } from "zod/v4";
 
 export const invoiceSchema = z.object({
   id: z.string(),
   amount: z.number(),
-  status: z.enum(['paid', 'pending', 'overdue']),
+  status: z.enum(["paid", "pending", "overdue"]),
   date: z.string(),
-})
+});
 
-export type Invoice = z.infer<typeof invoiceSchema>
+export type Invoice = z.infer<typeof invoiceSchema>;
 
 // GET /api/invoices
 export const listInvoicesContract = buildRestContract({
-  method: 'get',
-  pathResolver: () => '/api/invoices',
+  method: "get",
+  pathResolver: () => "/api/invoices",
   successResponseBodySchema: z.array(invoiceSchema),
-})
+});
 
 // GET /api/invoices/:invoiceId
 export const getInvoiceContract = buildRestContract({
-  method: 'get',
+  method: "get",
   pathResolver: (params) => `/api/invoices/${params.invoiceId}`,
   requestPathParamsSchema: z.object({ invoiceId: z.string() }),
   successResponseBodySchema: invoiceSchema,
-})
+});
 
 // POST /api/invoices
 export const createInvoiceContract = buildRestContract({
-  method: 'post',
-  pathResolver: () => '/api/invoices',
+  method: "post",
+  pathResolver: () => "/api/invoices",
   requestBodySchema: z.object({
     amount: z.number(),
     date: z.string(),
   }),
   successResponseBodySchema: invoiceSchema,
-})
+});
 ```
 
 Contracts define the path, HTTP method, path params, query params, request body, and response body — all with zod schemas. The `@lokalise/frontend-http-client` validates both request and response at runtime.
@@ -413,31 +413,32 @@ Contracts define the path, HTTP method, path params, query params, request body,
 ### Queries (GET)
 
 ```typescript
-import { useService, listInvoicesContract } from '@example/app-shared'
-import { sendByContract } from '@lokalise/frontend-http-client'
-import { useQuery } from '@tanstack/react-query'
+import { useService, listInvoicesContract } from "@example/app-shared";
+import { sendByContract } from "@lokalise/frontend-http-client";
+import { useQuery } from "@tanstack/react-query";
 
 function InvoiceList() {
-  const httpClient = useService('httpClient')
+  const httpClient = useService("httpClient");
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['invoices'],
+    queryKey: ["invoices"],
     queryFn: () => sendByContract(httpClient, listInvoicesContract, {}),
-  })
+  });
 }
 ```
 
 ### Queries with params
 
 ```typescript
-import { getInvoiceContract } from '@example/app-shared'
+import { getInvoiceContract } from "@example/app-shared";
 
 const { data: invoice } = useQuery({
-  queryKey: ['invoices', invoiceId],
-  queryFn: () => sendByContract(httpClient, getInvoiceContract, {
-    pathParams: { invoiceId },
-  }),
-})
+  queryKey: ["invoices", invoiceId],
+  queryFn: () =>
+    sendByContract(httpClient, getInvoiceContract, {
+      pathParams: { invoiceId },
+    }),
+});
 ```
 
 ### Mutations (POST/PUT/DELETE)
@@ -472,12 +473,12 @@ Prefix query keys with the module's domain to avoid collisions across modules:
 
 ```typescript
 // Billing module
-queryKey: ['invoices']
-queryKey: ['invoices', invoiceId]
+queryKey: ["invoices"];
+queryKey: ["invoices", invoiceId];
 
 // Users module
-queryKey: ['users']
-queryKey: ['users', userId]
+queryKey: ["users"];
+queryKey: ["users", userId];
 ```
 
 ---
@@ -492,15 +493,15 @@ For state that components subscribe to and re-render on changes.
 
 ```typescript
 // Access full store state
-const auth = useStore('auth')
+const auth = useStore("auth");
 
 // Access with selector — re-renders only when selected value changes
-const user = useStore('auth', (s) => s.user)
-const isAuthenticated = useStore('auth', (s) => s.isAuthenticated)
+const user = useStore("auth", (s) => s.user);
+const isAuthenticated = useStore("auth", (s) => s.isAuthenticated);
 
 // Call store actions
-const login = useStore('auth', (s) => s.login)
-await login({ email: 'user@example.com', password: 'secret' })
+const login = useStore("auth", (s) => s.login);
+await login({ email: "user@example.com", password: "secret" });
 ```
 
 ### Plain services (non-reactive)
@@ -508,7 +509,7 @@ await login({ email: 'user@example.com', password: 'secret' })
 For stable instances that don't trigger re-renders: HTTP clients, loggers, analytics.
 
 ```typescript
-const httpClient = useService('httpClient')
+const httpClient = useService("httpClient");
 ```
 
 ### How it works
@@ -525,7 +526,7 @@ const httpClient = useService('httpClient')
 If a module declares `requires: ['auth', 'httpClient']` and the registry doesn't have `httpClient` in its stores or services, `resolve()` throws:
 
 ```
-[@reactive-framework/registry] Module "billing" requires dependencies not provided
+[@tanstack-react-modules/runtime] Module "billing" requires dependencies not provided
 by the registry: httpClient. Available: auth, config
 ```
 
@@ -539,7 +540,7 @@ The shell is a Vite application that creates shared dependencies, registers modu
 
 ```typescript
 import { createRoot } from 'react-dom/client'
-import { createRegistry } from '@reactive-framework/registry'
+import { createRegistry } from '@tanstack-react-modules/runtime'
 import type { AppDependencies } from '@example/app-shared'
 import billing from '@example/billing-module'
 import users from '@example/users-module'
@@ -571,20 +572,22 @@ Use `zustand/vanilla` so stores can be accessed outside React (e.g., in the HTTP
 
 ```typescript
 // stores/auth.ts
-import { createStore } from 'zustand/vanilla'
-import type { AuthStore } from '@example/app-shared'
+import { createStore } from "zustand/vanilla";
+import type { AuthStore } from "@example/app-shared";
 
 export const authStore = createStore<AuthStore>((set) => ({
   user: null,
   token: null,
   isAuthenticated: false,
   login: async (credentials) => {
-    const response = await fetch('/api/login', { /* ... */ })
-    const user = await response.json()
-    set({ user, token: user.token, isAuthenticated: true })
+    const response = await fetch("/api/login", {
+      /* ... */
+    });
+    const user = await response.json();
+    set({ user, token: user.token, isAuthenticated: true });
   },
   logout: () => set({ user: null, token: null, isAuthenticated: false }),
-}))
+}));
 ```
 
 ### Creating the HTTP client
@@ -593,19 +596,19 @@ Use wretch with `defer()` to dynamically attach auth headers:
 
 ```typescript
 // services/http-client.ts
-import wretch from 'wretch'
-import { authStore } from '../stores/auth.js'
-import { configStore } from '../stores/config.js'
+import wretch from "wretch";
+import { authStore } from "../stores/auth.js";
+import { configStore } from "../stores/config.js";
 
 export const httpClient = wretch().defer((w) => {
-  const { apiBaseUrl } = configStore.getState()
-  const { token } = authStore.getState()
-  let instance = w.url(apiBaseUrl)
+  const { apiBaseUrl } = configStore.getState();
+  const { token } = authStore.getState();
+  let instance = w.url(apiBaseUrl);
   if (token) {
-    instance = instance.auth(`Bearer ${token}`)
+    instance = instance.auth(`Bearer ${token}`);
   }
-  return instance
-})
+  return instance;
+});
 ```
 
 ### Vite config with React Compiler
@@ -614,16 +617,13 @@ See the [React Compiler](#react-compiler) section for details on why and how to 
 
 ```typescript
 // vite.config.ts
-import { defineConfig } from 'vite'
-import react, { reactCompilerPreset } from '@vitejs/plugin-react'
-import babel from '@rolldown/plugin-babel'
+import { defineConfig } from "vite";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import babel from "@rolldown/plugin-babel";
 
 export default defineConfig({
-  plugins: [
-    react(),
-    babel({ presets: [reactCompilerPreset()] }),
-  ],
-})
+  plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
+});
 ```
 
 ---
@@ -638,27 +638,27 @@ Modules declare navigation items. The registry collects, sorts, and groups them 
 defineModule<AppDependencies>({
   // ...
   navigation: [
-    { label: 'Billing', to: '/billing', icon: 'credit-card', group: 'finance', order: 10 },
-    { label: 'Invoices', to: '/billing/invoices', group: 'finance', order: 11 },
+    { label: "Billing", to: "/billing", icon: "credit-card", group: "finance", order: 10 },
+    { label: "Invoices", to: "/billing/invoices", group: "finance", order: 11 },
   ],
-})
+});
 ```
 
 ### NavigationItem fields
 
-| Field | Required | Description |
-|---|---|---|
-| `label` | Yes | Display text |
-| `to` | Yes | Route path |
-| `icon` | No | Icon identifier (`string`) or React component (`React.ComponentType<{ className?: string }>`) |
-| `group` | No | Grouping key (e.g., `'finance'`, `'admin'`). Items with the same group are rendered together. |
-| `order` | No | Sort order within group. Lower = higher priority. Default: `999`. |
-| `hidden` | No | If `true`, registered but excluded from default nav rendering. |
+| Field    | Required | Description                                                                                   |
+| -------- | -------- | --------------------------------------------------------------------------------------------- |
+| `label`  | Yes      | Display text                                                                                  |
+| `to`     | Yes      | Route path                                                                                    |
+| `icon`   | No       | Icon identifier (`string`) or React component (`React.ComponentType<{ className?: string }>`) |
+| `group`  | No       | Grouping key (e.g., `'finance'`, `'admin'`). Items with the same group are rendered together. |
+| `order`  | No       | Sort order within group. Lower = higher priority. Default: `999`.                             |
+| `hidden` | No       | If `true`, registered but excluded from default nav rendering.                                |
 
 ### Rendering navigation in the layout
 
 ```typescript
-import { useNavigation } from '@reactive-framework/registry'
+import { useNavigation } from '@tanstack-react-modules/runtime'
 import { Link, useLocation } from '@tanstack/react-router'
 
 function Sidebar() {
@@ -706,14 +706,14 @@ The pattern mirrors navigation: the shell defines what slots exist (via `AppSlot
 // app-shared/src/index.ts
 
 export interface BadgeDefinition {
-  readonly id: string
-  readonly label: string
-  readonly color: 'info' | 'warning' | 'error'
-  readonly count: () => number
+  readonly id: string;
+  readonly label: string;
+  readonly color: "info" | "warning" | "error";
+  readonly count: () => number;
 }
 
 export interface AppSlots {
-  badges: BadgeDefinition[]
+  badges: BadgeDefinition[];
 }
 ```
 
@@ -722,23 +722,29 @@ Every slot value must be an array type — the registry concatenates contributio
 ### Contributing from a module
 
 ```typescript
-import { defineModule } from '@reactive-framework/core'
-import type { AppDependencies, AppSlots } from '@myorg/app-shared'
+import { defineModule } from "@tanstack-react-modules/core";
+import type { AppDependencies, AppSlots } from "@myorg/app-shared";
 
 export default defineModule<AppDependencies, AppSlots>({
-  id: 'billing',
-  version: '0.1.0',
-  createRoutes: (parentRoute) => { /* ... */ },
+  id: "billing",
+  version: "0.1.0",
+  createRoutes: (parentRoute) => {
+    /* ... */
+  },
 
   slots: {
     badges: [
-      { id: 'billing:overdue', label: 'Overdue', color: 'error',
-        count: () => overdueInvoicesStore.getState().count },
+      {
+        id: "billing:overdue",
+        label: "Overdue",
+        color: "error",
+        count: () => overdueInvoicesStore.getState().count,
+      },
     ],
   },
 
   // ...
-})
+});
 ```
 
 Modules only contribute to the slots they care about — `slots` is `Partial<AppSlots>`.
@@ -746,7 +752,7 @@ Modules only contribute to the slots they care about — `slots` is `Partial<App
 ### Reading slots in the shell
 
 ```typescript
-import { useSlots } from '@reactive-framework/registry'
+import { useSlots } from '@tanstack-react-modules/runtime'
 import type { AppSlots } from '@myorg/app-shared'
 
 function StatusBar() {
@@ -773,7 +779,7 @@ const registry = createRegistry<AppDependencies, AppSlots>({
   stores: { auth: authStore, config: configStore },
   services: { httpClient },
   slots: { commands: [] },
-})
+});
 ```
 
 Without `slots` defaults, accessing a key that no module contributed to would return `undefined`. The defaults prevent this.
@@ -784,11 +790,11 @@ Lazy modules (registered via `registerLazy()`) cannot contribute slots at regist
 
 ### When to use slots vs stores
 
-| Use case | Mechanism |
-|---|---|
-| Static declarations known at module registration (commands, tab types, badges) | **Slots** |
+| Use case                                                                           | Mechanism                 |
+| ---------------------------------------------------------------------------------- | ------------------------- |
+| Static declarations known at module registration (commands, tab types, badges)     | **Slots**                 |
 | Runtime state that changes over time (active tab, notifications, user preferences) | **Shared Zustand stores** |
-| Server data (API responses, cached queries) | **React Query** |
+| Server data (API responses, cached queries)                                        | **React Query**           |
 
 For a detailed guide on building shell applications, see [Shell Patterns](docs/shell-patterns.md). For workspace-style apps with tabbed workspaces and component-only modules, see [Workspace Patterns](docs/workspace-patterns.md).
 
@@ -796,31 +802,32 @@ For a detailed guide on building shell applications, see [Shell Patterns](docs/s
 
 ## Zones
 
-Zones let the **currently active content** contribute UI components to named layout regions in the shell — a detail panel, header actions, a contextual sidebar. Unlike slots (which aggregate data from *all* modules at registration time), zones change based on what the user is currently viewing.
+Zones let the **currently active content** contribute UI components to named layout regions in the shell — a detail panel, header actions, a contextual sidebar. Unlike slots (which aggregate data from _all_ modules at registration time), zones change based on what the user is currently viewing.
 
 Zones have two contribution paths:
+
 - **Route-based modules** set zones via TanStack Router's `staticData` — different routes contribute different zone content as the user navigates.
 - **Tab-based modules** declare zones on their module descriptor — the shell reads them when the module's workspace tab is active.
 
 ### Slots vs Zones
 
-| | Slots | Zones |
-|---|---|---|
-| **Source** | All registered modules | Active route or active module tab |
-| **When resolved** | Once at `resolve()` time | On every navigation or tab switch |
-| **Value type** | Arrays (concatenated) | Single React component |
-| **Use case** | Commands, tab types, badges | Detail panel, header actions, sidebar |
-| **Hook** | `useSlots<AppSlots>()` | `useActiveZones<AppZones>(moduleId?)` |
+|                   | Slots                       | Zones                                 |
+| ----------------- | --------------------------- | ------------------------------------- |
+| **Source**        | All registered modules      | Active route or active module tab     |
+| **When resolved** | Once at `resolve()` time    | On every navigation or tab switch     |
+| **Value type**    | Arrays (concatenated)       | Single React component                |
+| **Use case**      | Commands, tab types, badges | Detail panel, header actions, sidebar |
+| **Hook**          | `useSlots<AppSlots>()`      | `useActiveZones<AppZones>(moduleId?)` |
 
 ### Defining zones in app-shared
 
 ```typescript
 // app-shared/src/index.ts
-import type { ComponentType } from 'react'
+import type { ComponentType } from "react";
 
 export interface AppZones {
-  headerActions?: ComponentType
-  detailPanel?: ComponentType
+  headerActions?: ComponentType;
+  detailPanel?: ComponentType;
 }
 ```
 
@@ -831,18 +838,18 @@ Zone values are optional — not every route populates every zone.
 Modules set zones via TanStack Router's `staticData` on individual routes. Different routes within the same module can contribute different zone components:
 
 ```typescript
-import { UserDetailActions } from './components/UserDetailActions.js'
-import { UserDetailPanel } from './components/UserDetailPanel.js'
+import { UserDetailActions } from "./components/UserDetailActions.js";
+import { UserDetailPanel } from "./components/UserDetailPanel.js";
 
 const userDetail = createRoute({
   getParentRoute: () => usersRoot,
-  path: '$userId',
+  path: "$userId",
   component: UserDetailPage,
   staticData: {
     headerActions: UserDetailActions,
     detailPanel: UserDetailPanel,
   },
-})
+});
 ```
 
 Routes that don't set `staticData` simply contribute no zones — the shell renders nothing in those regions.
@@ -852,17 +859,17 @@ Routes that don't set `staticData` simply contribute no zones — the shell rend
 Tab-based modules (rendered in workspace tabs rather than via routes) declare zones directly on the descriptor:
 
 ```typescript
-import { DDSetupContextualPanel } from './DDSetupContextualPanel.js'
+import { DDSetupContextualPanel } from "./DDSetupContextualPanel.js";
 
 export default defineModule<AppDependencies, AppSlots, JourneyMeta>({
-  id: 'dd-setup',
-  version: '0.1.0',
-  component: lazy(() => import('./DDSetupJourney.js')),
+  id: "dd-setup",
+  version: "0.1.0",
+  component: lazy(() => import("./DDSetupJourney.js")),
   zones: {
     contextualPanel: DDSetupContextualPanel,
   },
-  meta: { name: 'Set up Direct Debit', category: 'payments', icon: 'CreditCard' },
-})
+  meta: { name: "Set up Direct Debit", category: "payments", icon: "CreditCard" },
+});
 ```
 
 The shell reads these zones via `useActiveZones(activeModuleId)` when the module's tab is active.
@@ -872,7 +879,7 @@ The shell reads these zones via `useActiveZones(activeModuleId)` when the module
 Use `useActiveZones` to get a unified view of zones from both routes and the active module tab:
 
 ```typescript
-import { useActiveZones } from '@reactive-framework/registry'
+import { useActiveZones } from '@tanstack-react-modules/runtime'
 import type { AppZones } from '@myorg/app-shared'
 
 function Layout() {
@@ -899,12 +906,14 @@ function Layout() {
 ### How it works
 
 **Route zones (`useZones`):**
+
 1. `useZones()` calls TanStack Router's `useMatches()` with a `select` function.
 2. The select function walks matched routes from root to leaf, merging `staticData` entries.
 3. **Deepest match wins** — a child route can override a parent route's zone. A parent can set a default sidebar, and a specific detail page can replace it.
 4. The shell conditionally renders zone components. If a zone is `undefined`, nothing renders.
 
 **Active module zones (`useActiveZones`):**
+
 1. `useActiveZones(moduleId)` first collects route zones via `useZones()`.
 2. If `moduleId` is provided, it looks up the module's `zones` field from `useModules()`.
 3. Module zones are merged on top of route zones — **active module wins** for the same key.
@@ -923,11 +932,11 @@ By default, TanStack Router's `staticData` accepts any object. To get compile-ti
 ```typescript
 // app-shared/src/index.ts
 export interface AppZones {
-  headerActions?: ComponentType
-  detailPanel?: ComponentType
+  headerActions?: ComponentType;
+  detailPanel?: ComponentType;
 }
 
-declare module '@tanstack/router-core' {
+declare module "@tanstack/router-core" {
   interface StaticDataRouteOption extends AppZones {}
 }
 ```
@@ -959,34 +968,34 @@ The `meta` field accepts a `TMeta` generic for compile-time validation. Define a
 ```typescript
 // app-shared/src/index.ts
 export interface JourneyMeta {
-  readonly name: string
-  readonly description: string
-  readonly icon: string
-  readonly category: string
-  readonly estimatedTime?: string
+  readonly name: string;
+  readonly description: string;
+  readonly icon: string;
+  readonly category: string;
+  readonly estimatedTime?: string;
 }
 ```
 
 Then use it as the third generic on `defineModule`:
 
 ```typescript
-import { defineModule } from '@reactive-framework/core'
-import { lazy } from 'react'
-import type { AppDependencies, AppSlots, JourneyMeta } from '@myorg/app-shared'
+import { defineModule } from "@tanstack-react-modules/core";
+import { lazy } from "react";
+import type { AppDependencies, AppSlots, JourneyMeta } from "@myorg/app-shared";
 
 export default defineModule<AppDependencies, AppSlots, JourneyMeta>({
-  id: 'dd-setup',
-  version: '0.1.0',
-  component: lazy(() => import('./DDSetupJourney.js')),
+  id: "dd-setup",
+  version: "0.1.0",
+  component: lazy(() => import("./DDSetupJourney.js")),
   meta: {
-    name: 'Set up Direct Debit',
-    description: 'Configure a new Direct Debit mandate',
-    icon: 'credit-card',
-    category: 'payments',
-    estimatedTime: '2-3 mins',
+    name: "Set up Direct Debit",
+    description: "Configure a new Direct Debit mandate",
+    icon: "credit-card",
+    category: "payments",
+    estimatedTime: "2-3 mins",
   },
-  requires: ['auth', 'httpClient'],
-})
+  requires: ["auth", "httpClient"],
+});
 ```
 
 TypeScript will error if `meta` is missing required fields or has typos. The `TMeta` generic defaults to `Record<string, unknown>` so existing modules without typed meta continue to work.
@@ -996,7 +1005,7 @@ TypeScript will error if `meta` is missing required fields or has typos. The `TM
 Use `getModuleMeta<TMeta>()` to read metadata without casts:
 
 ```typescript
-import { useModules, getModuleMeta } from '@reactive-framework/registry'
+import { useModules, getModuleMeta } from '@tanstack-react-modules/runtime'
 import type { JourneyMeta } from '@myorg/app-shared'
 
 function DirectoryPage() {
@@ -1038,14 +1047,14 @@ function WorkspaceTab({ moduleId, context }: { moduleId: string; context: unknow
 
 ### When to use meta vs navigation vs slots vs commands
 
-| Data | Mechanism | Why |
-|---|---|---|
-| Sidebar links | `navigation` | Framework builds NavigationManifest with grouping/sorting |
-| Module-specific self-executing actions | `slots.commands` | "Create Invoice", "Export Report" — the module owns the handler |
-| Tab types, badges, other aggregated data | `slots` | Aggregated arrays from all modules |
-| Module identity for directory/catalog/command palette | `meta` | Per-module descriptive data for discovery UIs |
-| Route-specific panel/header content | `staticData` (zones) | Changes per route within a module |
-| Tab-active panel/header content | Descriptor `zones` | Shown when the module's tab is active |
+| Data                                                  | Mechanism            | Why                                                             |
+| ----------------------------------------------------- | -------------------- | --------------------------------------------------------------- |
+| Sidebar links                                         | `navigation`         | Framework builds NavigationManifest with grouping/sorting       |
+| Module-specific self-executing actions                | `slots.commands`     | "Create Invoice", "Export Report" — the module owns the handler |
+| Tab types, badges, other aggregated data              | `slots`              | Aggregated arrays from all modules                              |
+| Module identity for directory/catalog/command palette | `meta`               | Per-module descriptive data for discovery UIs                   |
+| Route-specific panel/header content                   | `staticData` (zones) | Changes per route within a module                               |
+| Tab-active panel/header content                       | Descriptor `zones`   | Shown when the module's tab is active                           |
 
 **Key rule:** Every command must have an `onSelect` handler — the module owns its actions. Don't use `slots.commands` for things the shell handles: journey launching comes from `meta` (discovered via `useModules()`), navigation comes from `navigation` entries, and system launching comes from domain-specific slots. If the module can't execute the action itself, it belongs in a different mechanism.
 
@@ -1071,14 +1080,14 @@ When modules need to trigger actions that cross module boundaries, define a serv
 ```typescript
 // app-shared/src/index.ts
 export interface NotificationService {
-  show: (message: string, severity?: 'info' | 'warning' | 'error') => void
-  dismiss: (id: string) => void
+  show: (message: string, severity?: "info" | "warning" | "error") => void;
+  dismiss: (id: string) => void;
 }
 
 export interface AppDependencies {
-  auth: AuthStore
-  httpClient: Wretch
-  notifications: NotificationService
+  auth: AuthStore;
+  httpClient: Wretch;
+  notifications: NotificationService;
 }
 ```
 
@@ -1131,29 +1140,29 @@ When one module mutates server data that another module queries, use `invalidate
 
 ```typescript
 // Users module — deactivates a user and invalidates related queries
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 function UserDetail() {
-  const httpClient = useService('httpClient')
-  const queryClient = useQueryClient()
+  const httpClient = useService("httpClient");
+  const queryClient = useQueryClient();
 
   const deactivate = useMutation({
     mutationFn: (userId: string) =>
       sendByContract(httpClient, deactivateUserContract, { pathParams: { userId } }),
     onSuccess: () => {
       // Both the users module and billing module will refetch their data
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-      queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
     },
-  })
+  });
 }
 ```
 
 ### When to use which
 
-| Pattern | Use case | Example |
-|---|---|---|
-| Zustand store | Client state changes that affect UI across modules | Auth state, feature flags, UI preferences |
+| Pattern                  | Use case                                            | Example                                       |
+| ------------------------ | --------------------------------------------------- | --------------------------------------------- |
+| Zustand store            | Client state changes that affect UI across modules  | Auth state, feature flags, UI preferences     |
 | React Query invalidation | Server data changes that other modules also display | User deactivated → billing data needs refresh |
 
 ---
@@ -1175,17 +1184,17 @@ const useShellStore = create((set, get) => ({
 
   openTab: (interactionId: string, tab: Tab) =>
     set((state) => {
-      const current = state.tabsByInteraction[interactionId] ?? defaultTabState()
+      const current = state.tabsByInteraction[interactionId] ?? defaultTabState();
       return {
         tabsByInteraction: {
           ...state.tabsByInteraction,
           [interactionId]: { ...current, tabs: [...current.tabs, tab] },
         },
-      }
+      };
     }),
 
   // ... 30 more lines of the same pattern for closeTab, switchTab, etc.
-}))
+}));
 ```
 
 This boilerplate multiplies with every scoped concern — tabs, scratchpad, journey state, etc.
@@ -1193,13 +1202,13 @@ This boilerplate multiplies with every scoped concern — tabs, scratchpad, jour
 ### The solution
 
 ```typescript
-import { createScopedStore } from '@reactive-framework/core'
+import { createScopedStore } from "@tanstack-react-modules/core";
 
 // Define once — each interaction gets its own independent store
 const tabState = createScopedStore<TabState>(() => ({
   tabs: [createDirectoryTab()],
-  activeTabId: 'directory',
-}))
+  activeTabId: "directory",
+}));
 ```
 
 ### In React components
@@ -1220,26 +1229,26 @@ function Workspace({ interactionId }: { interactionId: string }) {
 
 ```typescript
 function openTab(interactionId: string, tab: Tab) {
-  const store = tabState.getOrCreate(interactionId)
+  const store = tabState.getOrCreate(interactionId);
   store.setState((prev) => ({
     tabs: [...prev.tabs, tab],
     activeTabId: tab.id,
-  }))
+  }));
 }
 
 function closeTab(interactionId: string, tabId: string) {
-  const store = tabState.getOrCreate(interactionId)
+  const store = tabState.getOrCreate(interactionId);
   store.setState((prev) => {
-    const newTabs = prev.tabs.filter((t) => t.id !== tabId)
+    const newTabs = prev.tabs.filter((t) => t.id !== tabId);
     return {
       tabs: newTabs,
-      activeTabId: prev.activeTabId === tabId ? newTabs[0]?.id ?? 'directory' : prev.activeTabId,
-    }
-  })
+      activeTabId: prev.activeTabId === tabId ? (newTabs[0]?.id ?? "directory") : prev.activeTabId,
+    };
+  });
 }
 
 // Cleanup when an interaction ends
-tabState.remove(interactionId)
+tabState.remove(interactionId);
 ```
 
 ### API
@@ -1257,10 +1266,10 @@ scoped.useScoped(scopeId, selector) // React hook — selected slice
 
 ### When to use scoped stores vs regular stores
 
-| Pattern | Use when |
-|---|---|
-| Regular Zustand store (`createStore`) | Singleton state shared across the app (auth, config, UI panels) |
-| Scoped store (`createScopedStore`) | Per-entity state with dynamic keys (per-interaction, per-tab, per-user) |
+| Pattern                               | Use when                                                                |
+| ------------------------------------- | ----------------------------------------------------------------------- |
+| Regular Zustand store (`createStore`) | Singleton state shared across the app (auth, config, UI panels)         |
+| Scoped store (`createScopedStore`)    | Per-entity state with dynamic keys (per-interaction, per-tab, per-user) |
 
 ---
 
@@ -1285,16 +1294,13 @@ Enable React Compiler in each shell's Vite config via `@rolldown/plugin-babel`:
 
 ```typescript
 // vite.config.ts
-import { defineConfig } from 'vite'
-import react, { reactCompilerPreset } from '@vitejs/plugin-react'
-import babel from '@rolldown/plugin-babel'
+import { defineConfig } from "vite";
+import react, { reactCompilerPreset } from "@vitejs/plugin-react";
+import babel from "@rolldown/plugin-babel";
 
 export default defineConfig({
-  plugins: [
-    react(),
-    babel({ presets: [reactCompilerPreset()] }),
-  ],
-})
+  plugins: [react(), babel({ presets: [reactCompilerPreset()] })],
+});
 ```
 
 The compiler runs at the shell level during bundling, so it optimizes both shell code and all imported module code. Individual module packages don't need their own compiler setup.
@@ -1315,33 +1321,33 @@ See the [React Compiler documentation](https://react.dev/learn/react-compiler) f
 
 ## Testing Modules
 
-`@reactive-framework/testing` provides `renderModule()` to test a module in isolation with mocked dependencies. It supports both route-based modules and component-only modules.
+`@tanstack-react-modules/testing` provides `renderModule()` to test a module in isolation with mocked dependencies. It supports both route-based modules and component-only modules.
 
 ### Route-based module
 
 ```typescript
-import { renderModule, createMockStore } from '@reactive-framework/testing'
-import billing from '@example/billing-module'
-import type { AuthStore } from '@example/app-shared'
-import wretch from 'wretch'
+import { renderModule, createMockStore } from "@tanstack-react-modules/testing";
+import billing from "@example/billing-module";
+import type { AuthStore } from "@example/app-shared";
+import wretch from "wretch";
 
-test('billing dashboard shows user name', async () => {
+test("billing dashboard shows user name", async () => {
   const result = await renderModule(billing, {
-    route: '/billing',
+    route: "/billing",
     deps: {
       auth: createMockStore<AuthStore>({
-        user: { id: '1', name: 'Test User', email: 'test@example.com', role: 'admin' },
-        token: 'mock-token',
+        user: { id: "1", name: "Test User", email: "test@example.com", role: "admin" },
+        token: "mock-token",
         isAuthenticated: true,
         login: async () => {},
         logout: () => {},
       }),
-      httpClient: wretch('http://localhost:3000'),
+      httpClient: wretch("http://localhost:3000"),
     },
-  })
+  });
 
-  expect(result.getByText('Test User')).toBeDefined()
-})
+  expect(result.getByText("Test User")).toBeDefined();
+});
 ```
 
 ### Component-only module
@@ -1349,18 +1355,18 @@ test('billing dashboard shows user name', async () => {
 Modules that use `component` instead of `createRoutes` (workspace-style journeys, panels) are rendered directly inside the provider tree — no router needed:
 
 ```typescript
-import { renderModule, createMockStore } from '@reactive-framework/testing'
-import ddSetup from '@myorg/module-dd-setup'
-import type { AuthStore } from '@myorg/app-shared'
+import { renderModule, createMockStore } from "@tanstack-react-modules/testing";
+import ddSetup from "@myorg/module-dd-setup";
+import type { AuthStore } from "@myorg/app-shared";
 
-test('dd-setup journey renders and completes', async () => {
-  const onComplete = vi.fn()
+test("dd-setup journey renders and completes", async () => {
+  const onComplete = vi.fn();
 
   const result = await renderModule(ddSetup, {
     deps: {
       auth: createMockStore<AuthStore>({
         isAuthenticated: true,
-        session: { name: 'Test', email: 'test@example.com' },
+        session: { name: "Test", email: "test@example.com" },
         isLoading: false,
         checkSession: async () => {},
         logout: () => {},
@@ -1368,15 +1374,15 @@ test('dd-setup journey renders and completes', async () => {
       httpClient: { get: vi.fn() },
     },
     props: {
-      customerId: 'C001',
-      accountNumber: 'A001',
+      customerId: "C001",
+      accountNumber: "A001",
       onComplete,
       onCancel: vi.fn(),
     },
-  })
+  });
 
-  expect(result.getByText('Set up Direct Debit')).toBeDefined()
-})
+  expect(result.getByText("Set up Direct Debit")).toBeDefined();
+});
 ```
 
 `useModules()` works inside components rendered by `renderModule` — the test wrapper provides a `ModulesContext` containing the module under test.
@@ -1392,17 +1398,17 @@ const authStore = createMockStore<AuthStore>({
   isAuthenticated: false,
   login: async () => {},
   logout: () => {},
-})
+});
 ```
 
 ### renderModule options
 
-| Option | Description |
-|---|---|
-| `route` | Initial route to navigate to (default: `'/'`). Only used for route-based modules. |
-| `deps` | Partial map of shared dependencies. `StoreApi` values go to stores context, plain values go to services context. |
-| `props` | Props passed to the module's `component`. Only used for component-only modules. |
-| `slots` | Mock slot data available via `useSlots()` in the test. |
+| Option  | Description                                                                                                      |
+| ------- | ---------------------------------------------------------------------------------------------------------------- |
+| `route` | Initial route to navigate to (default: `'/'`). Only used for route-based modules.                                |
+| `deps`  | Partial map of shared dependencies. `StoreApi` values go to stores context, plain values go to services context. |
+| `props` | Props passed to the module's `component`. Only used for component-only modules.                                  |
+| `slots` | Mock slot data available via `useSlots()` in the test.                                                           |
 
 ---
 
@@ -1412,10 +1418,10 @@ For large modules that shouldn't be in the initial bundle:
 
 ```typescript
 registry.registerLazy({
-  id: 'admin',
-  basePath: '/admin',
-  load: () => import('@example/admin-module'),
-})
+  id: "admin",
+  basePath: "/admin",
+  load: () => import("@example/admin-module"),
+});
 ```
 
 The module's code is only loaded when the user first navigates to `/admin/*`.
@@ -1427,10 +1433,10 @@ The module's code is only loaded when the user first navigates to `/admin/*`.
 ```
 reactive/
 ├── packages/
-│   ├── cli/                     # @reactive-framework/cli — project scaffolding CLI
-│   ├── core/                    # @reactive-framework/core — module types, hooks, defineModule()
-│   ├── registry/                # @reactive-framework/registry — composition, validation, providers
-│   └── testing/                 # @reactive-framework/testing — test harness
+│   ├── cli/                     # @tanstack-react-modules/cli — project scaffolding CLI
+│   ├── core/                    # @tanstack-react-modules/core — module types, hooks, defineModule()
+│   ├── registry/                # @tanstack-react-modules/runtime — composition, validation, providers
+│   └── testing/                 # @tanstack-react-modules/testing — test harness
 ├── examples/
 │   ├── app-shared/              # @example/app-shared — types, hooks, API contracts
 │   ├── shell/                   # Example host app (Vite 8 + React Compiler)
@@ -1444,12 +1450,12 @@ reactive/
 
 ### Framework packages
 
-| Package | Purpose | Size |
-|---|---|---|
-| `@reactive-framework/core` | Module types, `defineModule()`, `createSharedHooks()` | ~1 KB |
-| `@reactive-framework/registry` | `createRegistry()`, route composition, validation, navigation manifest, `useNavigation()` | ~5.6 KB |
-| `@reactive-framework/testing` | `renderModule()`, `createMockStore()` | ~1 KB |
-| `@reactive-framework/cli` | `reactive init`, `reactive create module`, `reactive create store` | N/A (Node CLI) |
+| Package                           | Purpose                                                                                   | Size           |
+| --------------------------------- | ----------------------------------------------------------------------------------------- | -------------- |
+| `@tanstack-react-modules/core`    | Module types, `defineModule()`, `createSharedHooks()`                                     | ~1 KB          |
+| `@tanstack-react-modules/runtime` | `createRegistry()`, route composition, validation, navigation manifest, `useNavigation()` | ~5.6 KB        |
+| `@tanstack-react-modules/testing` | `renderModule()`, `createMockStore()`                                                     | ~1 KB          |
+| `@tanstack-react-modules/cli`     | `reactive init`, `reactive create module`, `reactive create store`                        | N/A (Node CLI) |
 
 ### Building packages
 
@@ -1457,7 +1463,7 @@ Framework packages use Vite 8 library mode (ESM only):
 
 ```bash
 pnpm build                    # Build all packages + shell
-pnpm --filter @reactive-framework/core build   # Build a single package
+pnpm --filter @tanstack-react-modules/core build   # Build a single package
 pnpm --filter shell dev       # Run example shell in dev mode
 ```
 
@@ -1465,7 +1471,7 @@ pnpm --filter shell dev       # Run example shell in dev mode
 
 ## CLI Reference
 
-`@reactive-framework/cli` provides commands for scaffolding projects, modules, and stores. All commands support both interactive (prompts) and non-interactive (flags) modes.
+`@tanstack-react-modules/cli` provides commands for scaffolding projects, modules, and stores. All commands support both interactive (prompts) and non-interactive (flags) modes.
 
 ### reactive init
 
@@ -1479,10 +1485,10 @@ reactive init my-app
 reactive init my-app --scope @myorg --module dashboard
 ```
 
-| Flag | Description |
-|---|---|
-| `--scope` | npm scope for all packages (e.g. `@myorg`) |
-| `--module` | Name of the first module to create |
+| Flag       | Description                                |
+| ---------- | ------------------------------------------ |
+| `--scope`  | npm scope for all packages (e.g. `@myorg`) |
+| `--module` | Name of the first module to create         |
 
 ### reactive create module
 
@@ -1496,12 +1502,13 @@ reactive create module
 reactive create module billing --route billing --nav-group finance
 ```
 
-| Flag | Description |
-|---|---|
-| `--route` | Route path (defaults to module name) |
+| Flag          | Description                           |
+| ------------- | ------------------------------------- |
+| `--route`     | Route path (defaults to module name)  |
 | `--nav-group` | Navigation group for sidebar grouping |
 
 This command:
+
 1. Scaffolds `modules/<name>/` with descriptor, two page components, package.json, tsconfig
 2. Adds the module dependency to `shell/package.json`
 3. Adds the import and `registry.register()` call to `shell/src/main.tsx`
@@ -1515,6 +1522,7 @@ reactive create store notifications
 ```
 
 This command:
+
 1. Creates `shell/src/stores/<name>.ts` with a Zustand store skeleton
 2. Adds the store interface to `AppDependencies` in `app-shared/src/index.ts`
 3. Wires the store into `createRegistry()` in `shell/src/main.tsx`
@@ -1537,19 +1545,19 @@ npx playwright install chromium
 Use Playwright's semantic locators (`getByRole`, `getByText`) instead of `data-testid` attributes:
 
 ```typescript
-import { test, expect } from '@playwright/test'
+import { test, expect } from "@playwright/test";
 
-test('navigates to billing module', async ({ page }) => {
-  await page.goto('/')
-  await page.getByRole('link', { name: 'Billing' }).click()
-  await expect(page.getByRole('heading', { name: 'Billing' })).toBeVisible()
-})
+test("navigates to billing module", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Billing" }).click();
+  await expect(page.getByRole("heading", { name: "Billing" })).toBeVisible();
+});
 
-test('login flow works', async ({ page }) => {
-  await page.goto('/')
-  await page.getByRole('button', { name: /login/i }).click()
-  await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible()
-})
+test("login flow works", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: /login/i }).click();
+  await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
+});
 ```
 
 ### Running
@@ -1566,45 +1574,45 @@ npx playwright test
 
 ## API Reference
 
-### @reactive-framework/core
+### @tanstack-react-modules/core
 
-| Export | Type | Description |
-|---|---|---|
-| `defineModule(descriptor)` | Function | Identity function for type inference. Returns descriptor unchanged. |
-| `createSharedHooks<T>()` | Function | Returns typed `{ useStore, useService }` hooks. Call once in app-shared package. |
-| `SharedDependenciesContext` | Context | React context holding stores and services. Used internally. |
-| `ReactiveModuleDescriptor<T, S>` | Type | Module descriptor shape. `T` = shared deps, `S` = slots. |
-| `LazyModuleDescriptor<T, S>` | Type | Lazy module descriptor shape. |
-| `NavigationItem` | Type | Navigation entry shape. `icon` accepts `string \| React.ComponentType`. |
-| `ModuleLifecycle<T>` | Type | Lifecycle hooks shape. |
-| `SlotMap` | Type | Constraint type for slot definitions: `Record<string, readonly unknown[]>`. |
-| `ZoneMap` | Type | Constraint type for zone definitions: `Record<string, ComponentType \| undefined>`. |
-| `ZoneMapOf<T>` | Type | F-bounded constraint for zone types — accepts interfaces without index signatures. |
+| Export                           | Type     | Description                                                                         |
+| -------------------------------- | -------- | ----------------------------------------------------------------------------------- |
+| `defineModule(descriptor)`       | Function | Identity function for type inference. Returns descriptor unchanged.                 |
+| `createSharedHooks<T>()`         | Function | Returns typed `{ useStore, useService }` hooks. Call once in app-shared package.    |
+| `SharedDependenciesContext`      | Context  | React context holding stores and services. Used internally.                         |
+| `ReactiveModuleDescriptor<T, S>` | Type     | Module descriptor shape. `T` = shared deps, `S` = slots.                            |
+| `LazyModuleDescriptor<T, S>`     | Type     | Lazy module descriptor shape.                                                       |
+| `NavigationItem`                 | Type     | Navigation entry shape. `icon` accepts `string \| React.ComponentType`.             |
+| `ModuleLifecycle<T>`             | Type     | Lifecycle hooks shape.                                                              |
+| `SlotMap`                        | Type     | Constraint type for slot definitions: `Record<string, readonly unknown[]>`.         |
+| `ZoneMap`                        | Type     | Constraint type for zone definitions: `Record<string, ComponentType \| undefined>`. |
+| `ZoneMapOf<T>`                   | Type     | F-bounded constraint for zone types — accepts interfaces without index signatures.  |
 
-### @reactive-framework/registry
+### @tanstack-react-modules/runtime
 
-| Export | Type | Description |
-|---|---|---|
-| `createRegistry<T, S>(config)` | Function | Creates a module registry. `T` = shared deps, `S` = slots. Config has `{ stores, services }`. |
-| `useNavigation()` | Hook | Access the navigation manifest from any component inside `<App />`. |
-| `useSlots<S>()` | Hook | Access collected slot contributions from all modules. |
-| `useZones<Z>()` | Hook | Access zone components from the currently matched route's `staticData`. |
-| `useActiveZones<Z>(moduleId?)` | Hook | Merge route zones with the active module's descriptor zones. Module wins for same key. |
-| `useModules()` | Hook | Access registered module summaries (id, version, meta, component). |
-| `SlotsContext` | Context | React context holding the slots manifest. Used internally. |
-| `ModuleErrorBoundary` | Component | Error boundary that isolates module-level crashes. |
-| `ReactiveRegistry<T, S>` | Type | Registry interface with `register()`, `registerLazy()`, `resolve()`. |
-| `RegistryConfig<T>` | Type | Registry configuration shape. |
-| `ApplicationManifest<T, S>` | Type | Resolved app shape: `{ App, router, navigation, slots, modules }`. |
-| `ModuleEntry` | Type | `{ id, version, meta?, component?, zones? }`. |
-| `NavigationManifest` | Type | `{ items, groups, ungrouped }`. |
-| `NavigationGroup` | Type | `{ group, items }`. |
-| `ResolveOptions` | Type | `{ rootComponent, indexComponent, notFoundComponent }`. |
+| Export                         | Type      | Description                                                                                   |
+| ------------------------------ | --------- | --------------------------------------------------------------------------------------------- |
+| `createRegistry<T, S>(config)` | Function  | Creates a module registry. `T` = shared deps, `S` = slots. Config has `{ stores, services }`. |
+| `useNavigation()`              | Hook      | Access the navigation manifest from any component inside `<App />`.                           |
+| `useSlots<S>()`                | Hook      | Access collected slot contributions from all modules.                                         |
+| `useZones<Z>()`                | Hook      | Access zone components from the currently matched route's `staticData`.                       |
+| `useActiveZones<Z>(moduleId?)` | Hook      | Merge route zones with the active module's descriptor zones. Module wins for same key.        |
+| `useModules()`                 | Hook      | Access registered module summaries (id, version, meta, component).                            |
+| `SlotsContext`                 | Context   | React context holding the slots manifest. Used internally.                                    |
+| `ModuleErrorBoundary`          | Component | Error boundary that isolates module-level crashes.                                            |
+| `ReactiveRegistry<T, S>`       | Type      | Registry interface with `register()`, `registerLazy()`, `resolve()`.                          |
+| `RegistryConfig<T>`            | Type      | Registry configuration shape.                                                                 |
+| `ApplicationManifest<T, S>`    | Type      | Resolved app shape: `{ App, router, navigation, slots, modules }`.                            |
+| `ModuleEntry`                  | Type      | `{ id, version, meta?, component?, zones? }`.                                                 |
+| `NavigationManifest`           | Type      | `{ items, groups, ungrouped }`.                                                               |
+| `NavigationGroup`              | Type      | `{ group, items }`.                                                                           |
+| `ResolveOptions`               | Type      | `{ rootComponent, indexComponent, notFoundComponent }`.                                       |
 
-### @reactive-framework/testing
+### @tanstack-react-modules/testing
 
-| Export | Type | Description |
-|---|---|---|
+| Export                          | Type     | Description                                                                                                               |
+| ------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `renderModule(module, options)` | Function | Render a module in isolation. Returns `@testing-library/react` RenderResult. Options include `deps` and optional `slots`. |
-| `createMockStore<T>(state)` | Function | Create a zustand store pre-populated with given state. |
-| `RenderModuleOptions<T>` | Type | Options for `renderModule`: `{ route?, deps, slots? }`. |
+| `createMockStore<T>(state)`     | Function | Create a zustand store pre-populated with given state.                                                                    |
+| `RenderModuleOptions<T>`        | Type     | Options for `renderModule`: `{ route?, deps, slots? }`.                                                                   |

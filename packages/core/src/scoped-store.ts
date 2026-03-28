@@ -1,42 +1,42 @@
-import { createStore } from 'zustand/vanilla'
-import { useStore } from 'zustand'
-import type { StoreApi } from 'zustand'
+import { createStore } from "zustand/vanilla";
+import { useStore } from "zustand";
+import type { StoreApi } from "zustand";
 
 export interface ScopedStore<TState> {
   /**
    * Get the store for a scope, creating it with the initializer if it doesn't exist.
    * Returns the raw Zustand StoreApi — call getState(), setState(), subscribe() directly.
    */
-  getOrCreate(scopeId: string): StoreApi<TState>
+  getOrCreate(scopeId: string): StoreApi<TState>;
 
   /**
    * Check whether a scope exists (was previously created).
    */
-  has(scopeId: string): boolean
+  has(scopeId: string): boolean;
 
   /**
    * Remove a scope's store, freeing its state.
    * No-op if the scope doesn't exist.
    */
-  remove(scopeId: string): void
+  remove(scopeId: string): void;
 
   /**
    * Remove all scoped stores.
    */
-  clear(): void
+  clear(): void;
 
   /**
    * React hook — subscribe to a scoped store's full state.
    * Creates the scope if it doesn't exist.
    */
-  useScoped(scopeId: string): TState
+  useScoped(scopeId: string): TState;
 
   /**
    * React hook — subscribe to a scoped store with a selector.
    * Only re-renders when the selected value changes.
    * Creates the scope if it doesn't exist.
    */
-  useScoped<U>(scopeId: string, selector: (state: TState) => U): U
+  useScoped<U>(scopeId: string, selector: (state: TState) => U): U;
 }
 
 /**
@@ -66,38 +66,36 @@ export interface ScopedStore<TState> {
  * // Cleanup when interaction ends:
  * tabState.remove('interaction-1')
  */
-export function createScopedStore<TState>(
-  initializer: () => TState,
-): ScopedStore<TState> {
-  const scopes = new Map<string, StoreApi<TState>>()
+export function createScopedStore<TState>(initializer: () => TState): ScopedStore<TState> {
+  const scopes = new Map<string, StoreApi<TState>>();
 
   function getOrCreate(scopeId: string): StoreApi<TState> {
-    let store = scopes.get(scopeId)
+    let store = scopes.get(scopeId);
     if (!store) {
-      store = createStore<TState>(initializer)
-      scopes.set(scopeId, store)
+      store = createStore<TState>(initializer);
+      scopes.set(scopeId, store);
     }
-    return store
+    return store;
   }
 
   function has(scopeId: string): boolean {
-    return scopes.has(scopeId)
+    return scopes.has(scopeId);
   }
 
   function remove(scopeId: string): void {
-    scopes.delete(scopeId)
+    scopes.delete(scopeId);
   }
 
   function clear(): void {
-    scopes.clear()
+    scopes.clear();
   }
 
-  function useScoped(scopeId: string): TState
-  function useScoped<U>(scopeId: string, selector: (state: TState) => U): U
+  function useScoped(scopeId: string): TState;
+  function useScoped<U>(scopeId: string, selector: (state: TState) => U): U;
   function useScoped(scopeId: string, selector?: (state: any) => any): any {
-    const store = getOrCreate(scopeId)
-    return useStore(store, selector ?? ((s) => s))
+    const store = getOrCreate(scopeId);
+    return useStore(store, selector ?? ((s) => s));
   }
 
-  return { getOrCreate, has, remove, clear, useScoped }
+  return { getOrCreate, has, remove, clear, useScoped };
 }

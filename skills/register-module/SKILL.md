@@ -31,10 +31,10 @@ Run `pnpm install` to link.
 In `examples/shell/src/main.tsx`:
 
 ```typescript
-import newModule from '@example/<module-name>-module'
+import newModule from "@example/<module-name>-module";
 
 // After createRegistry and before resolve:
-registry.register(newModule)
+registry.register(newModule);
 ```
 
 ## Step 3: Verify
@@ -51,10 +51,10 @@ For large modules that should load on demand:
 
 ```typescript
 registry.registerLazy({
-  id: '<module-name>',
-  basePath: '/<module-path>',
-  load: () => import('@example/<module-name>-module'),
-})
+  id: "<module-name>",
+  basePath: "/<module-path>",
+  load: () => import("@example/<module-name>-module"),
+});
 ```
 
 The module's code is only fetched when the user navigates to the base path.
@@ -69,7 +69,7 @@ When `registry.resolve()` runs, it validates:
 If validation fails, the error message tells you exactly what's missing:
 
 ```
-[@reactive-framework/registry] Module "billing" requires dependencies not provided
+[@tanstack-react-modules/runtime] Module "billing" requires dependencies not provided
 by the registry: analytics. Available: auth, config, httpClient
 ```
 

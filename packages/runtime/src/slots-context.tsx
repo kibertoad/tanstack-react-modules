@@ -1,6 +1,6 @@
-import { createContext, useContext } from 'react'
+import { createContext, useContext } from "react";
 
-export const SlotsContext = createContext<object | null>(null)
+export const SlotsContext = createContext<object | null>(null);
 
 /**
  * Access the collected slot contributions from all registered modules.
@@ -11,11 +11,11 @@ export const SlotsContext = createContext<object | null>(null)
  * const commands = slots.commands // CommandDefinition[] from all modules
  */
 export function useSlots<TSlots extends { [K in keyof TSlots]: readonly unknown[] }>(): TSlots {
-  const slots = useContext(SlotsContext)
+  const slots = useContext(SlotsContext);
   if (!slots) {
     throw new Error(
-      '[@reactive-framework/registry] useSlots must be used within a <ReactiveApp />.',
-    )
+      "[@tanstack-react-modules/runtime] useSlots must be used within a <ReactiveApp />.",
+    );
   }
-  return slots as TSlots
+  return slots as TSlots;
 }

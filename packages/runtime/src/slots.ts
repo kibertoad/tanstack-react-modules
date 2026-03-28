@@ -1,4 +1,4 @@
-import type { ReactiveModuleDescriptor, SlotMap } from '@reactive-framework/core'
+import type { ReactiveModuleDescriptor } from "@tanstack-react-modules/core";
 
 /**
  * Collects slot contributions from all registered modules.
@@ -11,24 +11,24 @@ export function buildSlotsManifest<TSlots extends { [K in keyof TSlots]: readonl
   modules: readonly ReactiveModuleDescriptor<any, TSlots>[],
   defaults?: Partial<{ [K in keyof TSlots]: TSlots[K] }>,
 ): TSlots {
-  const result: Record<string, unknown[]> = {}
+  const result: Record<string, unknown[]> = {};
 
   // Initialize from defaults so every declared key exists
   if (defaults) {
     for (const [key, items] of Object.entries(defaults)) {
-      result[key] = Array.isArray(items) ? [...items] : []
+      result[key] = Array.isArray(items) ? [...items] : [];
     }
   }
 
   for (const mod of modules) {
-    if (!mod.slots) continue
+    if (!mod.slots) continue;
     for (const [key, items] of Object.entries(mod.slots)) {
-      if (!result[key]) result[key] = []
+      if (!result[key]) result[key] = [];
       if (Array.isArray(items)) {
-        result[key].push(...items)
+        result[key].push(...items);
       }
     }
   }
 
-  return result as unknown as TSlots
+  return result as unknown as TSlots;
 }

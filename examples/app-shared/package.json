@@ -11,22 +11,22 @@
     }
   },
   "dependencies": {
-    "@reactive-framework/core": "workspace:*",
     "@lokalise/api-contracts": "^6.0.0",
     "@lokalise/frontend-http-client": "^7.0.0",
+    "@tanstack-react-modules/core": "workspace:*",
     "wretch": "^2.11.0",
     "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@tanstack/router-core": "^1.120.0",
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "typescript": "^6.0.2",
+    "zustand": "^5.0.0"
   },
   "peerDependencies": {
     "@tanstack/router-core": "^1.120.0",
     "react": "^19.0.0",
     "zustand": "^5.0.0"
-  },
-  "devDependencies": {
-    "@tanstack/router-core": "^1.120.0",
-    "react": "^19.0.0",
-    "zustand": "^5.0.0",
-    "@types/react": "^19.0.0",
-    "typescript": "^6.0.2"
   }
 }

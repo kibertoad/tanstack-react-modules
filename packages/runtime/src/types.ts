@@ -1,6 +1,6 @@
-import type { StoreApi } from 'zustand'
-import type { Router } from '@tanstack/react-router'
-import type { NavigationItem, SlotMap, SlotMapOf } from '@reactive-framework/core'
+import type { StoreApi } from "zustand";
+import type { Router } from "@tanstack/react-router";
+import type { NavigationItem, SlotMap, SlotMapOf } from "@tanstack-react-modules/core";
 
 /**
  * Configuration for creating a registry.
@@ -12,34 +12,34 @@ export interface RegistryConfig<
 > {
   /** Zustand stores — keys must match TSharedDependencies keys */
   stores?: {
-    [K in keyof TSharedDependencies]?: StoreApi<TSharedDependencies[K]>
-  }
+    [K in keyof TSharedDependencies]?: StoreApi<TSharedDependencies[K]>;
+  };
 
   /** Plain services (non-reactive) — keys must match TSharedDependencies keys */
   services?: {
-    [K in keyof TSharedDependencies]?: TSharedDependencies[K]
-  }
+    [K in keyof TSharedDependencies]?: TSharedDependencies[K];
+  };
 
   /**
    * Default slot values. Every key defined here is guaranteed to exist
    * in the resolved slots manifest, even if no module contributes to it.
    * Module contributions are appended to these defaults.
    */
-  slots?: { [K in keyof TSlots]?: TSlots[K] }
+  slots?: { [K in keyof TSlots]?: TSlots[K] };
 }
 
 export interface NavigationGroup {
-  readonly group: string
-  readonly items: readonly NavigationItem[]
+  readonly group: string;
+  readonly items: readonly NavigationItem[];
 }
 
 export interface NavigationManifest {
   /** All navigation items flat */
-  readonly items: readonly NavigationItem[]
+  readonly items: readonly NavigationItem[];
   /** Items grouped by their group key, sorted by order within each group */
-  readonly groups: readonly NavigationGroup[]
+  readonly groups: readonly NavigationGroup[];
   /** Ungrouped items (no group key) */
-  readonly ungrouped: readonly NavigationItem[]
+  readonly ungrouped: readonly NavigationItem[];
 }
 
 /**
@@ -48,29 +48,26 @@ export interface NavigationManifest {
  */
 export interface ModuleEntry {
   /** Unique module identifier */
-  readonly id: string
+  readonly id: string;
   /** SemVer version string */
-  readonly version: string
+  readonly version: string;
   /** Catalog metadata (description, icon, category, etc.) */
-  readonly meta?: Readonly<Record<string, unknown>>
+  readonly meta?: Readonly<Record<string, unknown>>;
   /** A React component the shell can render outside of routes */
-  readonly component?: React.ComponentType<any>
+  readonly component?: React.ComponentType<any>;
   /** Zone components contributed when this module is active in a workspace tab */
-  readonly zones?: Readonly<Record<string, React.ComponentType<any>>>
+  readonly zones?: Readonly<Record<string, React.ComponentType<any>>>;
 }
 
-export interface ApplicationManifest<
-  TSharedDependencies extends Record<string, any> = Record<string, any>,
-  TSlots extends SlotMapOf<TSlots> = SlotMap,
-> {
+export interface ApplicationManifest<TSlots extends SlotMapOf<TSlots> = SlotMap> {
   /** The root React component with all providers wired */
-  readonly App: React.ComponentType
+  readonly App: React.ComponentType;
   /** The TanStack Router instance */
-  readonly router: Router<any, any, any>
+  readonly router: Router<any, any, any>;
   /** Auto-generated navigation manifest from all modules */
-  readonly navigation: NavigationManifest
+  readonly navigation: NavigationManifest;
   /** Collected slot contributions from all modules */
-  readonly slots: TSlots
+  readonly slots: TSlots;
   /** Registered module summaries — use useModules() to access in components */
-  readonly modules: readonly ModuleEntry[]
+  readonly modules: readonly ModuleEntry[];
 }

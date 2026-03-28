@@ -40,7 +40,7 @@ examples/modules/<module-name>/
     }
   },
   "dependencies": {
-    "@reactive-framework/core": "^0.1.0",
+    "@tanstack-react-modules/core": "^0.1.0",
     "@example/app-shared": "workspace:*",
     "@lokalise/frontend-http-client": "^7.0.0"
   },
@@ -74,35 +74,41 @@ examples/modules/<module-name>/
 
 ```typescript
 // src/index.ts
-import { defineModule } from '@reactive-framework/core'
-import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
-import type { AppDependencies } from '@example/app-shared'
+import { defineModule } from "@tanstack-react-modules/core";
+import { createRoute, lazyRouteComponent } from "@tanstack/react-router";
+import type { AppDependencies } from "@example/app-shared";
 
 export default defineModule<AppDependencies>({
-  id: '<module-name>',
-  version: '0.1.0',
+  id: "<module-name>",
+  version: "0.1.0",
 
   createRoutes: (parentRoute) => {
     const root = createRoute({
       getParentRoute: () => parentRoute,
-      path: '<module-name>',
-    })
+      path: "<module-name>",
+    });
 
     const index = createRoute({
       getParentRoute: () => root,
-      path: '/',
-      component: lazyRouteComponent(() => import('./pages/<PageName>.js')),
-    })
+      path: "/",
+      component: lazyRouteComponent(() => import("./pages/<PageName>.js")),
+    });
 
-    return root.addChildren([index])
+    return root.addChildren([index]);
   },
 
   navigation: [
-    { label: '<Module Label>', to: '/<module-name>', icon: '<icon-name>', group: '<group>', order: 30 },
+    {
+      label: "<Module Label>",
+      to: "/<module-name>",
+      icon: "<icon-name>",
+      group: "<group>",
+      order: 30,
+    },
   ],
 
-  requires: ['auth', 'httpClient'],
-})
+  requires: ["auth", "httpClient"],
+});
 ```
 
 ## Step 5: Create page components
@@ -127,7 +133,7 @@ export default function <PageName>() {
 
 - Every page component must use `lazyRouteComponent(() => import(...))` for code splitting.
 - The module `id` must be unique across all registered modules.
-- Use `useStore` and `useService` from `@example/app-shared`, never from `@reactive-framework/core` directly.
+- Use `useStore` and `useService` from `@example/app-shared`, never from `@tanstack-react-modules/core` directly.
 - Navigation `to` paths must match the routes defined in `createRoutes`.
 - The `requires` array is validated when `registry.resolve()` is called — missing deps throw an error.
 - Do not import from other modules. Communicate via shared Zustand stores or React Query cache invalidation.
@@ -137,8 +143,8 @@ export default function <PageName>() {
 Register it in the shell's `main.tsx`:
 
 ```typescript
-import newModule from '@example/<module-name>-module'
-registry.register(newModule)
+import newModule from "@example/<module-name>-module";
+registry.register(newModule);
 ```
 
 Add the workspace dependency to the shell's `package.json`:

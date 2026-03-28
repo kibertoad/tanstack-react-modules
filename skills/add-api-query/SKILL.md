@@ -9,6 +9,7 @@ metadata:
 # Add an API Query to a Component
 
 Data fetching uses three layers:
+
 1. **API contract** (`@lokalise/api-contracts`) — defines the endpoint, method, and zod schemas. Typically owned and published by the backend team.
 2. **HTTP client** (`@lokalise/frontend-http-client`) — executes the contract with runtime validation.
 3. **React Query** (`@tanstack/react-query`) — manages caching, loading states, refetching, and invalidation.
@@ -22,38 +23,38 @@ The **backend team** is the primary owner of contracts. They typically publish a
 A contract looks like this:
 
 ```typescript
-import { buildRestContract } from '@lokalise/api-contracts'
-import { z } from 'zod/v4'
+import { buildRestContract } from "@lokalise/api-contracts";
+import { z } from "zod/v4";
 
 const invoiceSchema = z.object({
   id: z.string(),
   amount: z.number(),
-  status: z.enum(['paid', 'pending', 'overdue']),
+  status: z.enum(["paid", "pending", "overdue"]),
   date: z.string(),
-})
+});
 
 // GET /api/invoices
 export const listInvoicesContract = buildRestContract({
-  method: 'get',
-  pathResolver: () => '/api/invoices',
+  method: "get",
+  pathResolver: () => "/api/invoices",
   successResponseBodySchema: z.array(invoiceSchema),
-})
+});
 
 // GET /api/invoices/:invoiceId
 export const getInvoiceContract = buildRestContract({
-  method: 'get',
+  method: "get",
   pathResolver: (params) => `/api/invoices/${params.invoiceId}`,
   requestPathParamsSchema: z.object({ invoiceId: z.string() }),
   successResponseBodySchema: invoiceSchema,
-})
+});
 
 // POST /api/invoices
 export const createInvoiceContract = buildRestContract({
-  method: 'post',
-  pathResolver: () => '/api/invoices',
+  method: "post",
+  pathResolver: () => "/api/invoices",
   requestBodySchema: z.object({ amount: z.number(), date: z.string() }),
   successResponseBodySchema: invoiceSchema,
-})
+});
 ```
 
 When using a backend-published contract package, import directly from it. When contracts are defined locally, they go in `app-shared/src/contracts/` and are re-exported from `app-shared/src/index.ts`.
@@ -91,32 +92,33 @@ export default function InvoiceList() {
 ### Query with path params
 
 ```typescript
-import { getInvoiceContract } from '@example/app-shared'
-import { useParams } from '@tanstack/react-router'
+import { getInvoiceContract } from "@example/app-shared";
+import { useParams } from "@tanstack/react-router";
 
 export default function InvoiceDetail() {
-  const { invoiceId } = useParams({ strict: false }) as { invoiceId: string }
-  const httpClient = useService('httpClient')
+  const { invoiceId } = useParams({ strict: false }) as { invoiceId: string };
+  const httpClient = useService("httpClient");
 
   const { data: invoice } = useQuery({
-    queryKey: ['invoices', invoiceId],
-    queryFn: () => sendByContract(httpClient, getInvoiceContract, {
-      pathParams: { invoiceId },
-    }),
-  })
+    queryKey: ["invoices", invoiceId],
+    queryFn: () =>
+      sendByContract(httpClient, getInvoiceContract, {
+        pathParams: { invoiceId },
+      }),
+  });
 }
 ```
 
 ### Conditional query (e.g., auth-gated)
 
 ```typescript
-const isAuthenticated = useStore('auth', (s) => s.isAuthenticated)
+const isAuthenticated = useStore("auth", (s) => s.isAuthenticated);
 
 const { data } = useQuery({
-  queryKey: ['invoices'],
+  queryKey: ["invoices"],
   queryFn: () => sendByContract(httpClient, listInvoicesContract, {}),
-  enabled: isAuthenticated,  // Only fetches when authenticated
-})
+  enabled: isAuthenticated, // Only fetches when authenticated
+});
 ```
 
 ## Creating data (POST)
@@ -162,10 +164,10 @@ const mutation = useMutation({
       body,
     }),
   onSuccess: (_, variables) => {
-    queryClient.invalidateQueries({ queryKey: ['entities', variables.entityId] })
-    queryClient.invalidateQueries({ queryKey: ['entities'] })
+    queryClient.invalidateQueries({ queryKey: ["entities", variables.entityId] });
+    queryClient.invalidateQueries({ queryKey: ["entities"] });
   },
-})
+});
 ```
 
 ## Deleting data
@@ -177,21 +179,21 @@ const mutation = useMutation({
       pathParams: { entityId },
     }),
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ['entities'] })
+    queryClient.invalidateQueries({ queryKey: ["entities"] });
   },
-})
+});
 ```
 
 ## Query key conventions
 
 Prefix query keys with the domain to avoid collisions between modules:
 
-| Pattern | Example |
-|---|---|
-| List | `['invoices']` |
-| Detail | `['invoices', invoiceId]` |
-| Filtered list | `['invoices', { status: 'pending' }]` |
-| Nested resource | `['users', userId, 'invoices']` |
+| Pattern         | Example                               |
+| --------------- | ------------------------------------- |
+| List            | `['invoices']`                        |
+| Detail          | `['invoices', invoiceId]`             |
+| Filtered list   | `['invoices', { status: 'pending' }]` |
+| Nested resource | `['users', userId, 'invoices']`       |
 
 ## Rules
 

@@ -1,8 +1,8 @@
 {
-  "name": "reactive",
+  "name": "tanstack-react-modules",
   "version": "1.0.0",
   "private": true,
-  "description": "Modular React framework for building composable frontend systems",
+  "description": "Modular React framework for building composable frontend systems with TanStack Router and zustand.",
   "repository": {
     "type": "git",
     "url": "https://github.com/kibertoad/reactive.git"
@@ -11,11 +11,16 @@
     "build": "pnpm -r run build",
     "dev": "pnpm --filter shell dev",
     "test": "vitest run",
-    "test:e2e": "pnpm --filter @reactive-framework/cli test:e2e",
-    "typecheck": "tsc --build"
+    "test:e2e": "pnpm --filter @tanstack-react-modules/cli test:e2e",
+    "typecheck": "tsc --build",
+    "lint": "tsc && oxfmt --check . && oxlint .",
+    "lint:fix": "oxfmt --write . && oxlint --fix ."
   },
   "devDependencies": {
+    "oxfmt": "^0.42.0",
+    "oxlint": "^1.57.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.0"
-  }
+  },
+  "packageManager": "pnpm@10.28.2"
 }

@@ -1,8 +1,8 @@
-import { createScopedStore } from '@reactive-framework/core'
+import { createScopedStore } from "@tanstack-react-modules/core";
 
 interface UserNotesState {
-  notes: string
-  lastSaved: number | null
+  notes: string;
+  lastSaved: number | null;
 }
 
 /**
@@ -10,6 +10,6 @@ interface UserNotesState {
  * State persists across navigations within the same session.
  */
 export const userNotes = createScopedStore<UserNotesState>(() => ({
-  notes: '',
+  notes: "",
   lastSaved: null,
-}))
+}));

@@ -1,6 +1,6 @@
 ---
 name: test-module
-description: Writes tests for a Reactive module using @reactive-framework/testing with renderModule() and createMockStore(). Use when adding or updating tests for module components.
+description: Writes tests for a Reactive module using @tanstack-react-modules/testing with renderModule() and createMockStore(). Use when adding or updating tests for module components.
 metadata:
   author: reactive
   version: "1.0"
@@ -8,7 +8,7 @@ metadata:
 
 # Test a Reactive Module
 
-`@reactive-framework/testing` provides `renderModule()` to render a module in isolation with mocked shared dependencies. It uses `@testing-library/react` under the hood.
+`@tanstack-react-modules/testing` provides `renderModule()` to render a module in isolation with mocked shared dependencies. It uses `@testing-library/react` under the hood.
 
 ## Step 1: Set up test file
 
@@ -27,42 +27,42 @@ modules/<module-name>/
 ## Step 2: Write a basic test
 
 ```typescript
-import { test, expect } from 'vitest'
-import { renderModule, createMockStore } from '@reactive-framework/testing'
-import moduleDescriptor from '../src/index.js'
-import type { AuthStore, ConfigStore } from '@example/app-shared'
-import wretch from 'wretch'
+import { test, expect } from "vitest";
+import { renderModule, createMockStore } from "@tanstack-react-modules/testing";
+import moduleDescriptor from "../src/index.js";
+import type { AuthStore, ConfigStore } from "@example/app-shared";
+import wretch from "wretch";
 
-test('renders dashboard for authenticated user', async () => {
+test("renders dashboard for authenticated user", async () => {
   const result = await renderModule(moduleDescriptor, {
-    route: '/<module-path>',
+    route: "/<module-path>",
     deps: {
       auth: createMockStore<AuthStore>({
-        user: { id: '1', name: 'Test User', email: 'test@test.com', role: 'admin' },
-        token: 'mock-token',
+        user: { id: "1", name: "Test User", email: "test@test.com", role: "admin" },
+        token: "mock-token",
         isAuthenticated: true,
         login: async () => {},
         logout: () => {},
       }),
       config: createMockStore<ConfigStore>({
-        apiBaseUrl: 'http://localhost:3000',
-        environment: 'dev',
-        appName: 'Test App',
+        apiBaseUrl: "http://localhost:3000",
+        environment: "dev",
+        appName: "Test App",
       }),
-      httpClient: wretch('http://localhost:3000'),
+      httpClient: wretch("http://localhost:3000"),
     },
-  })
+  });
 
-  expect(result.getByText('Test User')).toBeDefined()
-})
+  expect(result.getByText("Test User")).toBeDefined();
+});
 ```
 
 ## Step 3: Test unauthenticated state
 
 ```typescript
-test('shows login prompt when not authenticated', async () => {
+test("shows login prompt when not authenticated", async () => {
   const result = await renderModule(moduleDescriptor, {
-    route: '/<module-path>',
+    route: "/<module-path>",
     deps: {
       auth: createMockStore<AuthStore>({
         user: null,
@@ -71,12 +71,12 @@ test('shows login prompt when not authenticated', async () => {
         login: async () => {},
         logout: () => {},
       }),
-      httpClient: wretch('http://localhost:3000'),
+      httpClient: wretch("http://localhost:3000"),
     },
-  })
+  });
 
-  expect(result.getByText('Please log in')).toBeDefined()
-})
+  expect(result.getByText("Please log in")).toBeDefined();
+});
 ```
 
 ## createMockStore reference
@@ -84,15 +84,15 @@ test('shows login prompt when not authenticated', async () => {
 Creates a zustand store pre-populated with the given state:
 
 ```typescript
-import { createMockStore } from '@reactive-framework/testing'
+import { createMockStore } from "@tanstack-react-modules/testing";
 
 const store = createMockStore<AuthStore>({
-  user: { id: '1', name: 'Test', email: 'a@b.com', role: 'user' },
-  token: 'token',
+  user: { id: "1", name: "Test", email: "a@b.com", role: "user" },
+  token: "token",
   isAuthenticated: true,
   login: async () => {},
   logout: () => {},
-})
+});
 ```
 
 Every field in the store type must be provided — including action functions. Use `async () => {}` or `() => {}` for actions you don't need to verify.

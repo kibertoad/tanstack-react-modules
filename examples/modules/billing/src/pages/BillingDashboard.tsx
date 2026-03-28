@@ -1,8 +1,8 @@
-import { useStore } from '@example/app-shared'
-import { Link } from '@tanstack/react-router'
+import { useStore } from "@example/app-shared";
+import { Link } from "@tanstack/react-router";
 
 export default function BillingDashboard() {
-  const user = useStore('auth', (s) => s.user)
+  const user = useStore("auth", (s) => s.user);
 
   return (
     <div>
@@ -16,5 +16,5 @@ export default function BillingDashboard() {
         <Link to="/billing/invoices">View Invoices</Link>
       </nav>
     </div>
-  )
+  );
 }

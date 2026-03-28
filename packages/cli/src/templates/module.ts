@@ -1,63 +1,60 @@
-export function modulePackageJson(params: {
-  scope: string
-  name: string
-}): string {
+export function modulePackageJson(params: { scope: string; name: string }): string {
   return JSON.stringify(
     {
       name: `${params.scope}/${params.name}-module`,
-      version: '0.1.0',
-      type: 'module',
-      main: './src/index.ts',
-      types: './src/index.ts',
+      version: "0.1.0",
+      type: "module",
+      main: "./src/index.ts",
+      types: "./src/index.ts",
       exports: {
-        '.': {
-          import: './src/index.ts',
-          types: './src/index.ts',
+        ".": {
+          import: "./src/index.ts",
+          types: "./src/index.ts",
         },
       },
       dependencies: {
-        '@reactive-framework/core': '^0.1.0',
-        [`${params.scope}/app-shared`]: 'workspace:*',
-        '@lokalise/frontend-http-client': '^7.0.0',
+        "@tanstack-react-modules/core": "^0.1.0",
+        [`${params.scope}/app-shared`]: "workspace:*",
+        "@lokalise/frontend-http-client": "^7.0.0",
       },
       peerDependencies: {
-        '@tanstack/react-query': '^5.95.0',
-        '@tanstack/react-router': '^1.120.0',
-        react: '^19.0.0',
-        zustand: '^5.0.0',
+        "@tanstack/react-query": "^5.95.0",
+        "@tanstack/react-router": "^1.120.0",
+        react: "^19.0.0",
+        zustand: "^5.0.0",
       },
       devDependencies: {
-        '@tanstack/react-query': '^5.95.0',
-        '@tanstack/react-router': '^1.120.0',
-        react: '^19.0.0',
-        zustand: '^5.0.0',
-        '@types/react': '^19.0.0',
-        typescript: '^6.0.2',
+        "@tanstack/react-query": "^5.95.0",
+        "@tanstack/react-router": "^1.120.0",
+        react: "^19.0.0",
+        zustand: "^5.0.0",
+        "@types/react": "^19.0.0",
+        typescript: "^6.0.2",
       },
     },
     null,
     2,
-  )
+  );
 }
 
 export function moduleTsconfig(): string {
   return JSON.stringify(
     {
-      extends: '../../tsconfig.base.json',
-      include: ['src'],
+      extends: "../../tsconfig.base.json",
+      include: ["src"],
     },
     null,
     2,
-  )
+  );
 }
 
 export function moduleDescriptor(params: {
-  scope: string
-  name: string
-  route: string
-  pageName: string
-  listPageName: string
-  navGroup?: string
+  scope: string;
+  name: string;
+  route: string;
+  pageName: string;
+  listPageName: string;
+  navGroup?: string;
 }): string {
   const navItems = params.navGroup
     ? [
@@ -67,9 +64,9 @@ export function moduleDescriptor(params: {
     : [
         `{ label: '${capitalize(params.name)}', to: '/${params.route}', order: 10 }`,
         `{ label: '${capitalize(params.name)} List', to: '/${params.route}/list', order: 11 }`,
-      ]
+      ];
 
-  return `import { defineModule } from '@reactive-framework/core'
+  return `import { defineModule } from '@tanstack-react-modules/core'
 import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
 import type { AppDependencies, AppSlots } from '${params.scope}/app-shared'
 
@@ -99,19 +96,19 @@ export default defineModule<AppDependencies, AppSlots>({
   },
 
   navigation: [
-    ${navItems.join(',\n    ')},
+    ${navItems.join(",\n    ")},
   ],
 
   requires: ['auth', 'httpClient'],
 })
-`
+`;
 }
 
 export function modulePage(params: {
-  scope: string
-  pageName: string
-  moduleLabel: string
-  moduleName: string
+  scope: string;
+  pageName: string;
+  moduleLabel: string;
+  moduleName: string;
 }): string {
   return `import { useStore } from '${params.scope}/app-shared'
 import { Link } from '@tanstack/react-router'
@@ -135,13 +132,13 @@ export default function ${params.pageName}() {
     </div>
   )
 }
-`
+`;
 }
 
 export function moduleListPage(params: {
-  scope: string
-  pageName: string
-  moduleLabel: string
+  scope: string;
+  pageName: string;
+  moduleLabel: string;
 }): string {
   return `import { useStore } from '${params.scope}/app-shared'
 
@@ -159,9 +156,9 @@ export default function ${params.pageName}() {
     </div>
   )
 }
-`
+`;
 }
 
 function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1)
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }

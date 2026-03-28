@@ -1,8 +1,16 @@
 {
-  "files": [],
-  "references": [
-    { "path": "packages/core" },
-    { "path": "packages/registry" },
-    { "path": "packages/testing" }
-  ]
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    // Resolve sibling packages from source during development.
+    // Without this, tsc resolves from node_modules where the published
+    // dist/ may be stale or missing. Vite handles this via its own
+    // resolution, but tsc --noEmit needs explicit paths.
+    "paths": {
+      "@tanstack-react-modules/core": ["./packages/core/src/index.ts"],
+      "@tanstack-react-modules/runtime": ["./packages/runtime/src/index.ts"],
+      "@tanstack-react-modules/testing": ["./packages/testing/src/index.ts"]
+    }
+  },
+  "include": ["packages/core/src", "packages/runtime/src", "packages/testing/src"]
 }

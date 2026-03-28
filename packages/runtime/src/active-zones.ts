@@ -1,6 +1,6 @@
-import type { ZoneMapOf } from '@reactive-framework/core'
-import { useZones } from './zones.js'
-import { useModules } from './modules-context.js'
+import type { ZoneMapOf } from "@tanstack-react-modules/core";
+import { useZones } from "./zones.js";
+import { useModules } from "./modules-context.js";
 
 /**
  * Read zone components from both the matched route hierarchy AND the
@@ -32,18 +32,18 @@ import { useModules } from './modules-context.js'
 export function useActiveZones<TZones extends ZoneMapOf<TZones>>(
   activeModuleId?: string | null,
 ): Partial<TZones> {
-  const routeZones = useZones<TZones>()
-  const modules = useModules()
+  const routeZones = useZones<TZones>();
+  const modules = useModules();
 
   if (!activeModuleId) {
-    return routeZones
+    return routeZones;
   }
 
-  const activeMod = modules.find((m) => m.id === activeModuleId)
+  const activeMod = modules.find((m) => m.id === activeModuleId);
   if (!activeMod?.zones) {
-    return routeZones
+    return routeZones;
   }
 
   // Module zones override route zones for the same key
-  return { ...routeZones, ...activeMod.zones } as Partial<TZones>
+  return { ...routeZones, ...activeMod.zones } as Partial<TZones>;
 }

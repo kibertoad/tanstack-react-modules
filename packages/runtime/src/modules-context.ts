@@ -1,7 +1,7 @@
-import { createContext, useContext } from 'react'
-import type { ModuleEntry } from './types.js'
+import { createContext, useContext } from "react";
+import type { ModuleEntry } from "./types.js";
 
-export const ModulesContext = createContext<readonly ModuleEntry[] | null>(null)
+export const ModulesContext = createContext<readonly ModuleEntry[] | null>(null);
 
 /**
  * Access the list of registered modules with their metadata and components.
@@ -19,13 +19,13 @@ export const ModulesContext = createContext<readonly ModuleEntry[] | null>(null)
  * if (mod?.component) return <mod.component {...props} />
  */
 export function useModules(): readonly ModuleEntry[] {
-  const modules = useContext(ModulesContext)
+  const modules = useContext(ModulesContext);
   if (!modules) {
     throw new Error(
-      '[@reactive-framework/registry] useModules must be used within a <ReactiveApp />.',
-    )
+      "[@tanstack-react-modules/runtime] useModules must be used within a <ReactiveApp />.",
+    );
   }
-  return modules
+  return modules;
 }
 
 /**
@@ -43,5 +43,5 @@ export function useModules(): readonly ModuleEntry[] {
 export function getModuleMeta<TMeta extends { [K in keyof TMeta]: unknown }>(
   entry: ModuleEntry,
 ): Readonly<TMeta> | undefined {
-  return entry.meta as Readonly<TMeta> | undefined
+  return entry.meta as Readonly<TMeta> | undefined;
 }

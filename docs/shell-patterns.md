@@ -15,7 +15,7 @@ The shell's `rootComponent` owns the entire layout. Use CSS Grid to define zones
 ```typescript
 // shell/src/components/Layout.tsx
 import { Outlet } from '@tanstack/react-router'
-import { useNavigation, useSlots, useZones } from '@reactive-framework/registry'
+import { useNavigation, useSlots, useZones } from '@tanstack-react-modules/runtime'
 import type { AppSlots, AppZones } from '@myorg/app-shared'
 
 export function Layout() {
@@ -52,24 +52,24 @@ export function Layout() {
 
 ### Which mechanism for which zone
 
-| Zone content | Source |
-|---|---|
-| Navigation links and mode switches | `useNavigation()` — modules declare `navigation` items |
-| Commands, badges, aggregated contributions | `useSlots()` — modules declare `slots` contributions |
-| Route-specific UI for layout regions (detail panel, header actions) | `useZones()` — active route declares `staticData` |
-| Active selection, panel visibility | Shared Zustand store — runtime state |
-| Route-based page content | `<Outlet />` — TanStack Router renders the active module's routes |
+| Zone content                                                        | Source                                                            |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Navigation links and mode switches                                  | `useNavigation()` — modules declare `navigation` items            |
+| Commands, badges, aggregated contributions                          | `useSlots()` — modules declare `slots` contributions              |
+| Route-specific UI for layout regions (detail panel, header actions) | `useZones()` — active route declares `staticData`                 |
+| Active selection, panel visibility                                  | Shared Zustand store — runtime state                              |
+| Route-based page content                                            | `<Outlet />` — TanStack Router renders the active module's routes |
 
 ## Command Palette Pattern
 
 A command palette aggregates entries from multiple framework sources into a single searchable overlay. Each source serves a distinct purpose:
 
-| Source | What it provides | Example |
-|---|---|---|
-| `useSlots().systems` | Iframe-based external systems | "Open Salesforce" |
-| `useModules()` + `getModuleMeta()` | Journey/component modules | "Set up Direct Debit" |
-| `useSlots().commands` | Module-specific actions | "Create New Invoice" |
-| `useNavigation()` | Route-based navigation | "Go to Billing Dashboard" |
+| Source                             | What it provides              | Example                   |
+| ---------------------------------- | ----------------------------- | ------------------------- |
+| `useSlots().systems`               | Iframe-based external systems | "Open Salesforce"         |
+| `useModules()` + `getModuleMeta()` | Journey/component modules     | "Set up Direct Debit"     |
+| `useSlots().commands`              | Module-specific actions       | "Create New Invoice"      |
+| `useNavigation()`                  | Route-based navigation        | "Go to Billing Dashboard" |
 
 ### Define the command slot
 
@@ -78,41 +78,48 @@ Commands are always self-executing — the module provides `onSelect` and the sh
 ```typescript
 // app-shared/src/index.ts
 export interface CommandDefinition {
-  readonly id: string
-  readonly label: string
-  readonly group?: string
-  readonly icon?: string
-  readonly shortcut?: string
-  readonly onSelect: () => void
+  readonly id: string;
+  readonly label: string;
+  readonly group?: string;
+  readonly icon?: string;
+  readonly shortcut?: string;
+  readonly onSelect: () => void;
 }
 
 export interface AppSlots {
-  commands: CommandDefinition[]
+  commands: CommandDefinition[];
 }
 ```
 
 ### When to use commands vs other mechanisms
 
 `slots.commands` is for actions the module can execute itself. Don't use it for:
+
 - **Journey launching** — use `meta` instead, the shell discovers journeys via `useModules()`
 - **Navigation** — use `navigation` on the module descriptor
 - **System launching** — use a domain-specific slot (e.g. `slots.systems`)
 
 ```typescript
 export default defineModule<AppDependencies, AppSlots>({
-  id: 'billing',
+  id: "billing",
   slots: {
     commands: [
       // Module owns the action — it knows what to do
-      { id: 'billing:new-invoice', label: 'Create New Invoice', group: 'actions',
-        onSelect: () => { /* open modal, navigate, etc. */ } },
+      {
+        id: "billing:new-invoice",
+        label: "Create New Invoice",
+        group: "actions",
+        onSelect: () => {
+          /* open modal, navigate, etc. */
+        },
+      },
     ],
   },
   // Sidebar link — framework builds NavigationManifest
-  navigation: [{ label: 'Billing', to: '/billing', group: 'finance' }],
+  navigation: [{ label: "Billing", to: "/billing", group: "finance" }],
   // Discovery in directory/command palette — shell reads via useModules()
-  meta: { name: 'Billing', category: 'finance', icon: 'CreditCard' },
-})
+  meta: { name: "Billing", category: "finance", icon: "CreditCard" },
+});
 ```
 
 ### Shell renders the palette
@@ -120,7 +127,7 @@ export default defineModule<AppDependencies, AppSlots>({
 The shell aggregates all sources. Journey modules appear via `useModules()`, not `slots.commands`:
 
 ```typescript
-import { useSlots, useModules, getModuleMeta, useNavigation } from '@reactive-framework/registry'
+import { useSlots, useModules, getModuleMeta, useNavigation } from '@tanstack-react-modules/runtime'
 import type { AppSlots, JourneyMeta } from '@myorg/app-shared'
 
 function CommandPalette({ search }: { search: string }) {
@@ -169,12 +176,12 @@ function CommandPalette({ search }: { search: string }) {
 
 ### Decision guide for module-to-shell actions
 
-| "I want to..." | Use |
-|---|---|
-| Appear in the directory/command palette | `meta` — shell discovers via `useModules()` |
-| Add a sidebar link | `navigation` on module descriptor |
-| Contribute a self-contained action | `slots.commands` with `onSelect` |
-| Trigger an imperative shell action | `useService('workspace')` — see [Workspace Patterns](workspace-patterns.md) |
+| "I want to..."                          | Use                                                                         |
+| --------------------------------------- | --------------------------------------------------------------------------- |
+| Appear in the directory/command palette | `meta` — shell discovers via `useModules()`                                 |
+| Add a sidebar link                      | `navigation` on module descriptor                                           |
+| Contribute a self-contained action      | `slots.commands` with `onSelect`                                            |
+| Trigger an imperative shell action      | `useService('workspace')` — see [Workspace Patterns](workspace-patterns.md) |
 
 ## Auth Guard Pattern
 
@@ -192,26 +199,27 @@ const { App } = registry.resolve({
   // Auth boundary — guards module routes and index
   authenticatedRoute: {
     beforeLoad: async () => {
-      const res = await fetch('/api/auth/session')
-      if (!res.ok) throw redirect({ to: '/login' })
+      const res = await fetch("/api/auth/session");
+      if (!res.ok) throw redirect({ to: "/login" });
     },
     component: ShellLayout, // optional — defaults to <Outlet />
   },
 
   // Public routes — outside the auth boundary
   shellRoutes: (root) => [
-    createRoute({ getParentRoute: () => root, path: '/login', component: LoginPage }),
-    createRoute({ getParentRoute: () => root, path: '/signup', component: SignupPage }),
+    createRoute({ getParentRoute: () => root, path: "/login", component: LoginPage }),
+    createRoute({ getParentRoute: () => root, path: "/signup", component: SignupPage }),
   ],
 
   // Runs for ALL routes (including /login) — use for observability, not auth
   beforeLoad: ({ location }) => {
-    analytics.trackPageView(location.pathname)
+    analytics.trackPageView(location.pathname);
   },
-})
+});
 ```
 
 This produces the route tree:
+
 ```
 Root (beforeLoad: observability — runs for all routes)
 ├── /login (public — no auth guard)
@@ -229,20 +237,20 @@ For per-module auth or role-based access, guard at the module level:
 
 ```typescript
 export default defineModule<AppDependencies, AppSlots>({
-  id: 'admin',
+  id: "admin",
   createRoutes: (parentRoute) => {
     const root = createRoute({
       getParentRoute: () => parentRoute,
-      path: 'admin',
+      path: "admin",
       beforeLoad: () => {
         // Access auth store directly (not via hook — this runs outside React)
-        const { role } = authStore.getState()
-        if (role !== 'admin') throw redirect({ to: '/' })
+        const { role } = authStore.getState();
+        if (role !== "admin") throw redirect({ to: "/" });
       },
-    })
+    });
     // ... child routes
   },
-})
+});
 ```
 
 Note: `beforeLoad` runs outside the React tree, so you access stores via `store.getState()` rather than hooks.
@@ -269,8 +277,8 @@ The shell reads these via `useSlots()`. They're collected at `resolve()` time an
 Use for things that change during the app's lifetime — which panel is expanded, what notifications are pending, whether the sidebar is collapsed.
 
 ```typescript
-const toggleSidebar = useStore('ui', (s) => s.toggleSidebar)
-toggleSidebar()
+const toggleSidebar = useStore("ui", (s) => s.toggleSidebar);
+toggleSidebar();
 ```
 
 Both the module triggering the change and the shell rendering it subscribe to the same Zustand store.
@@ -281,7 +289,7 @@ Use for data fetched from APIs. React Query handles caching, deduplication, and 
 
 ```typescript
 // Module A invalidates, Module B auto-refetches
-queryClient.invalidateQueries({ queryKey: ['invoices'] })
+queryClient.invalidateQueries({ queryKey: ["invoices"] });
 ```
 
 ### Zones: per-route UI contributions
@@ -292,19 +300,19 @@ Use for UI components that the currently active route wants rendered in shell la
 // Module sets zones via TanStack Router's staticData on individual routes
 const userDetail = createRoute({
   getParentRoute: () => usersRoot,
-  path: '$userId',
+  path: "$userId",
   component: UserDetailPage,
   staticData: {
     detailPanel: UserDetailSidebar,
     headerActions: UserDetailActions,
   },
-})
+});
 ```
 
 The shell reads them via `useZones()`:
 
 ```typescript
-import { useZones } from '@reactive-framework/registry'
+import { useZones } from '@tanstack-react-modules/runtime'
 import type { AppZones } from '@myorg/app-shared'
 
 function Layout() {
@@ -326,12 +334,12 @@ Deeper routes override shallower ones. A billing section root can set a default 
 
 ### Decision guide
 
-| Question | Answer |
-|---|---|
-| Is it known at module registration time? | Slots |
-| Does it vary per route within a module? | Route zones (`staticData`) |
-| Does it change at runtime? | Shared store |
-| Does it come from an API? | React Query |
+| Question                                           | Answer                                                                   |
+| -------------------------------------------------- | ------------------------------------------------------------------------ |
+| Is it known at module registration time?           | Slots                                                                    |
+| Does it vary per route within a module?            | Route zones (`staticData`)                                               |
+| Does it change at runtime?                         | Shared store                                                             |
+| Does it come from an API?                          | React Query                                                              |
 | Does it need to trigger re-renders across modules? | Shared store (Zustand subscriptions) or React Query (cache invalidation) |
 
 ## Cross-Store Coordination
@@ -342,28 +350,29 @@ When you split a monolith Zustand store into focused stores, you'll often need o
 
 ```typescript
 // stores/workspace-tabs.ts
-import { interactionsStore } from './interactions-store'
-import { workspaceTabsStore } from './workspace-tabs-store'
+import { interactionsStore } from "./interactions-store";
+import { workspaceTabsStore } from "./workspace-tabs-store";
 
 // React to interaction changes — initialize tab state for new interactions
 interactionsStore.subscribe((state, prev) => {
-  if (state.activeInteractionId === prev.activeInteractionId) return
-  const id = state.activeInteractionId
-  if (!id) return
+  if (state.activeInteractionId === prev.activeInteractionId) return;
+  const id = state.activeInteractionId;
+  if (!id) return;
 
-  const tabs = workspaceTabsStore.getState()
+  const tabs = workspaceTabsStore.getState();
   if (!tabs.tabStateByInteraction[id]) {
     workspaceTabsStore.setState({
       tabStateByInteraction: {
         ...tabs.tabStateByInteraction,
         [id]: createDefaultTabState(),
       },
-    })
+    });
   }
-})
+});
 ```
 
 Key points:
+
 - `subscribe` receives `(currentState, previousState)` — compare to avoid redundant work.
 - Place the subscription in the file of the store that **reacts**, not the one that **triggers**. This keeps the triggering store unaware of its dependents.
 - Top-level subscriptions (outside React) live for the app's lifetime. That's fine for shell stores.
@@ -371,11 +380,11 @@ Key points:
 
 ### When to use subscribe vs useEffect
 
-| Situation | Use |
-|---|---|
-| Store A reacts to Store B, both are app-level singletons | `store.subscribe()` at module top level |
+| Situation                                                     | Use                                                    |
+| ------------------------------------------------------------- | ------------------------------------------------------ |
+| Store A reacts to Store B, both are app-level singletons      | `store.subscribe()` at module top level                |
 | Component needs to react to a store change with a side effect | `useEffect` + `useStore` selector inside the component |
-| Module lifecycle setup that reads store state once | `onRegister(deps)` — receives a state snapshot |
+| Module lifecycle setup that reads store state once            | `onRegister(deps)` — receives a state snapshot         |
 
 ### Module-scoped subscriptions
 
@@ -383,19 +392,19 @@ If a module sets up a subscription during its lifecycle, clean it up on unmount:
 
 ```typescript
 defineModule({
-  id: 'billing',
+  id: "billing",
   lifecycle: {
     onMount(deps) {
       // Subscribe to auth changes
       this._unsub = authStore.subscribe((state) => {
-        if (!state.isAuthenticated) cleanup()
-      })
+        if (!state.isAuthenticated) cleanup();
+      });
     },
     onUnmount() {
-      this._unsub?.()
+      this._unsub?.();
     },
   },
-})
+});
 ```
 
 ### What NOT to build

@@ -1,34 +1,44 @@
-import { createRouter } from '@tanstack/react-router'
-import type { AnyRoute } from '@tanstack/react-router'
-import type { StoreApi } from 'zustand'
-import type { ReactiveModuleDescriptor, LazyModuleDescriptor, SlotMap, SlotMapOf } from '@reactive-framework/core'
-import type { RegistryConfig, ApplicationManifest, NavigationManifest, ModuleEntry } from './types.js'
-import { validateNoDuplicateIds, validateDependencies } from './validation.js'
-import { buildNavigationManifest } from './navigation.js'
-import { buildSlotsManifest } from './slots.js'
-import { buildRouteTree, type RouteBuilderOptions } from './route-builder.js'
-import { createAppComponent } from './app.js'
+import { createRouter } from "@tanstack/react-router";
+import type { AnyRoute } from "@tanstack/react-router";
+import type { StoreApi } from "zustand";
+import type {
+  ReactiveModuleDescriptor,
+  LazyModuleDescriptor,
+  SlotMap,
+  SlotMapOf,
+} from "@tanstack-react-modules/core";
+import type {
+  RegistryConfig,
+  ApplicationManifest,
+  NavigationManifest,
+  ModuleEntry,
+} from "./types.js";
+import { validateNoDuplicateIds, validateDependencies } from "./validation.js";
+import { buildNavigationManifest } from "./navigation.js";
+import { buildSlotsManifest } from "./slots.js";
+import { buildRouteTree, type RouteBuilderOptions } from "./route-builder.js";
+import { createAppComponent } from "./app.js";
 
 export interface ReactiveRegistry<
   TSharedDependencies extends Record<string, any>,
   TSlots extends SlotMapOf<TSlots> = SlotMap,
 > {
   /** Register an eager module */
-  register(module: ReactiveModuleDescriptor<TSharedDependencies, TSlots>): void
+  register(module: ReactiveModuleDescriptor<TSharedDependencies, TSlots>): void;
 
   /** Register a lazily-loaded module */
-  registerLazy(descriptor: LazyModuleDescriptor<TSharedDependencies, TSlots>): void
+  registerLazy(descriptor: LazyModuleDescriptor<TSharedDependencies, TSlots>): void;
 
   /**
    * Resolve all modules and produce the application manifest.
    * Validates dependencies and builds the route tree.
    */
-  resolve(options?: ResolveOptions): ApplicationManifest<TSharedDependencies, TSlots>
+  resolve(options?: ResolveOptions): ApplicationManifest<TSlots>;
 }
 
 export interface ResolveOptions {
   /** Root layout component (renders <Outlet /> for child routes) */
-  rootComponent?: () => React.JSX.Element
+  rootComponent?: () => React.JSX.Element;
 
   /**
    * Pre-built root route — if provided, used instead of auto-creating one.
@@ -36,13 +46,13 @@ export interface ResolveOptions {
    * (beforeLoad, loader, errorComponent, pendingComponent, etc.).
    * Mutually exclusive with rootComponent/notFoundComponent/beforeLoad.
    */
-  rootRoute?: AnyRoute
+  rootRoute?: AnyRoute;
 
   /** Component for the index route (/) */
-  indexComponent?: () => React.JSX.Element
+  indexComponent?: () => React.JSX.Element;
 
   /** Component for 404 / not-found */
-  notFoundComponent?: () => React.JSX.Element
+  notFoundComponent?: () => React.JSX.Element;
 
   /**
    * Called before every route loads — for observability, analytics, feature flags.
@@ -53,7 +63,7 @@ export interface ResolveOptions {
    * For auth guards, use `authenticatedRoute` instead — it creates a layout route
    * boundary that only wraps protected routes.
    */
-  beforeLoad?: (ctx: { location: { pathname: string } }) => void | Promise<void>
+  beforeLoad?: (ctx: { location: { pathname: string } }) => void | Promise<void>;
 
   /**
    * Auth boundary — a pathless layout route that guards module routes and
@@ -87,10 +97,10 @@ export interface ResolveOptions {
    */
   authenticatedRoute?: {
     /** Auth guard — throw redirect() to deny access */
-    beforeLoad: (ctx: { location: { pathname: string } }) => void | Promise<void>
+    beforeLoad: (ctx: { location: { pathname: string } }) => void | Promise<void>;
     /** Layout component for authenticated pages. Defaults to <Outlet />. */
-    component?: () => React.JSX.Element
-  }
+    component?: () => React.JSX.Element;
+  };
 
   /**
    * Additional routes owned by the shell (login, error pages, onboarding, etc.)
@@ -100,7 +110,7 @@ export interface ResolveOptions {
    * are siblings of the auth layout, not children. This is the natural place
    * for public pages like /login.
    */
-  shellRoutes?: (parentRoute: AnyRoute) => AnyRoute[]
+  shellRoutes?: (parentRoute: AnyRoute) => AnyRoute[];
 
   /**
    * Additional React providers to wrap around the app tree.
@@ -126,7 +136,7 @@ export interface ResolveOptions {
    * // Produces: <SWRConfigProvider><ThemeProvider><TooltipProvider>...app...</TooltipProvider></ThemeProvider></SWRConfigProvider>
    * ```
    */
-  providers?: React.ComponentType<{ children: React.ReactNode }>[]
+  providers?: React.ComponentType<{ children: React.ReactNode }>[];
 }
 
 export function createRegistry<
@@ -135,53 +145,51 @@ export function createRegistry<
 >(
   config: RegistryConfig<TSharedDependencies, TSlots>,
 ): ReactiveRegistry<TSharedDependencies, TSlots> {
-  const modules: ReactiveModuleDescriptor<TSharedDependencies, TSlots>[] = []
-  const lazyModules: LazyModuleDescriptor<TSharedDependencies, TSlots>[] = []
-  let resolved = false
+  const modules: ReactiveModuleDescriptor<TSharedDependencies, TSlots>[] = [];
+  const lazyModules: LazyModuleDescriptor<TSharedDependencies, TSlots>[] = [];
+  let resolved = false;
 
   // Collect all available dependency keys from stores and services
   const availableKeys = new Set<string>([
     ...Object.keys(config.stores ?? {}),
     ...Object.keys(config.services ?? {}),
-  ])
+  ]);
 
   return {
     register(module) {
       if (resolved) {
         throw new Error(
-          '[@reactive-framework/registry] Cannot register modules after resolve() has been called.',
-        )
+          "[@tanstack-react-modules/runtime] Cannot register modules after resolve() has been called.",
+        );
       }
-      modules.push(module)
+      modules.push(module);
     },
 
     registerLazy(descriptor) {
       if (resolved) {
         throw new Error(
-          '[@reactive-framework/registry] Cannot register modules after resolve() has been called.',
-        )
+          "[@tanstack-react-modules/runtime] Cannot register modules after resolve() has been called.",
+        );
       }
-      lazyModules.push(descriptor)
+      lazyModules.push(descriptor);
     },
 
     resolve(options?: ResolveOptions) {
       if (resolved) {
-        throw new Error(
-          '[@reactive-framework/registry] resolve() can only be called once.',
-        )
+        throw new Error("[@tanstack-react-modules/runtime] resolve() can only be called once.");
       }
-      resolved = true
+      resolved = true;
 
       // Validate (cast is safe — these functions only read structural properties)
-      const mods = modules as ReactiveModuleDescriptor[]
-      const lazyMods = lazyModules as LazyModuleDescriptor[]
-      validateNoDuplicateIds(mods, lazyMods)
-      validateDependencies(mods, availableKeys)
+      const mods = modules as ReactiveModuleDescriptor[];
+      const lazyMods = lazyModules as LazyModuleDescriptor[];
+      validateNoDuplicateIds(mods, lazyMods);
+      validateDependencies(mods, availableKeys);
 
       // Run onRegister lifecycle hooks
-      const deps = buildDepsObject<TSharedDependencies>(config)
+      const deps = buildDepsObject<TSharedDependencies>(config);
       for (const mod of modules) {
-        mod.lifecycle?.onRegister?.(deps)
+        mod.lifecycle?.onRegister?.(deps);
       }
 
       // Build route tree
@@ -193,38 +201,38 @@ export function createRegistry<
         beforeLoad: options?.beforeLoad,
         authenticatedRoute: options?.authenticatedRoute,
         shellRoutes: options?.shellRoutes,
-      }
-      const routeTree = buildRouteTree(mods, lazyMods, routeBuilderOptions)
+      };
+      const routeTree = buildRouteTree(mods, lazyMods, routeBuilderOptions);
 
       // Create TanStack Router instance
       const router = createRouter({
         routeTree,
-        defaultPreload: 'intent',
-      })
+        defaultPreload: "intent",
+      });
 
       // Build navigation, slots, and module entries
-      const navigation: NavigationManifest = buildNavigationManifest(mods)
-      const slots = buildSlotsManifest<TSlots>(modules, config.slots)
+      const navigation: NavigationManifest = buildNavigationManifest(mods);
+      const slots = buildSlotsManifest<TSlots>(modules, config.slots);
       const moduleEntries: ModuleEntry[] = modules.map((mod) => ({
         id: mod.id,
         version: mod.version,
         meta: mod.meta,
         component: mod.component,
         zones: mod.zones,
-      }))
+      }));
 
       // Build stores and services maps for the context
-      const stores: Record<string, StoreApi<unknown>> = {}
-      const services: Record<string, unknown> = {}
+      const stores: Record<string, StoreApi<unknown>> = {};
+      const services: Record<string, unknown> = {};
 
       if (config.stores) {
         for (const [key, store] of Object.entries(config.stores)) {
-          if (store) stores[key] = store as StoreApi<unknown>
+          if (store) stores[key] = store as StoreApi<unknown>;
         }
       }
       if (config.services) {
         for (const [key, service] of Object.entries(config.services)) {
-          if (service !== undefined) services[key] = service
+          if (service !== undefined) services[key] = service;
         }
       }
 
@@ -237,32 +245,32 @@ export function createRegistry<
         slots,
         modules: moduleEntries,
         providers: options?.providers,
-      })
+      });
 
-      return { App, router, navigation, slots, modules: moduleEntries }
+      return { App, router, navigation, slots, modules: moduleEntries };
     },
-  }
+  };
 }
 
 function buildDepsObject<TSharedDependencies extends Record<string, any>>(
   config: RegistryConfig<TSharedDependencies, any>,
 ): TSharedDependencies {
-  const deps: Record<string, unknown> = {}
+  const deps: Record<string, unknown> = {};
 
   // For stores, get current state as the deps value
   // (lifecycle hooks get a snapshot, components use useStore for reactivity)
   if (config.stores) {
     for (const [key, store] of Object.entries(config.stores)) {
       if (store) {
-        deps[key] = (store as StoreApi<unknown>).getState()
+        deps[key] = (store as StoreApi<unknown>).getState();
       }
     }
   }
   if (config.services) {
     for (const [key, service] of Object.entries(config.services)) {
-      if (service !== undefined) deps[key] = service
+      if (service !== undefined) deps[key] = service;
     }
   }
 
-  return deps as TSharedDependencies
+  return deps as TSharedDependencies;
 }

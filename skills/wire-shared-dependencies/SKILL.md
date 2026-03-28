@@ -23,10 +23,10 @@ Shared dependencies are how modules access cross-cutting concerns (auth, config,
 // app-shared/src/index.ts
 
 export interface NotificationStore {
-  notifications: Notification[]
-  add: (notification: Notification) => void
-  dismiss: (id: string) => void
-  clear: () => void
+  notifications: Notification[];
+  add: (notification: Notification) => void;
+  dismiss: (id: string) => void;
+  clear: () => void;
 }
 ```
 
@@ -34,10 +34,10 @@ export interface NotificationStore {
 
 ```typescript
 export interface AppDependencies {
-  auth: AuthStore
-  config: ConfigStore
-  httpClient: Wretch
-  notifications: NotificationStore   // ← add here
+  auth: AuthStore;
+  config: ConfigStore;
+  httpClient: Wretch;
+  notifications: NotificationStore; // ← add here
 }
 ```
 
@@ -47,8 +47,8 @@ The `useStore` and `useService` hooks are already typed against `AppDependencies
 
 ```typescript
 // shell/src/stores/notifications.ts
-import { createStore } from 'zustand/vanilla'
-import type { NotificationStore } from '@example/app-shared'
+import { createStore } from "zustand/vanilla";
+import type { NotificationStore } from "@example/app-shared";
 
 export const notificationStore = createStore<NotificationStore>((set) => ({
   notifications: [],
@@ -57,23 +57,23 @@ export const notificationStore = createStore<NotificationStore>((set) => ({
   dismiss: (id) =>
     set((state) => ({ notifications: state.notifications.filter((n) => n.id !== id) })),
   clear: () => set({ notifications: [] }),
-}))
+}));
 ```
 
 ### Step 4: Register in the registry
 
 ```typescript
 // shell/src/main.tsx
-import { notificationStore } from './stores/notifications.js'
+import { notificationStore } from "./stores/notifications.js";
 
 const registry = createRegistry<AppDependencies>({
   stores: {
     auth: authStore,
     config: configStore,
-    notifications: notificationStore,  // ← add here
+    notifications: notificationStore, // ← add here
   },
   services: { httpClient },
-})
+});
 ```
 
 ### Step 5: Use in modules
@@ -95,8 +95,8 @@ function SomeComponent() {
 
 ```typescript
 export interface AnalyticsService {
-  track: (event: string, properties?: Record<string, unknown>) => void
-  identify: (userId: string) => void
+  track: (event: string, properties?: Record<string, unknown>) => void;
+  identify: (userId: string) => void;
 }
 ```
 
@@ -105,7 +105,7 @@ export interface AnalyticsService {
 ```typescript
 export interface AppDependencies {
   // ... existing ...
-  analytics: AnalyticsService   // ← add here
+  analytics: AnalyticsService; // ← add here
 }
 ```
 
@@ -113,17 +113,17 @@ export interface AppDependencies {
 
 ```typescript
 // shell/src/services/analytics.ts
-import type { AnalyticsService } from '@example/app-shared'
+import type { AnalyticsService } from "@example/app-shared";
 
 export const analytics: AnalyticsService = {
   track: (event, properties) => {
-    console.log('[analytics]', event, properties)
+    console.log("[analytics]", event, properties);
     // Send to analytics provider
   },
   identify: (userId) => {
-    console.log('[analytics] identify', userId)
+    console.log("[analytics] identify", userId);
   },
-}
+};
 ```
 
 ### Step 4: Register in the registry
@@ -133,19 +133,19 @@ const registry = createRegistry<AppDependencies>({
   stores: { auth: authStore, config: configStore },
   services: {
     httpClient,
-    analytics,  // ← add here
+    analytics, // ← add here
   },
-})
+});
 ```
 
 ### Step 5: Use in modules
 
 ```typescript
-import { useService } from '@example/app-shared'
+import { useService } from "@example/app-shared";
 
 function SomeComponent() {
-  const analytics = useService('analytics')
-  analytics.track('page_viewed', { page: '/billing' })
+  const analytics = useService("analytics");
+  analytics.track("page_viewed", { page: "/billing" });
 }
 ```
 
@@ -159,9 +159,9 @@ function SomeComponent() {
 
 ## Choosing between store and service
 
-| Need | Use |
-|---|---|
-| Components must re-render when value changes | Zustand store |
-| Value is a stable object/instance | Plain service |
+| Need                                                       | Use                                    |
+| ---------------------------------------------------------- | -------------------------------------- |
+| Components must re-render when value changes               | Zustand store                          |
+| Value is a stable object/instance                          | Plain service                          |
 | Need to read state outside React (e.g., HTTP interceptors) | Zustand store (use `store.getState()`) |
-| Singleton with methods, no state changes | Plain service |
+| Singleton with methods, no state changes                   | Plain service                          |

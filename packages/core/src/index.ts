@@ -8,17 +8,14 @@ export type {
   SlotMapOf,
   ZoneMap,
   ZoneMapOf,
-} from './types.js'
+} from "./types.js";
 
 // Module definition
-export { defineModule } from './define-module.js'
+export { defineModule } from "./define-module.js";
 
 // Shared dependencies context + hooks
-export {
-  SharedDependenciesContext,
-  createSharedHooks,
-} from './context.js'
+export { SharedDependenciesContext, createSharedHooks } from "./context.js";
 
 // Scoped stores
-export { createScopedStore } from './scoped-store.js'
-export type { ScopedStore } from './scoped-store.js'
+export { createScopedStore } from "./scoped-store.js";
+export type { ScopedStore } from "./scoped-store.js";
