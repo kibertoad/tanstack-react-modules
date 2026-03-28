@@ -1,6 +1,11 @@
 {
   "name": "@tanstack-react-modules/cli",
   "version": "0.5.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kibertoad/reactive.git",
+    "directory": "packages/cli"
+  },
   "bin": {
     "reactive": "./dist/cli.js"
   },
@@ -8,11 +13,6 @@
     "dist"
   ],
   "type": "module",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kibertoad/reactive.git",
-    "directory": "packages/cli"
-  },
   "publishConfig": {
     "access": "public"
   },
