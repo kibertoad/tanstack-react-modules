@@ -1,4 +1,4 @@
-import { createSharedHooks } from '@reactive-framework/core'
+import { createSharedHooks } from '@tanstack-react-modules/core'
 import type { LoginCredentials, User } from './types.js'
 import type { Wretch } from 'wretch'
 

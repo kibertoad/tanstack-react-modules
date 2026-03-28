@@ -1,7 +1,7 @@
 import { RouterProvider } from '@tanstack/react-router'
 import type { Router } from '@tanstack/react-router'
 import type { StoreApi } from 'zustand'
-import { SharedDependenciesContext } from '@reactive-framework/core'
+import { SharedDependenciesContext } from '@tanstack-react-modules/core'
 import { NavigationContext } from './navigation-context.js'
 import { SlotsContext } from './slots-context.js'
 import { ModulesContext } from './modules-context.js'

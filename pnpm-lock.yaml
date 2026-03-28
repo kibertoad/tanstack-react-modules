@@ -23,7 +23,7 @@ importers:
       '@lokalise/frontend-http-client':
         specifier: ^7.0.0
         version: 7.2.0(@lokalise/api-contracts@6.7.0(zod@3.25.76))(wretch@2.11.1)(zod@3.25.76)
-      '@reactive-framework/core':
+      '@tanstack-react-modules/core':
         specifier: workspace:*
         version: link:../../packages/core
       wretch:
@@ -57,7 +57,7 @@ importers:
       '@lokalise/frontend-http-client':
         specifier: ^7.0.0
         version: 7.2.0(@lokalise/api-contracts@6.7.0(zod@3.25.76))(wretch@2.11.1)(zod@3.25.76)
-      '@reactive-framework/core':
+      '@tanstack-react-modules/core':
         specifier: workspace:*
         version: link:../../../packages/core
     devDependencies:
@@ -88,7 +88,7 @@ importers:
       '@lokalise/frontend-http-client':
         specifier: ^7.0.0
         version: 7.2.0(@lokalise/api-contracts@6.7.0(zod@3.25.76))(wretch@2.11.1)(zod@3.25.76)
-      '@reactive-framework/core':
+      '@tanstack-react-modules/core':
         specifier: workspace:*
         version: link:../../../packages/core
     devDependencies:
@@ -125,12 +125,12 @@ importers:
       '@lokalise/frontend-http-client':
         specifier: ^7.0.0
         version: 7.2.0(@lokalise/api-contracts@6.7.0(zod@3.25.76))(wretch@2.11.1)(zod@3.25.76)
-      '@reactive-framework/core':
+      '@tanstack-react-modules/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@reactive-framework/registry':
+      '@tanstack-react-modules/runtime':
         specifier: workspace:*
-        version: link:../../packages/registry
+        version: link:../../packages/runtime
       '@tanstack/react-query':
         specifier: ^5.95.0
         version: 5.95.2(react@19.2.4)
@@ -227,9 +227,9 @@ importers:
         specifier: ^5.0.0
         version: 5.0.12(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
 
-  packages/registry:
+  packages/runtime:
     dependencies:
-      '@reactive-framework/core':
+      '@tanstack-react-modules/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -263,12 +263,12 @@ importers:
 
   packages/testing:
     dependencies:
-      '@reactive-framework/core':
+      '@tanstack-react-modules/core':
         specifier: workspace:*
         version: link:../core
-      '@reactive-framework/registry':
+      '@tanstack-react-modules/runtime':
         specifier: workspace:*
-        version: link:../registry
+        version: link:../runtime
     devDependencies:
       '@tanstack/react-router':
         specifier: ^1.120.0

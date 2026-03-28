@@ -21,7 +21,7 @@ export class ModuleErrorBoundary extends Component<Props, State> {
 
   override componentDidCatch(error: Error, info: ErrorInfo) {
     console.error(
-      `[@reactive-framework/registry] Module "${this.props.moduleId}" encountered an error:`,
+      `[@tanstack-react-modules/runtime] Module "${this.props.moduleId}" encountered an error:`,
       error,
       info,
     )

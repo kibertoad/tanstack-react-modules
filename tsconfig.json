@@ -2,7 +2,7 @@
   "files": [],
   "references": [
     { "path": "packages/core" },
-    { "path": "packages/registry" },
+    { "path": "packages/runtime" },
     { "path": "packages/testing" }
   ]
 }

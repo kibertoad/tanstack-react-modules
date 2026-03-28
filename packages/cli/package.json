@@ -1,6 +1,6 @@
 {
-  "name": "@reactive-framework/cli",
-  "version": "0.1.0",
+  "name": "@tanstack-react-modules/cli",
+  "version": "0.5.0",
   "type": "module",
   "bin": {
     "reactive": "./dist/cli.js"

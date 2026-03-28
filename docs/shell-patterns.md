@@ -15,7 +15,7 @@ The shell's `rootComponent` owns the entire layout. Use CSS Grid to define zones
 ```typescript
 // shell/src/components/Layout.tsx
 import { Outlet } from '@tanstack/react-router'
-import { useNavigation, useSlots, useZones } from '@reactive-framework/registry'
+import { useNavigation, useSlots, useZones } from '@tanstack-react-modules/runtime'
 import type { AppSlots, AppZones } from '@myorg/app-shared'
 
 export function Layout() {
@@ -120,7 +120,7 @@ export default defineModule<AppDependencies, AppSlots>({
 The shell aggregates all sources. Journey modules appear via `useModules()`, not `slots.commands`:
 
 ```typescript
-import { useSlots, useModules, getModuleMeta, useNavigation } from '@reactive-framework/registry'
+import { useSlots, useModules, getModuleMeta, useNavigation } from '@tanstack-react-modules/runtime'
 import type { AppSlots, JourneyMeta } from '@myorg/app-shared'
 
 function CommandPalette({ search }: { search: string }) {
@@ -304,7 +304,7 @@ const userDetail = createRoute({
 The shell reads them via `useZones()`:
 
 ```typescript
-import { useZones } from '@reactive-framework/registry'
+import { useZones } from '@tanstack-react-modules/runtime'
 import type { AppZones } from '@myorg/app-shared'
 
 function Layout() {

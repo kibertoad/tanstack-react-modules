@@ -19,7 +19,7 @@ function useSharedDependencies(): SharedDependenciesContextValue {
   const ctx = useContext(SharedDependenciesContext)
   if (!ctx) {
     throw new Error(
-      '[@reactive-framework/core] useStore/useService must be used within a <ReactiveApp />. ' +
+      '[@tanstack-react-modules/core] useStore/useService must be used within a <ReactiveApp />. ' +
         'Make sure your component is rendered inside the App returned by registry.resolve().',
     )
   }
@@ -32,7 +32,7 @@ function useSharedDependencies(): SharedDependenciesContextValue {
  *
  * @example
  * // In @myorg/app-shared:
- * import { createSharedHooks } from '@reactive-framework/core'
+ * import { createSharedHooks } from '@tanstack-react-modules/core'
  * import type { AppDependencies } from '@myorg/app-shared'
  *
  * export const { useStore, useService } = createSharedHooks<AppDependencies>()
@@ -59,7 +59,7 @@ export function createSharedHooks<TSharedDependencies extends Record<string, any
     const store = stores[key]
     if (!store) {
       throw new Error(
-        `[@reactive-framework/core] Store "${key}" is not registered. ` +
+        `[@tanstack-react-modules/core] Store "${key}" is not registered. ` +
           `Available stores: ${Object.keys(stores).join(', ') || '(none)'}`,
       )
     }
@@ -77,7 +77,7 @@ export function createSharedHooks<TSharedDependencies extends Record<string, any
     const service = services[key]
     if (!service) {
       throw new Error(
-        `[@reactive-framework/core] Service "${key}" is not registered. ` +
+        `[@tanstack-react-modules/core] Service "${key}" is not registered. ` +
           `Available services: ${Object.keys(services).join(', ') || '(none)'}`,
       )
     }

@@ -1,4 +1,4 @@
-import { useModules } from '@reactive-framework/registry'
+import { useModules } from '@tanstack-react-modules/runtime'
 import { useStore } from '@example/app-shared'
 import { Link } from '@tanstack/react-router'
 

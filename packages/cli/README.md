@@ -1,4 +1,4 @@
-# @reactive-framework/cli
+# @tanstack-react-modules/cli
 
 Scaffolding CLI for the Reactive modular framework. Creates projects, modules, and stores with full wiring.
 
@@ -41,7 +41,7 @@ pnpm test:e2e:server   # Start vite dev server on port 5188 (run in background)
 pnpm test:e2e          # Run Playwright tests against the running server
 ```
 
-The setup script uses `link:` overrides to point `@reactive-framework/core` and `@reactive-framework/registry` to the local built packages (since they aren't published to npm yet).
+The setup script uses `link:` overrides to point `@tanstack-react-modules/core` and `@tanstack-react-modules/runtime` to the local built packages (since they aren't published to npm yet).
 
 To re-scaffold from scratch:
 

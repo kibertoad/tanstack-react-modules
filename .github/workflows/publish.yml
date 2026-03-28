@@ -105,11 +105,11 @@ jobs:
               - 'packages/core/src/**'
               - 'packages/core/package.json'
               - 'packages/core/README.md'
-            pkg_registry:
-              - 'packages/registry/lib/**'
-              - 'packages/registry/src/**'
-              - 'packages/registry/package.json'
-              - 'packages/registry/README.md'
+            pkg_runtime:
+              - 'packages/runtime/lib/**'
+              - 'packages/runtime/src/**'
+              - 'packages/runtime/package.json'
+              - 'packages/runtime/README.md'
             pkg_testing:
               - 'packages/testing/lib/**'
               - 'packages/testing/src/**'
@@ -122,7 +122,7 @@ jobs:
         run: |
           declare -A PKG_NAMES=(
             ["pkg_core"]="core"
-            ["pkg_registry"]="registry"
+            ["pkg_runtime"]="runtime"
             ["pkg_testing"]="testing"
           )
 
@@ -135,7 +135,7 @@ jobs:
           for key in "${!PKG_NAMES[@]}"; do
             if echo "$CHANGED" | grep -q "\"$key\""; then
               NAME="${PKG_NAMES[$key]}"
-              NPM_NAME="@reactive-framework/${NAME}"
+              NPM_NAME="@tanstack-react-modules/${NAME}"
 
               if [ "$FIRST" = true ]; then
                 FIRST=false

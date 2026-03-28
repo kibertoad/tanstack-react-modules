@@ -1,7 +1,7 @@
 import { createRouter } from '@tanstack/react-router'
 import type { AnyRoute } from '@tanstack/react-router'
 import type { StoreApi } from 'zustand'
-import type { ReactiveModuleDescriptor, LazyModuleDescriptor, SlotMap, SlotMapOf } from '@reactive-framework/core'
+import type { ReactiveModuleDescriptor, LazyModuleDescriptor, SlotMap, SlotMapOf } from '@tanstack-react-modules/core'
 import type { RegistryConfig, ApplicationManifest, NavigationManifest, ModuleEntry } from './types.js'
 import { validateNoDuplicateIds, validateDependencies } from './validation.js'
 import { buildNavigationManifest } from './navigation.js'
@@ -149,7 +149,7 @@ export function createRegistry<
     register(module) {
       if (resolved) {
         throw new Error(
-          '[@reactive-framework/registry] Cannot register modules after resolve() has been called.',
+          '[@tanstack-react-modules/runtime] Cannot register modules after resolve() has been called.',
         )
       }
       modules.push(module)
@@ -158,7 +158,7 @@ export function createRegistry<
     registerLazy(descriptor) {
       if (resolved) {
         throw new Error(
-          '[@reactive-framework/registry] Cannot register modules after resolve() has been called.',
+          '[@tanstack-react-modules/runtime] Cannot register modules after resolve() has been called.',
         )
       }
       lazyModules.push(descriptor)
@@ -167,7 +167,7 @@ export function createRegistry<
     resolve(options?: ResolveOptions) {
       if (resolved) {
         throw new Error(
-          '[@reactive-framework/registry] resolve() can only be called once.',
+          '[@tanstack-react-modules/runtime] resolve() can only be called once.',
         )
       }
       resolved = true

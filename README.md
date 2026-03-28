@@ -43,7 +43,7 @@ Plug-and-play modular framework for React. Build frontend features as independen
 │  - Provides root layout                                 │
 │                                                         │
 │  ┌────────────────────────────────────────────────────┐ │
-│  │  @reactive-framework/registry                                │ │
+│  │  @tanstack-react-modules/runtime                                │ │
 │  │  - Validates dependencies                          │ │
 │  │  - Composes TanStack Router route tree             │ │
 │  │  - Builds navigation manifest                      │ │
@@ -97,7 +97,7 @@ Plug-and-play modular framework for React. Build frontend features as independen
 The CLI scaffolds a complete project with shell, app-shared, and a first module:
 
 ```bash
-npx @reactive-framework/cli init my-app --scope @myorg --module dashboard
+npx @tanstack-react-modules/cli init my-app --scope @myorg --module dashboard
 cd my-app
 pnpm install
 pnpm dev
@@ -170,7 +170,7 @@ app-shared/
 
 ```typescript
 // app-shared/src/index.ts
-import { createSharedHooks } from '@reactive-framework/core'
+import { createSharedHooks } from '@tanstack-react-modules/core'
 import type { Wretch } from 'wretch'
 
 export interface AuthStore {
@@ -200,7 +200,7 @@ export const { useStore, useService } = createSharedHooks<AppDependencies>()
 **Rules:**
 
 - The app-shared package is the **only** package that both the shell and modules depend on. It is the boundary between them.
-- Modules import `useStore` and `useService` from this package — never from `@reactive-framework/core` directly.
+- Modules import `useStore` and `useService` from this package — never from `@tanstack-react-modules/core` directly.
 - Zustand store types go in `AppDependencies` for reactive state. Non-reactive services (HTTP client, loggers) also go in `AppDependencies`.
 - The shell must provide implementations for every key in `AppDependencies`. The registry validates this at `resolve()` time against each module's `requires` list.
 - Keep this package lightweight. It should contain only types, hooks, zod schemas, and domain types — no React components, no business logic.
@@ -209,7 +209,7 @@ export const { useStore, useService } = createSharedHooks<AppDependencies>()
 
 ## Creating a Module
 
-> **CLI shortcut:** `npx @reactive-framework/cli create module billing` scaffolds the module, wires it into the shell's `main.tsx` and `package.json`, then run `pnpm install`.
+> **CLI shortcut:** `npx @tanstack-react-modules/cli create module billing` scaffolds the module, wires it into the shell's `main.tsx` and `package.json`, then run `pnpm install`.
 
 A module is an npm package that exports a `ReactiveModuleDescriptor` via `defineModule()`.
 
@@ -231,7 +231,7 @@ modules/billing/
 
 ```typescript
 // modules/billing/src/index.ts
-import { defineModule } from '@reactive-framework/core'
+import { defineModule } from '@tanstack-react-modules/core'
 import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
 import type { AppDependencies } from '@example/app-shared'
 
@@ -340,7 +340,7 @@ export default function InvoiceList() {
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "@reactive-framework/core": "^0.1.0",
+    "@tanstack-react-modules/core": "^0.1.0",
     "@example/app-shared": "workspace:*",
     "@lokalise/frontend-http-client": "^7.0.0"
   },
@@ -525,7 +525,7 @@ const httpClient = useService('httpClient')
 If a module declares `requires: ['auth', 'httpClient']` and the registry doesn't have `httpClient` in its stores or services, `resolve()` throws:
 
 ```
-[@reactive-framework/registry] Module "billing" requires dependencies not provided
+[@tanstack-react-modules/runtime] Module "billing" requires dependencies not provided
 by the registry: httpClient. Available: auth, config
 ```
 
@@ -539,7 +539,7 @@ The shell is a Vite application that creates shared dependencies, registers modu
 
 ```typescript
 import { createRoot } from 'react-dom/client'
-import { createRegistry } from '@reactive-framework/registry'
+import { createRegistry } from '@tanstack-react-modules/runtime'
 import type { AppDependencies } from '@example/app-shared'
 import billing from '@example/billing-module'
 import users from '@example/users-module'
@@ -658,7 +658,7 @@ defineModule<AppDependencies>({
 ### Rendering navigation in the layout
 
 ```typescript
-import { useNavigation } from '@reactive-framework/registry'
+import { useNavigation } from '@tanstack-react-modules/runtime'
 import { Link, useLocation } from '@tanstack/react-router'
 
 function Sidebar() {
@@ -722,7 +722,7 @@ Every slot value must be an array type — the registry concatenates contributio
 ### Contributing from a module
 
 ```typescript
-import { defineModule } from '@reactive-framework/core'
+import { defineModule } from '@tanstack-react-modules/core'
 import type { AppDependencies, AppSlots } from '@myorg/app-shared'
 
 export default defineModule<AppDependencies, AppSlots>({
@@ -746,7 +746,7 @@ Modules only contribute to the slots they care about — `slots` is `Partial<App
 ### Reading slots in the shell
 
 ```typescript
-import { useSlots } from '@reactive-framework/registry'
+import { useSlots } from '@tanstack-react-modules/runtime'
 import type { AppSlots } from '@myorg/app-shared'
 
 function StatusBar() {
@@ -872,7 +872,7 @@ The shell reads these zones via `useActiveZones(activeModuleId)` when the module
 Use `useActiveZones` to get a unified view of zones from both routes and the active module tab:
 
 ```typescript
-import { useActiveZones } from '@reactive-framework/registry'
+import { useActiveZones } from '@tanstack-react-modules/runtime'
 import type { AppZones } from '@myorg/app-shared'
 
 function Layout() {
@@ -970,7 +970,7 @@ export interface JourneyMeta {
 Then use it as the third generic on `defineModule`:
 
 ```typescript
-import { defineModule } from '@reactive-framework/core'
+import { defineModule } from '@tanstack-react-modules/core'
 import { lazy } from 'react'
 import type { AppDependencies, AppSlots, JourneyMeta } from '@myorg/app-shared'
 
@@ -996,7 +996,7 @@ TypeScript will error if `meta` is missing required fields or has typos. The `TM
 Use `getModuleMeta<TMeta>()` to read metadata without casts:
 
 ```typescript
-import { useModules, getModuleMeta } from '@reactive-framework/registry'
+import { useModules, getModuleMeta } from '@tanstack-react-modules/runtime'
 import type { JourneyMeta } from '@myorg/app-shared'
 
 function DirectoryPage() {
@@ -1193,7 +1193,7 @@ This boilerplate multiplies with every scoped concern — tabs, scratchpad, jour
 ### The solution
 
 ```typescript
-import { createScopedStore } from '@reactive-framework/core'
+import { createScopedStore } from '@tanstack-react-modules/core'
 
 // Define once — each interaction gets its own independent store
 const tabState = createScopedStore<TabState>(() => ({
@@ -1315,12 +1315,12 @@ See the [React Compiler documentation](https://react.dev/learn/react-compiler) f
 
 ## Testing Modules
 
-`@reactive-framework/testing` provides `renderModule()` to test a module in isolation with mocked dependencies. It supports both route-based modules and component-only modules.
+`@tanstack-react-modules/testing` provides `renderModule()` to test a module in isolation with mocked dependencies. It supports both route-based modules and component-only modules.
 
 ### Route-based module
 
 ```typescript
-import { renderModule, createMockStore } from '@reactive-framework/testing'
+import { renderModule, createMockStore } from '@tanstack-react-modules/testing'
 import billing from '@example/billing-module'
 import type { AuthStore } from '@example/app-shared'
 import wretch from 'wretch'
@@ -1349,7 +1349,7 @@ test('billing dashboard shows user name', async () => {
 Modules that use `component` instead of `createRoutes` (workspace-style journeys, panels) are rendered directly inside the provider tree — no router needed:
 
 ```typescript
-import { renderModule, createMockStore } from '@reactive-framework/testing'
+import { renderModule, createMockStore } from '@tanstack-react-modules/testing'
 import ddSetup from '@myorg/module-dd-setup'
 import type { AuthStore } from '@myorg/app-shared'
 
@@ -1427,10 +1427,10 @@ The module's code is only loaded when the user first navigates to `/admin/*`.
 ```
 reactive/
 ├── packages/
-│   ├── cli/                     # @reactive-framework/cli — project scaffolding CLI
-│   ├── core/                    # @reactive-framework/core — module types, hooks, defineModule()
-│   ├── registry/                # @reactive-framework/registry — composition, validation, providers
-│   └── testing/                 # @reactive-framework/testing — test harness
+│   ├── cli/                     # @tanstack-react-modules/cli — project scaffolding CLI
+│   ├── core/                    # @tanstack-react-modules/core — module types, hooks, defineModule()
+│   ├── registry/                # @tanstack-react-modules/runtime — composition, validation, providers
+│   └── testing/                 # @tanstack-react-modules/testing — test harness
 ├── examples/
 │   ├── app-shared/              # @example/app-shared — types, hooks, API contracts
 │   ├── shell/                   # Example host app (Vite 8 + React Compiler)
@@ -1446,10 +1446,10 @@ reactive/
 
 | Package | Purpose | Size |
 |---|---|---|
-| `@reactive-framework/core` | Module types, `defineModule()`, `createSharedHooks()` | ~1 KB |
-| `@reactive-framework/registry` | `createRegistry()`, route composition, validation, navigation manifest, `useNavigation()` | ~5.6 KB |
-| `@reactive-framework/testing` | `renderModule()`, `createMockStore()` | ~1 KB |
-| `@reactive-framework/cli` | `reactive init`, `reactive create module`, `reactive create store` | N/A (Node CLI) |
+| `@tanstack-react-modules/core` | Module types, `defineModule()`, `createSharedHooks()` | ~1 KB |
+| `@tanstack-react-modules/runtime` | `createRegistry()`, route composition, validation, navigation manifest, `useNavigation()` | ~5.6 KB |
+| `@tanstack-react-modules/testing` | `renderModule()`, `createMockStore()` | ~1 KB |
+| `@tanstack-react-modules/cli` | `reactive init`, `reactive create module`, `reactive create store` | N/A (Node CLI) |
 
 ### Building packages
 
@@ -1457,7 +1457,7 @@ Framework packages use Vite 8 library mode (ESM only):
 
 ```bash
 pnpm build                    # Build all packages + shell
-pnpm --filter @reactive-framework/core build   # Build a single package
+pnpm --filter @tanstack-react-modules/core build   # Build a single package
 pnpm --filter shell dev       # Run example shell in dev mode
 ```
 
@@ -1465,7 +1465,7 @@ pnpm --filter shell dev       # Run example shell in dev mode
 
 ## CLI Reference
 
-`@reactive-framework/cli` provides commands for scaffolding projects, modules, and stores. All commands support both interactive (prompts) and non-interactive (flags) modes.
+`@tanstack-react-modules/cli` provides commands for scaffolding projects, modules, and stores. All commands support both interactive (prompts) and non-interactive (flags) modes.
 
 ### reactive init
 
@@ -1566,7 +1566,7 @@ npx playwright test
 
 ## API Reference
 
-### @reactive-framework/core
+### @tanstack-react-modules/core
 
 | Export | Type | Description |
 |---|---|---|
@@ -1581,7 +1581,7 @@ npx playwright test
 | `ZoneMap` | Type | Constraint type for zone definitions: `Record<string, ComponentType \| undefined>`. |
 | `ZoneMapOf<T>` | Type | F-bounded constraint for zone types — accepts interfaces without index signatures. |
 
-### @reactive-framework/registry
+### @tanstack-react-modules/runtime
 
 | Export | Type | Description |
 |---|---|---|
@@ -1601,7 +1601,7 @@ npx playwright test
 | `NavigationGroup` | Type | `{ group, items }`. |
 | `ResolveOptions` | Type | `{ rootComponent, indexComponent, notFoundComponent }`. |
 
-### @reactive-framework/testing
+### @tanstack-react-modules/testing
 
 | Export | Type | Description |
 |---|---|---|

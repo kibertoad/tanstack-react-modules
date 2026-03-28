@@ -26,12 +26,12 @@ exec(`node ${CLI} init smoke-app --scope @smoke --module dashboard`, TMP)
 // Build framework packages
 exec('pnpm -r run build', REPO_ROOT)
 
-// Override @reactive-framework/* to local (not yet on npm)
+// Override @tanstack-react-modules/* to local (not yet on npm)
 const rootPkg = JSON.parse(readFileSync(resolve(PROJECT_DIR, 'package.json'), 'utf-8'))
 rootPkg.pnpm = {
   overrides: {
-    '@reactive-framework/core': `link:${resolve(REPO_ROOT, 'packages', 'core')}`,
-    '@reactive-framework/registry': `link:${resolve(REPO_ROOT, 'packages', 'registry')}`,
+    '@tanstack-react-modules/core': `link:${resolve(REPO_ROOT, 'packages', 'core')}`,
+    '@tanstack-react-modules/runtime': `link:${resolve(REPO_ROOT, 'packages', 'registry')}`,
   },
 }
 writeFileSync(resolve(PROJECT_DIR, 'package.json'), JSON.stringify(rootPkg, null, 2))

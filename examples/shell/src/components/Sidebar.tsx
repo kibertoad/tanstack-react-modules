@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { useNavigation } from '@reactive-framework/registry'
+import { useNavigation } from '@tanstack-react-modules/runtime'
 
 export function Sidebar() {
   const navigation = useNavigation()

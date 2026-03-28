@@ -14,7 +14,7 @@ export function useSlots<TSlots extends { [K in keyof TSlots]: readonly unknown[
   const slots = useContext(SlotsContext)
   if (!slots) {
     throw new Error(
-      '[@reactive-framework/registry] useSlots must be used within a <ReactiveApp />.',
+      '[@tanstack-react-modules/runtime] useSlots must be used within a <ReactiveApp />.',
     )
   }
   return slots as TSlots

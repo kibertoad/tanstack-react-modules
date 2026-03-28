@@ -40,7 +40,7 @@ examples/modules/<module-name>/
     }
   },
   "dependencies": {
-    "@reactive-framework/core": "^0.1.0",
+    "@tanstack-react-modules/core": "^0.1.0",
     "@example/app-shared": "workspace:*",
     "@lokalise/frontend-http-client": "^7.0.0"
   },
@@ -74,7 +74,7 @@ examples/modules/<module-name>/
 
 ```typescript
 // src/index.ts
-import { defineModule } from '@reactive-framework/core'
+import { defineModule } from '@tanstack-react-modules/core'
 import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
 import type { AppDependencies } from '@example/app-shared'
 
@@ -127,7 +127,7 @@ export default function <PageName>() {
 
 - Every page component must use `lazyRouteComponent(() => import(...))` for code splitting.
 - The module `id` must be unique across all registered modules.
-- Use `useStore` and `useService` from `@example/app-shared`, never from `@reactive-framework/core` directly.
+- Use `useStore` and `useService` from `@example/app-shared`, never from `@tanstack-react-modules/core` directly.
 - Navigation `to` paths must match the routes defined in `createRoutes`.
 - The `requires` array is validated when `registry.resolve()` is called — missing deps throw an error.
 - Do not import from other modules. Communicate via shared Zustand stores or React Query cache invalidation.

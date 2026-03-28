@@ -51,7 +51,7 @@ The shell owns the layout. Modules contribute content through five channels:
 
 ```typescript
 // app-shared/src/index.ts
-import { createSharedHooks } from '@reactive-framework/core'
+import { createSharedHooks } from '@tanstack-react-modules/core'
 import type { ComponentType } from 'react'
 
 // ---- Zones (layout regions that change per active content) ----
@@ -189,7 +189,7 @@ Workspace modules use `component` instead of `createRoutes`. The shell renders t
 
 ```typescript
 // modules/dd-setup/src/index.ts
-import { defineModule } from '@reactive-framework/core'
+import { defineModule } from '@tanstack-react-modules/core'
 import { lazy } from 'react'
 import { DDSetupContextualPanel } from './DDSetupContextualPanel.js'
 
@@ -246,7 +246,7 @@ zones: {
 The shell reads zones from both routes and the active module using `useActiveZones`:
 
 ```typescript
-import { useActiveZones } from '@reactive-framework/registry'
+import { useActiveZones } from '@tanstack-react-modules/runtime'
 import type { AppZones } from '@myorg/app-shared'
 
 function ShellLayout() {
@@ -282,7 +282,7 @@ This gives the shell one code path regardless of whether the active content is r
 The shell builds a browsable directory of available modules using `useModules()` and `getModuleMeta()`:
 
 ```typescript
-import { useModules, getModuleMeta } from '@reactive-framework/registry'
+import { useModules, getModuleMeta } from '@tanstack-react-modules/runtime'
 import type { JourneyMeta } from '@myorg/app-shared'
 
 function DirectoryPage() {
@@ -329,7 +329,7 @@ Category labels fall back to `capitalize(category)` — no hardcoded label map n
 When a tab is active, the shell looks up the module and renders its `component`:
 
 ```typescript
-import { useModules } from '@reactive-framework/registry'
+import { useModules } from '@tanstack-react-modules/runtime'
 
 function WorkspaceContent({ activeTab, customerId, accountNumber, interactionId }) {
   const modules = useModules()
@@ -404,7 +404,7 @@ Modules control their own completion behavior via `JourneyMeta`:
 For apps where each interaction/session has independent state, use `createScopedStore`:
 
 ```typescript
-import { createScopedStore } from '@reactive-framework/core'
+import { createScopedStore } from '@tanstack-react-modules/core'
 
 const interactionTabs = createScopedStore<TabState>(() => ({
   tabs: [{ id: 'directory', type: 'directory', title: 'Directory', closeable: false }],

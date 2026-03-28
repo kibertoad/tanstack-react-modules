@@ -1,5 +1,5 @@
 {
-  "name": "@reactive-framework/skills",
+  "name": "@tanstack-react-modules/skills",
   "version": "0.1.0",
   "description": "AI coding skills for the Reactive modular React framework",
   "keywords": ["skills", "ai-skills", "reactive", "react", "modular"],

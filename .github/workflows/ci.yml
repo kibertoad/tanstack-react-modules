@@ -27,9 +27,9 @@ jobs:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           declare -A PATH_TO_NAME=(
-            ["packages/core"]="@reactive-framework/core"
-            ["packages/registry"]="@reactive-framework/registry"
-            ["packages/testing"]="@reactive-framework/testing"
+            ["packages/core"]="@tanstack-react-modules/core"
+            ["packages/runtime"]="@tanstack-react-modules/runtime"
+            ["packages/testing"]="@tanstack-react-modules/testing"
           )
 
           PACKAGES=()

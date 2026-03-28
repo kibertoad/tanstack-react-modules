@@ -11,7 +11,7 @@
     }
   },
   "dependencies": {
-    "@reactive-framework/core": "workspace:*",
+    "@tanstack-react-modules/core": "workspace:*",
     "@example/app-shared": "workspace:*",
     "@lokalise/frontend-http-client": "^7.0.0"
   },

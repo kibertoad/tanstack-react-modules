@@ -1,4 +1,4 @@
-import type { ReactiveModuleDescriptor, SlotMap } from '@reactive-framework/core'
+import type { ReactiveModuleDescriptor, SlotMap } from '@tanstack-react-modules/core'
 
 /**
  * Collects slot contributions from all registered modules.

@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@reactive-framework/core": "workspace:*",
-    "@reactive-framework/registry": "workspace:*",
+    "@tanstack-react-modules/core": "workspace:*",
+    "@tanstack-react-modules/runtime": "workspace:*",
     "@example/app-shared": "workspace:*",
     "@example/billing-module": "workspace:*",
     "@example/users-module": "workspace:*",

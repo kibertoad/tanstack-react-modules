@@ -1,6 +1,6 @@
 import type { StoreApi } from 'zustand'
 import type { Router } from '@tanstack/react-router'
-import type { NavigationItem, SlotMap, SlotMapOf } from '@reactive-framework/core'
+import type { NavigationItem, SlotMap, SlotMapOf } from '@tanstack-react-modules/core'
 
 /**
  * Configuration for creating a registry.

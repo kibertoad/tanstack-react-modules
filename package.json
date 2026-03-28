@@ -1,5 +1,5 @@
 {
-  "name": "reactive",
+  "name": "tanstack-react-modules",
   "version": "1.0.0",
   "private": true,
   "description": "Modular React framework for building composable frontend systems",
@@ -11,7 +11,7 @@
     "build": "pnpm -r run build",
     "dev": "pnpm --filter shell dev",
     "test": "vitest run",
-    "test:e2e": "pnpm --filter @reactive-framework/cli test:e2e",
+    "test:e2e": "pnpm --filter @tanstack-react-modules/cli test:e2e",
     "typecheck": "tsc --build"
   },
   "devDependencies": {

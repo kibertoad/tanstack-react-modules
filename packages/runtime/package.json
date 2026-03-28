@@ -1,6 +1,6 @@
 {
-  "name": "@reactive-framework/registry",
-  "version": "0.1.0",
+  "name": "@tanstack-react-modules/runtime",
+  "version": "0.5.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,10 +16,11 @@
   },
   "scripts": {
     "build": "vite build",
-    "dev": "vite build --watch"
+    "dev": "vite build --watch",
+    "prepublishOnly": "pnpm build && test -f dist/index.js && test -f dist/index.d.ts"
   },
   "dependencies": {
-    "@reactive-framework/core": "workspace:*"
+    "@tanstack-react-modules/core": "^0.5.0"
   },
   "peerDependencies": {
     "@tanstack/react-router": "^1.120.0",

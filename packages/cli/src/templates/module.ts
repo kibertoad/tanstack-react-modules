@@ -16,7 +16,7 @@ export function modulePackageJson(params: {
         },
       },
       dependencies: {
-        '@reactive-framework/core': '^0.1.0',
+        '@tanstack-react-modules/core': '^0.1.0',
         [`${params.scope}/app-shared`]: 'workspace:*',
         '@lokalise/frontend-http-client': '^7.0.0',
       },
@@ -69,7 +69,7 @@ export function moduleDescriptor(params: {
         `{ label: '${capitalize(params.name)} List', to: '/${params.route}/list', order: 11 }`,
       ]
 
-  return `import { defineModule } from '@reactive-framework/core'
+  return `import { defineModule } from '@tanstack-react-modules/core'
 import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
 import type { AppDependencies, AppSlots } from '${params.scope}/app-shared'
 

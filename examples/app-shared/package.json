@@ -11,7 +11,7 @@
     }
   },
   "dependencies": {
-    "@reactive-framework/core": "workspace:*",
+    "@tanstack-react-modules/core": "workspace:*",
     "@lokalise/api-contracts": "^6.0.0",
     "@lokalise/frontend-http-client": "^7.0.0",
     "wretch": "^2.11.0",

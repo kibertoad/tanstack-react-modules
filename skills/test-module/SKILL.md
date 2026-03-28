@@ -1,6 +1,6 @@
 ---
 name: test-module
-description: Writes tests for a Reactive module using @reactive-framework/testing with renderModule() and createMockStore(). Use when adding or updating tests for module components.
+description: Writes tests for a Reactive module using @tanstack-react-modules/testing with renderModule() and createMockStore(). Use when adding or updating tests for module components.
 metadata:
   author: reactive
   version: "1.0"
@@ -8,7 +8,7 @@ metadata:
 
 # Test a Reactive Module
 
-`@reactive-framework/testing` provides `renderModule()` to render a module in isolation with mocked shared dependencies. It uses `@testing-library/react` under the hood.
+`@tanstack-react-modules/testing` provides `renderModule()` to render a module in isolation with mocked shared dependencies. It uses `@testing-library/react` under the hood.
 
 ## Step 1: Set up test file
 
@@ -28,7 +28,7 @@ modules/<module-name>/
 
 ```typescript
 import { test, expect } from 'vitest'
-import { renderModule, createMockStore } from '@reactive-framework/testing'
+import { renderModule, createMockStore } from '@tanstack-react-modules/testing'
 import moduleDescriptor from '../src/index.js'
 import type { AuthStore, ConfigStore } from '@example/app-shared'
 import wretch from 'wretch'
@@ -84,7 +84,7 @@ test('shows login prompt when not authenticated', async () => {
 Creates a zustand store pre-populated with the given state:
 
 ```typescript
-import { createMockStore } from '@reactive-framework/testing'
+import { createMockStore } from '@tanstack-react-modules/testing'
 
 const store = createMockStore<AuthStore>({
   user: { id: '1', name: 'Test', email: 'a@b.com', role: 'user' },

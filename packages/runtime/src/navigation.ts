@@ -1,4 +1,4 @@
-import type { ReactiveModuleDescriptor, NavigationItem } from '@reactive-framework/core'
+import type { ReactiveModuleDescriptor, NavigationItem } from '@tanstack-react-modules/core'
 import type { NavigationManifest, NavigationGroup } from './types.js'
 
 export function buildNavigationManifest(

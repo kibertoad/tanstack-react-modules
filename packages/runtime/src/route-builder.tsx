@@ -4,7 +4,7 @@ import {
   Outlet,
 } from '@tanstack/react-router'
 import type { AnyRoute } from '@tanstack/react-router'
-import type { ReactiveModuleDescriptor, LazyModuleDescriptor } from '@reactive-framework/core'
+import type { ReactiveModuleDescriptor, LazyModuleDescriptor } from '@tanstack-react-modules/core'
 
 export interface RouteBuilderOptions {
   /**

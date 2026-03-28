@@ -1,5 +1,5 @@
 import { useMatches } from '@tanstack/react-router'
-import type { ZoneMapOf } from '@reactive-framework/core'
+import type { ZoneMapOf } from '@tanstack-react-modules/core'
 
 /**
  * Read zone components contributed by the currently matched route hierarchy.

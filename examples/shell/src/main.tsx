@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { createRegistry } from '@reactive-framework/registry'
+import { createRegistry } from '@tanstack-react-modules/runtime'
 import type { AppDependencies, AppSlots } from '@example/app-shared'
 import billing from '@example/billing-module'
 import users from '@example/users-module'

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSlots } from '@reactive-framework/registry'
+import { useSlots } from '@tanstack-react-modules/runtime'
 import type { AppSlots } from '@example/app-shared'
 
 export function CommandPalette() {

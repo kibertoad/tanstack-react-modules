@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { buildRouteTree, type RouteBuilderOptions } from './route-builder.js'
 import { createRootRoute, createRoute } from '@tanstack/react-router'
-import type { ReactiveModuleDescriptor, LazyModuleDescriptor } from '@reactive-framework/core'
+import type { ReactiveModuleDescriptor, LazyModuleDescriptor } from '@tanstack-react-modules/core'
 import type { AnyRoute } from '@tanstack/react-router'
 
 function fakeModule(

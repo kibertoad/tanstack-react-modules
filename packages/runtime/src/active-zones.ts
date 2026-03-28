@@ -1,4 +1,4 @@
-import type { ZoneMapOf } from '@reactive-framework/core'
+import type { ZoneMapOf } from '@tanstack-react-modules/core'
 import { useZones } from './zones.js'
 import { useModules } from './modules-context.js'
 

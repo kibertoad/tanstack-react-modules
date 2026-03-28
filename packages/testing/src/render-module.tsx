@@ -5,11 +5,11 @@ import {
   createRouter,
   createRootRoute,
 } from '@tanstack/react-router'
-import { SharedDependenciesContext } from '@reactive-framework/core'
-import type { ReactiveModuleDescriptor, SlotMap } from '@reactive-framework/core'
-import { SlotsContext } from '@reactive-framework/registry'
-import { ModulesContext } from '@reactive-framework/registry'
-import type { ModuleEntry } from '@reactive-framework/registry'
+import { SharedDependenciesContext } from '@tanstack-react-modules/core'
+import type { ReactiveModuleDescriptor, SlotMap } from '@tanstack-react-modules/core'
+import { SlotsContext } from '@tanstack-react-modules/runtime'
+import { ModulesContext } from '@tanstack-react-modules/runtime'
+import type { ModuleEntry } from '@tanstack-react-modules/runtime'
 import { RouterProvider } from '@tanstack/react-router'
 import type { StoreApi } from 'zustand'
 
@@ -152,7 +152,7 @@ export async function renderModule<
   }
 
   throw new Error(
-    `[@reactive-framework/testing] Module "${module.id}" has neither createRoutes nor component. ` +
+    `[@tanstack-react-modules/testing] Module "${module.id}" has neither createRoutes nor component. ` +
       'renderModule requires at least one of these.',
   )
 }

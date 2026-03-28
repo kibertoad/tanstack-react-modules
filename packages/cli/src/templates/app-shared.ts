@@ -13,7 +13,7 @@ export function appSharedPackageJson(params: { scope: string }): string {
         },
       },
       dependencies: {
-        '@reactive-framework/core': '^0.1.0',
+        '@tanstack-react-modules/core': '^0.1.0',
         '@lokalise/api-contracts': '^6.0.0',
         '@lokalise/frontend-http-client': '^7.0.0',
         wretch: '^2.11.0',
@@ -47,7 +47,7 @@ export function appSharedTsconfig(): string {
 }
 
 export function appSharedIndex(params: { scope: string }): string {
-  return `import { createSharedHooks } from '@reactive-framework/core'
+  return `import { createSharedHooks } from '@tanstack-react-modules/core'
 import type { LoginCredentials, User } from './types.js'
 import type { Wretch } from 'wretch'
 

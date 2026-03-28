@@ -22,7 +22,7 @@ export function useModules(): readonly ModuleEntry[] {
   const modules = useContext(ModulesContext)
   if (!modules) {
     throw new Error(
-      '[@reactive-framework/registry] useModules must be used within a <ReactiveApp />.',
+      '[@tanstack-react-modules/runtime] useModules must be used within a <ReactiveApp />.',
     )
   }
   return modules
