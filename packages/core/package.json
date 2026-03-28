@@ -13,6 +13,11 @@
       "import": "./dist/index.js"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kibertoad/reactive.git",
+    "directory": "packages/core"
+  },
   "publishConfig": {
     "access": "public"
   },

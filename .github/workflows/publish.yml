@@ -57,6 +57,11 @@ jobs:
               - 'packages/testing/src/**'
               - 'packages/testing/package.json'
               - 'packages/testing/README.md'
+            pkg_cli:
+              - 'packages/cli/dist/**'
+              - 'packages/cli/src/**'
+              - 'packages/cli/package.json'
+              - 'packages/cli/README.md'
 
       - name: Build dynamic matrix
         id: build-matrix
@@ -65,6 +70,7 @@ jobs:
             ["pkg_core"]="core"
             ["pkg_runtime"]="runtime"
             ["pkg_testing"]="testing"
+            ["pkg_cli"]="cli"
           )
 
           CHANGED='${{ steps.filter.outputs.changes }}'

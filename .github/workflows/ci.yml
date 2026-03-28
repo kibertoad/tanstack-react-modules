@@ -30,6 +30,7 @@ jobs:
             ["packages/core"]="@tanstack-react-modules/core"
             ["packages/runtime"]="@tanstack-react-modules/runtime"
             ["packages/testing"]="@tanstack-react-modules/testing"
+            ["packages/cli"]="@tanstack-react-modules/cli"
           )
 
           PACKAGES=()
