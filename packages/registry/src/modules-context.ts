@@ -27,3 +27,21 @@ export function useModules(): readonly ModuleEntry[] {
   }
   return modules
 }
+
+/**
+ * Type-safe accessor for module metadata.
+ * Use this when the shell defines a known meta shape and wants to read it
+ * without casting every field.
+ *
+ * Returns undefined if the module has no meta.
+ *
+ * @example
+ * interface JourneyMeta { name: string; category: string; icon: string }
+ * const meta = getModuleMeta<JourneyMeta>(mod)
+ * if (meta) console.log(meta.name) // typed, no cast
+ */
+export function getModuleMeta<TMeta extends { [K in keyof TMeta]: unknown }>(
+  entry: ModuleEntry,
+): Readonly<TMeta> | undefined {
+  return entry.meta as Readonly<TMeta> | undefined
+}

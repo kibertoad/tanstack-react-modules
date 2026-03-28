@@ -55,6 +55,7 @@ export type ZoneMap = Record<string, React.ComponentType<any> | undefined>
 export interface ReactiveModuleDescriptor<
   TSharedDependencies extends Record<string, any> = Record<string, any>,
   TSlots extends SlotMapOf<TSlots> = SlotMap,
+  TMeta extends { [K in keyof TMeta]: unknown } = Record<string, unknown>,
 > {
   /** Unique module identifier, e.g. "billing", "user-profile" */
   readonly id: string
@@ -96,8 +97,14 @@ export interface ReactiveModuleDescriptor<
    *
    * The framework collects meta from all modules and exposes it via useModules().
    * Values are opaque to the framework — the shell defines what keys matter.
+   *
+   * Use the TMeta generic on defineModule to get compile-time validation:
+   * ```ts
+   * interface JourneyMeta { name: string; category: string; icon: string }
+   * defineModule<AppDeps, AppSlots, JourneyMeta>({ meta: { name: '...', ... } })
+   * ```
    */
-  readonly meta?: Readonly<Record<string, unknown>>
+  readonly meta?: Readonly<TMeta>
 
   /** Keys from TSharedDependencies that this module needs */
   readonly requires?: readonly (keyof TSharedDependencies)[]
@@ -146,6 +153,7 @@ export interface ModuleLifecycle<
 export interface LazyModuleDescriptor<
   TSharedDependencies extends Record<string, any> = Record<string, any>,
   TSlots extends SlotMapOf<TSlots> = SlotMap,
+  TMeta extends { [K in keyof TMeta]: unknown } = Record<string, unknown>,
 > {
   /** Unique module identifier */
   readonly id: string
@@ -155,6 +163,6 @@ export interface LazyModuleDescriptor<
 
   /** Dynamic import that returns the full module descriptor */
   readonly load: () => Promise<{
-    default: ReactiveModuleDescriptor<TSharedDependencies, TSlots>
+    default: ReactiveModuleDescriptor<TSharedDependencies, TSlots, TMeta>
   }>
 }

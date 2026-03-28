@@ -21,7 +21,7 @@ export { useSlots, SlotsContext } from './slots-context.js'
 export { useZones } from './zones.js'
 
 // Modules
-export { useModules } from './modules-context.js'
+export { useModules, getModuleMeta } from './modules-context.js'
 
 // Error boundary (for custom usage)
 export { ModuleErrorBoundary } from './error-boundary.js'

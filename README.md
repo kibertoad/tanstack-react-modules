@@ -282,7 +282,7 @@ export default defineModule<AppDependencies>({
 | `version` | Yes | SemVer version string. |
 | `createRoutes` | No | Receives the root route as parent, returns a TanStack Router route subtree. Use `lazyRouteComponent()` for code splitting. |
 | `component` | No | A React component the shell can render outside of routes — in a tab, modal, or panel. Use for workspace apps where the shell orchestrates rendering. |
-| `meta` | No | Catalog metadata (`Record<string, unknown>`) — name, description, icon, category, etc. The shell uses this for discovery UIs. See [Module Catalog](#module-catalog). |
+| `meta` | No | Catalog metadata for discovery UIs. Accepts a `TMeta` generic for type safety — see [Module Catalog](#module-catalog). |
 | `navigation` | No | Array of `NavigationItem` entries contributed to the shell's sidebar/nav. |
 | `slots` | No | Typed slot contributions (e.g. commands, tab types). See [Slots](#slots). |
 | `requires` | No | Array of `AppDependencies` keys this module needs. Validated at registry resolution. |
@@ -916,11 +916,27 @@ Modules can also export a `component` — a React component the shell renders ou
 
 ### Declaring meta and component
 
+The `meta` field accepts a `TMeta` generic for compile-time validation. Define a meta interface in your app-shared package:
+
+```typescript
+// app-shared/src/index.ts
+export interface JourneyMeta {
+  readonly name: string
+  readonly description: string
+  readonly icon: string
+  readonly category: string
+  readonly estimatedTime?: string
+}
+```
+
+Then use it as the third generic on `defineModule`:
+
 ```typescript
 import { defineModule } from '@reactive-framework/core'
 import { lazy } from 'react'
+import type { AppDependencies, AppSlots, JourneyMeta } from '@myorg/app-shared'
 
-export default defineModule<AppDependencies>({
+export default defineModule<AppDependencies, AppSlots, JourneyMeta>({
   id: 'dd-setup',
   version: '0.1.0',
   component: lazy(() => import('./DDSetupJourney.js')),
@@ -935,26 +951,35 @@ export default defineModule<AppDependencies>({
 })
 ```
 
-`meta` is `Record<string, unknown>` — the framework stores it but doesn't interpret it. Your app-shared package can define a typed interface for what keys the shell expects, then cast in the shell.
+TypeScript will error if `meta` is missing required fields or has typos. The `TMeta` generic defaults to `Record<string, unknown>` so existing modules without typed meta continue to work.
 
 ### Reading modules in the shell
 
+Use `getModuleMeta<TMeta>()` to read metadata without casts:
+
 ```typescript
-import { useModules } from '@reactive-framework/registry'
+import { useModules, getModuleMeta } from '@reactive-framework/registry'
+import type { JourneyMeta } from '@myorg/app-shared'
 
 function DirectoryPage() {
   const modules = useModules()
-  const payments = modules.filter((m) => m.meta?.category === 'payments')
+  const journeys = modules.filter((m) => {
+    const meta = getModuleMeta<JourneyMeta>(m)
+    return meta?.category === 'payments'
+  })
 
   return (
     <div>
-      {payments.map((mod) => (
-        <Card key={mod.id}>
-          <h3>{mod.meta?.name as string}</h3>
-          <p>{mod.meta?.description as string}</p>
-          <button onClick={() => openInTab(mod)}>Start</button>
-        </Card>
-      ))}
+      {journeys.map((mod) => {
+        const meta = getModuleMeta<JourneyMeta>(mod)!
+        return (
+          <Card key={mod.id}>
+            <h3>{meta.name}</h3>
+            <p>{meta.description}</p>
+            <button onClick={() => openInTab(mod)}>Start</button>
+          </Card>
+        )
+      })}
     </div>
   )
 }
@@ -1210,7 +1235,9 @@ See the [React Compiler documentation](https://react.dev/learn/react-compiler) f
 
 ## Testing Modules
 
-`@reactive-framework/testing` provides `renderModule()` to test a module in isolation with mocked dependencies.
+`@reactive-framework/testing` provides `renderModule()` to test a module in isolation with mocked dependencies. It supports both route-based modules and component-only modules.
+
+### Route-based module
 
 ```typescript
 import { renderModule, createMockStore } from '@reactive-framework/testing'
@@ -1237,6 +1264,43 @@ test('billing dashboard shows user name', async () => {
 })
 ```
 
+### Component-only module
+
+Modules that use `component` instead of `createRoutes` (workspace-style journeys, panels) are rendered directly inside the provider tree — no router needed:
+
+```typescript
+import { renderModule, createMockStore } from '@reactive-framework/testing'
+import ddSetup from '@myorg/module-dd-setup'
+import type { AuthStore } from '@myorg/app-shared'
+
+test('dd-setup journey renders and completes', async () => {
+  const onComplete = vi.fn()
+
+  const result = await renderModule(ddSetup, {
+    deps: {
+      auth: createMockStore<AuthStore>({
+        isAuthenticated: true,
+        session: { name: 'Test', email: 'test@example.com' },
+        isLoading: false,
+        checkSession: async () => {},
+        logout: () => {},
+      }),
+      httpClient: { get: vi.fn() },
+    },
+    props: {
+      customerId: 'C001',
+      accountNumber: 'A001',
+      onComplete,
+      onCancel: vi.fn(),
+    },
+  })
+
+  expect(result.getByText('Set up Direct Debit')).toBeDefined()
+})
+```
+
+`useModules()` works inside components rendered by `renderModule` — the test wrapper provides a `ModulesContext` containing the module under test.
+
 ### createMockStore
 
 Creates a zustand store pre-populated with the given state:
@@ -1255,8 +1319,10 @@ const authStore = createMockStore<AuthStore>({
 
 | Option | Description |
 |---|---|
-| `route` | Initial route to navigate to (default: `'/'`). |
+| `route` | Initial route to navigate to (default: `'/'`). Only used for route-based modules. |
 | `deps` | Partial map of shared dependencies. `StoreApi` values go to stores context, plain values go to services context. |
+| `props` | Props passed to the module's `component`. Only used for component-only modules. |
+| `slots` | Mock slot data available via `useSlots()` in the test. |
 
 ---
 

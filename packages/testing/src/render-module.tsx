@@ -8,13 +8,15 @@ import {
 import { SharedDependenciesContext } from '@reactive-framework/core'
 import type { ReactiveModuleDescriptor, SlotMap } from '@reactive-framework/core'
 import { SlotsContext } from '@reactive-framework/registry'
+import { ModulesContext } from '@reactive-framework/registry'
+import type { ModuleEntry } from '@reactive-framework/registry'
 import { RouterProvider } from '@tanstack/react-router'
 import type { StoreApi } from 'zustand'
 
 export interface RenderModuleOptions<
   TSharedDependencies extends Record<string, any>,
 > {
-  /** Initial route to navigate to */
+  /** Initial route to navigate to (only used for modules with createRoutes) */
   route?: string
 
   /**
@@ -29,6 +31,12 @@ export interface RenderModuleOptions<
 
   /** Mock slot data for the module under test */
   slots?: SlotMap
+
+  /**
+   * Props to pass to the module's component.
+   * Only used for component-only modules (no createRoutes).
+   */
+  props?: Record<string, unknown>
 }
 
 function isStoreApi(value: unknown): value is StoreApi<unknown> {
@@ -41,16 +49,52 @@ function isStoreApi(value: unknown): value is StoreApi<unknown> {
   )
 }
 
+function separateDeps(deps: Record<string, unknown>) {
+  const stores: Record<string, StoreApi<unknown>> = {}
+  const services: Record<string, unknown> = {}
+
+  for (const [key, value] of Object.entries(deps)) {
+    if (isStoreApi(value)) {
+      stores[key] = value
+    } else {
+      services[key] = value
+    }
+  }
+
+  return { stores, services }
+}
+
+function buildModuleEntry(module: ReactiveModuleDescriptor): ModuleEntry {
+  return {
+    id: module.id,
+    version: module.version,
+    meta: module.meta,
+    component: module.component,
+  }
+}
+
 /**
  * Renders a reactive module in isolation for testing.
  *
- * @example
+ * Supports both route-based modules (with createRoutes) and
+ * component-only modules (with component, no routes).
+ *
+ * @example Route-based module
  * const result = await renderModule(billingModule, {
  *   route: '/billing',
  *   deps: {
  *     auth: createMockStore<AuthStore>({ user: testUser, isAuthenticated: true }),
  *     api: { get: vi.fn(), post: vi.fn() },
  *   },
+ * })
+ *
+ * @example Component-only module
+ * const result = await renderModule(ddSetupModule, {
+ *   deps: {
+ *     auth: createMockStore<AuthStore>({ ... }),
+ *     httpClient: { get: vi.fn() },
+ *   },
+ *   props: { customerId: '123', accountNumber: 'A001' },
  * })
  */
 export async function renderModule<
@@ -59,48 +103,55 @@ export async function renderModule<
   module: ReactiveModuleDescriptor<TSharedDependencies>,
   options: RenderModuleOptions<TSharedDependencies>,
 ): Promise<RenderResult> {
-  const stores: Record<string, StoreApi<unknown>> = {}
-  const services: Record<string, unknown> = {}
+  const { stores, services } = separateDeps(options.deps as Record<string, unknown>)
+  const moduleEntry = buildModuleEntry(module)
+  const slots = options.slots ?? {}
 
-  // Separate stores from plain services
-  for (const [key, value] of Object.entries(options.deps)) {
-    if (isStoreApi(value)) {
-      stores[key] = value
-    } else {
-      services[key] = value
-    }
-  }
+  if (module.createRoutes) {
+    // Route-based module — build a router and render via RouterProvider
+    const rootRoute = createRootRoute({})
+    const moduleRoutes = module.createRoutes(rootRoute)
+    const routeTree = rootRoute.addChildren([moduleRoutes])
 
-  // Build route tree for this module
-  const rootRoute = createRootRoute({})
-  if (!module.createRoutes) {
-    throw new Error(
-      `[@reactive-framework/testing] Module "${module.id}" has no createRoutes. ` +
-        'renderModule only works with modules that define routes.',
+    const memoryHistory = createMemoryHistory({
+      initialEntries: [options.route ?? '/'],
+    })
+
+    const router = createRouter({
+      routeTree,
+      history: memoryHistory,
+    })
+
+    await router.load()
+
+    return render(
+      <SharedDependenciesContext value={{ stores, services }}>
+        <SlotsContext value={slots}>
+          <ModulesContext value={[moduleEntry]}>
+            <RouterProvider router={router} />
+          </ModulesContext>
+        </SlotsContext>
+      </SharedDependenciesContext>,
     )
   }
-  const moduleRoutes = module.createRoutes(rootRoute)
-  const routeTree = rootRoute.addChildren([moduleRoutes])
 
-  const memoryHistory = createMemoryHistory({
-    initialEntries: [options.route ?? '/'],
-  })
+  if (module.component) {
+    // Component-only module — render directly inside providers
+    const Component = module.component
 
-  const router = createRouter({
-    routeTree,
-    history: memoryHistory,
-  })
+    return render(
+      <SharedDependenciesContext value={{ stores, services }}>
+        <SlotsContext value={slots}>
+          <ModulesContext value={[moduleEntry]}>
+            <Component {...(options.props ?? {})} />
+          </ModulesContext>
+        </SlotsContext>
+      </SharedDependenciesContext>,
+    )
+  }
 
-  // Wait for the router to be ready
-  await router.load()
-
-  const result = render(
-    <SharedDependenciesContext value={{ stores, services }}>
-      <SlotsContext value={options.slots ?? {}}>
-        <RouterProvider router={router} />
-      </SlotsContext>
-    </SharedDependenciesContext>,
+  throw new Error(
+    `[@reactive-framework/testing] Module "${module.id}" has neither createRoutes nor component. ` +
+      'renderModule requires at least one of these.',
   )
-
-  return result
 }

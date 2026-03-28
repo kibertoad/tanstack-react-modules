@@ -714,36 +714,51 @@ export function Layout() {
 
 ### Step 5: Directory page from module catalog
 
-The shell builds a browsable directory of available features using `useModules()`:
+The shell builds a browsable directory of available features using `useModules()` and `getModuleMeta()`:
+
+```typescript
+// app-shared/src/index.ts
+export interface JourneyMeta {
+  readonly name: string
+  readonly description: string
+  readonly icon: string
+  readonly category: string
+  readonly estimatedTime?: string
+}
+```
 
 ```typescript
 // shell/src/components/DirectoryPage.tsx
-import { useModules } from '@reactive-framework/registry'
+import { useModules, getModuleMeta } from '@reactive-framework/registry'
 import { useStore } from '@myorg/app-shared'
+import type { JourneyMeta } from '@myorg/app-shared'
 
 function DirectoryPage() {
   const modules = useModules()
   const openTab = useStore('workspace', (s) => s.openTab)
 
   // Only show modules that have catalog metadata
-  const discoverable = modules.filter((m) => m.meta?.category)
+  const discoverable = modules.filter((m) => getModuleMeta<JourneyMeta>(m)?.category)
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-      {discoverable.map((mod) => (
-        <div key={mod.id}>
-          <h3>{mod.meta?.name as string}</h3>
-          <p>{mod.meta?.description as string}</p>
-          <button onClick={() => openTab({
-            id: mod.id,
-            moduleId: mod.id,
-            title: mod.meta?.name as string,
-            closeable: true,
-          })}>
-            {mod.meta?.estimatedTime ? 'Start' : 'Open'}
-          </button>
-        </div>
-      ))}
+      {discoverable.map((mod) => {
+        const meta = getModuleMeta<JourneyMeta>(mod)!
+        return (
+          <div key={mod.id}>
+            <h3>{meta.name}</h3>
+            <p>{meta.description}</p>
+            <button onClick={() => openTab({
+              id: mod.id,
+              moduleId: mod.id,
+              title: meta.name,
+              closeable: true,
+            })}>
+              {meta.estimatedTime ? 'Start' : 'Open'}
+            </button>
+          </div>
+        )
+      })}
     </div>
   )
 }
