@@ -3,7 +3,7 @@
   "version": "0.5.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kibertoad/reactive.git",
+    "url": "https://github.com/kibertoad/tanstack-react-modules.git",
     "directory": "packages/core"
   },
   "files": [

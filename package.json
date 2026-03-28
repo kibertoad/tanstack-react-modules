@@ -5,7 +5,7 @@
   "description": "Modular React framework for building composable frontend systems with TanStack Router and zustand.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kibertoad/reactive.git"
+    "url": "https://github.com/kibertoad/tanstack-react-modules.git"
   },
   "scripts": {
     "build": "pnpm -r run build",
