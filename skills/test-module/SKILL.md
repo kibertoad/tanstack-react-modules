@@ -30,7 +30,7 @@ modules/<module-name>/
 import { test, expect } from 'vitest'
 import { renderModule, createMockStore } from '@reactive/testing'
 import moduleDescriptor from '../src/index.js'
-import type { AuthStore, ConfigStore } from '@example/app-contract'
+import type { AuthStore, ConfigStore } from '@example/app-shared'
 import wretch from 'wretch'
 
 test('renders dashboard for authenticated user', async () => {
@@ -79,30 +79,6 @@ test('shows login prompt when not authenticated', async () => {
 })
 ```
 
-## Step 4: Test with event bus
-
-```typescript
-import { createEventBus } from '@reactive/core'
-import { vi } from 'vitest'
-
-test('emits event on deactivate', async () => {
-  const eventBus = createEventBus()
-  const handler = vi.fn()
-  eventBus.on('users:deactivated', handler)
-
-  const result = await renderModule(moduleDescriptor, {
-    route: '/users/usr-001',
-    deps: { /* ... */ },
-    eventBus,
-  })
-
-  const button = result.getByText('Deactivate User')
-  button.click()
-
-  expect(handler).toHaveBeenCalledWith({ userId: 'usr-001' })
-})
-```
-
 ## createMockStore reference
 
 Creates a zustand store pre-populated with the given state:
@@ -130,7 +106,6 @@ const result = await renderModule(moduleDescriptor, {
     auth: createMockStore(...),  // StoreApi → goes to stores context
     httpClient: wretch(...),     // Plain value → goes to services context
   },
-  eventBus: createEventBus(),    // Optional custom event bus
 })
 ```
 

@@ -18,7 +18,7 @@ Shared dependencies are how modules access cross-cutting concerns (auth, config,
 ### Step 1: Define the store type in the contract
 
 ```typescript
-// examples/app-contract/src/index.ts
+// examples/app-shared/src/index.ts
 
 export interface NotificationStore {
   notifications: Notification[]
@@ -46,7 +46,7 @@ The `useStore` and `useService` hooks are already typed against `AppDependencies
 ```typescript
 // examples/shell/src/stores/notifications.ts
 import { createStore } from 'zustand/vanilla'
-import type { NotificationStore } from '@example/app-contract'
+import type { NotificationStore } from '@example/app-shared'
 
 export const notificationStore = createStore<NotificationStore>((set) => ({
   notifications: [],
@@ -77,7 +77,7 @@ const registry = createRegistry<AppDependencies>({
 ### Step 5: Use in modules
 
 ```typescript
-import { useStore } from '@example/app-contract'
+import { useStore } from '@example/app-shared'
 
 function SomeComponent() {
   const notifications = useStore('notifications', (s) => s.notifications)
@@ -111,7 +111,7 @@ export interface AppDependencies {
 
 ```typescript
 // examples/shell/src/services/analytics.ts
-import type { AnalyticsService } from '@example/app-contract'
+import type { AnalyticsService } from '@example/app-shared'
 
 export const analytics: AnalyticsService = {
   track: (event, properties) => {
@@ -139,7 +139,7 @@ const registry = createRegistry<AppDependencies>({
 ### Step 5: Use in modules
 
 ```typescript
-import { useService } from '@example/app-contract'
+import { useService } from '@example/app-shared'
 
 function SomeComponent() {
   const analytics = useService('analytics')

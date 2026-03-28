@@ -15,6 +15,3 @@ export {
   createSharedHooks,
 } from './context.js'
 
-// Event bus
-export type { EventBus, ReactiveEventMap } from './events.js'
-export { createEventBus, EventBusContext, useEventBus } from './events.js'

@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@reactive/core": "workspace:*",
-    "@example/app-contract": "workspace:*",
+    "@example/app-shared": "workspace:*",
     "@lokalise/frontend-http-client": "^7.0.0"
   },
   "peerDependencies": {

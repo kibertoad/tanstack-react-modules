@@ -1,12 +1,7 @@
 import { createRouter } from '@tanstack/react-router'
 import { QueryClient } from '@tanstack/react-query'
 import type { StoreApi } from 'zustand'
-import {
-  createEventBus,
-  type ReactiveModuleDescriptor,
-  type LazyModuleDescriptor,
-  type EventBus,
-} from '@reactive/core'
+import type { ReactiveModuleDescriptor, LazyModuleDescriptor } from '@reactive/core'
 import type { RegistryConfig, ApplicationManifest, NavigationManifest } from './types.js'
 import { validateNoDuplicateIds, validateDependencies } from './validation.js'
 import { buildNavigationManifest } from './navigation.js'
@@ -86,9 +81,6 @@ export function createRegistry<
       validateNoDuplicateIds(mods, lazyMods)
       validateDependencies(mods, availableKeys)
 
-      // Build event bus
-      const eventBus: EventBus = createEventBus()
-
       // Run onRegister lifecycle hooks
       const deps = buildDepsObject(config)
       for (const mod of modules) {
@@ -137,9 +129,9 @@ export function createRegistry<
       })
 
       // Create App component
-      const App = createAppComponent({ router, queryClient, stores, services, eventBus, navigation })
+      const App = createAppComponent({ router, queryClient, stores, services, navigation })
 
-      return { App, router, queryClient, navigation, eventBus }
+      return { App, router, queryClient, navigation }
     },
   }
 }

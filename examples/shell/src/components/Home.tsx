@@ -1,4 +1,4 @@
-import { useStore } from '@example/app-contract'
+import { useStore } from '@example/app-shared'
 
 export function Home() {
   const appName = useStore('config', (s) => s.appName)

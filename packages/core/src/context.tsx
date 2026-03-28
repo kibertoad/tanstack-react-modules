@@ -28,17 +28,17 @@ function useSharedDependencies(): SharedDependenciesContextValue {
 
 /**
  * Creates typed hooks for accessing shared dependencies.
- * Call this once in your app-contract or shared package, then use the returned hooks everywhere.
+ * Call this once in your app-shared package, then use the returned hooks everywhere.
  *
  * @example
- * // In @myorg/app-contract or a shared hooks file:
+ * // In @myorg/app-shared:
  * import { createSharedHooks } from '@reactive/core'
- * import type { AppDependencies } from '@myorg/app-contract'
+ * import type { AppDependencies } from '@myorg/app-shared'
  *
  * export const { useStore, useService } = createSharedHooks<AppDependencies>()
  *
  * // In any module component:
- * import { useStore, useService } from '@myorg/app-contract'
+ * import { useStore, useService } from '@myorg/app-shared'
  *
  * const user = useStore('auth', (s) => s.user)   // fully typed!
  * const api = useService('api')                    // fully typed!

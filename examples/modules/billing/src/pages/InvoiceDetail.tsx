@@ -1,4 +1,4 @@
-import { useService, getInvoiceContract } from '@example/app-contract'
+import { useService, getInvoiceContract } from '@example/app-shared'
 import { sendByContract } from '@lokalise/frontend-http-client'
 import { useQuery } from '@tanstack/react-query'
 import { useParams, Link } from '@tanstack/react-router'

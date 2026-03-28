@@ -1,7 +1,7 @@
 import type { StoreApi } from 'zustand'
 import type { Router } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
-import type { NavigationItem, EventBus } from '@reactive/core'
+import type { NavigationItem } from '@reactive/core'
 
 /**
  * Configuration for creating a registry.
@@ -46,6 +46,4 @@ export interface ApplicationManifest<
   readonly queryClient: QueryClient
   /** Auto-generated navigation manifest from all modules */
   readonly navigation: NavigationManifest
-  /** The event bus instance */
-  readonly eventBus: EventBus
 }

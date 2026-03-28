@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { createRegistry } from '@reactive/registry'
-import type { AppDependencies } from '@example/app-contract'
+import type { AppDependencies } from '@example/app-shared'
 import billing from '@example/billing-module'
 import users from '@example/users-module'
 import { authStore } from './stores/auth.js'

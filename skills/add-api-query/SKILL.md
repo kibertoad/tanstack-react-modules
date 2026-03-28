@@ -17,7 +17,7 @@ Data fetching uses three layers:
 
 Contracts are built with `buildRestContract()` from `@lokalise/api-contracts` using zod schemas. They describe the path, HTTP method, path params, query params, request body, and response body for an endpoint.
 
-The **backend team** is the primary owner of contracts. They typically publish a contract package (e.g., `@myorg/billing-api-contracts`) that the frontend consumes. The contract package in this repo (`@example/app-contract/src/contracts/`) re-exports or mirrors these for convenience.
+The **backend team** is the primary owner of contracts. They typically publish a contract package (e.g., `@myorg/billing-api-contracts`) that the frontend consumes. The contract package in this repo (`@example/app-shared/src/contracts/`) re-exports or mirrors these for convenience.
 
 A contract looks like this:
 
@@ -56,14 +56,14 @@ export const createInvoiceContract = buildRestContract({
 })
 ```
 
-When using a backend-published contract package, import directly from it. When contracts are defined locally, they go in `app-contract/src/contracts/` and are re-exported from `app-contract/src/index.ts`.
+When using a backend-published contract package, import directly from it. When contracts are defined locally, they go in `app-shared/src/contracts/` and are re-exported from `app-shared/src/index.ts`.
 
 ## Fetching data (GET)
 
 ### Basic query
 
 ```typescript
-import { useService, listInvoicesContract } from '@example/app-contract'
+import { useService, listInvoicesContract } from '@example/app-shared'
 import { sendByContract } from '@lokalise/frontend-http-client'
 import { useQuery } from '@tanstack/react-query'
 
@@ -91,7 +91,7 @@ export default function InvoiceList() {
 ### Query with path params
 
 ```typescript
-import { getInvoiceContract } from '@example/app-contract'
+import { getInvoiceContract } from '@example/app-shared'
 import { useParams } from '@tanstack/react-router'
 
 export default function InvoiceDetail() {
@@ -123,7 +123,7 @@ const { data } = useQuery({
 
 ```typescript
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createInvoiceContract } from '@example/app-contract'
+import { createInvoiceContract } from '@example/app-shared'
 
 export default function CreateInvoice() {
   const httpClient = useService('httpClient')
@@ -200,5 +200,5 @@ Prefix query keys with the domain to avoid collisions between modules:
 - Use `useQuery` for GET requests, `useMutation` for POST/PUT/PATCH/DELETE.
 - Always invalidate relevant queries in `onSuccess` after mutations.
 - Use `enabled` to conditionally fetch (e.g., only when authenticated).
-- Contracts are typically published by the backend team. Import them from the backend's contract package or re-export them via the app-contract package.
+- Contracts are typically published by the backend team. Import them from the backend's contract package or re-export them via the app-shared package.
 - Query keys are global across all modules in the app. Use domain-scoped keys to avoid collisions.

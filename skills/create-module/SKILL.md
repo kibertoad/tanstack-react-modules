@@ -39,7 +39,7 @@ examples/modules/<module-name>/
   },
   "dependencies": {
     "@reactive/core": "workspace:*",
-    "@example/app-contract": "workspace:*",
+    "@example/app-shared": "workspace:*",
     "@lokalise/frontend-http-client": "^7.0.0"
   },
   "peerDependencies": {
@@ -74,7 +74,7 @@ examples/modules/<module-name>/
 // src/index.ts
 import { defineModule } from '@reactive/core'
 import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
-import type { AppDependencies } from '@example/app-contract'
+import type { AppDependencies } from '@example/app-shared'
 
 export default defineModule<AppDependencies>({
   id: '<module-name>',
@@ -107,7 +107,7 @@ export default defineModule<AppDependencies>({
 
 ```typescript
 // src/pages/<PageName>.tsx
-import { useStore } from '@example/app-contract'
+import { useStore } from '@example/app-shared'
 
 export default function <PageName>() {
   const user = useStore('auth', (s) => s.user)
@@ -125,10 +125,10 @@ export default function <PageName>() {
 
 - Every page component must use `lazyRouteComponent(() => import(...))` for code splitting.
 - The module `id` must be unique across all registered modules.
-- Use `useStore` and `useService` from `@example/app-contract`, never from `@reactive/core` directly.
+- Use `useStore` and `useService` from `@example/app-shared`, never from `@reactive/core` directly.
 - Navigation `to` paths must match the routes defined in `createRoutes`.
 - The `requires` array is validated when `registry.resolve()` is called — missing deps throw an error.
-- Do not import from other modules. Communicate via the event bus or shared dependencies.
+- Do not import from other modules. Communicate via shared Zustand stores or React Query cache invalidation.
 
 ## After creating the module
 

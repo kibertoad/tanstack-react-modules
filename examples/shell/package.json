@@ -11,7 +11,7 @@
   "dependencies": {
     "@reactive/core": "workspace:*",
     "@reactive/registry": "workspace:*",
-    "@example/app-contract": "workspace:*",
+    "@example/app-shared": "workspace:*",
     "@example/billing-module": "workspace:*",
     "@example/users-module": "workspace:*",
     "@lokalise/frontend-http-client": "^7.0.0",

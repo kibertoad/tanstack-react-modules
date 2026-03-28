@@ -5,12 +5,8 @@ import {
   createRouter,
   createRootRoute,
 } from '@tanstack/react-router'
-import {
-  SharedDependenciesContext,
-  EventBusContext,
-  createEventBus,
-} from '@reactive/core'
-import type { ReactiveModuleDescriptor, EventBus } from '@reactive/core'
+import { SharedDependenciesContext } from '@reactive/core'
+import type { ReactiveModuleDescriptor } from '@reactive/core'
 import { RouterProvider } from '@tanstack/react-router'
 import type { StoreApi } from 'zustand'
 
@@ -30,8 +26,6 @@ export interface RenderModuleOptions<
       | TSharedDependencies[K]
   }>
 
-  /** Custom event bus (defaults to a fresh createEventBus()) */
-  eventBus?: EventBus
 }
 
 function isStoreApi(value: unknown): value is StoreApi<unknown> {
@@ -74,8 +68,6 @@ export async function renderModule<
     }
   }
 
-  const eventBus = options.eventBus ?? createEventBus()
-
   // Build route tree for this module
   const rootRoute = createRootRoute({})
   const moduleRoutes = module.createRoutes(rootRoute)
@@ -95,9 +87,7 @@ export async function renderModule<
 
   const result = render(
     <SharedDependenciesContext value={{ stores, services }}>
-      <EventBusContext value={eventBus}>
-        <RouterProvider router={router} />
-      </EventBusContext>
+      <RouterProvider router={router} />
     </SharedDependenciesContext>,
   )
 

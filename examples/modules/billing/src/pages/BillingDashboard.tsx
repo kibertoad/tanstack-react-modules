@@ -1,4 +1,4 @@
-import { useStore } from '@example/app-contract'
+import { useStore } from '@example/app-shared'
 import { Link } from '@tanstack/react-router'
 
 export default function BillingDashboard() {

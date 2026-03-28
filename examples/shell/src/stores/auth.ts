@@ -1,5 +1,5 @@
 import { createStore } from 'zustand/vanilla'
-import type { AuthStore } from '@example/app-contract'
+import type { AuthStore } from '@example/app-shared'
 
 export const authStore = createStore<AuthStore>((set) => ({
   user: null,

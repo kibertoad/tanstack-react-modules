@@ -1,6 +1,6 @@
 import { defineModule } from '@reactive/core'
 import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
-import type { AppDependencies } from '@example/app-contract'
+import type { AppDependencies } from '@example/app-shared'
 
 export default defineModule<AppDependencies>({
   id: 'billing',

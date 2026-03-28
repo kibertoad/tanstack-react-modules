@@ -1,5 +1,5 @@
 import { Outlet } from '@tanstack/react-router'
-import { useStore } from '@example/app-contract'
+import { useStore } from '@example/app-shared'
 import { Sidebar } from './Sidebar.js'
 
 export function Layout() {

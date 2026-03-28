@@ -28,7 +28,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build TS
-        run: pnpm -r run build --filter=${{ inputs.package_name }}
+        run: pnpm --filter=${{ inputs.package_name }} run build
 
       - name: Run Tests
-        run: pnpm run test --filter=${{ inputs.package_name }}
+        run: pnpm --filter=${{ inputs.package_name }} run test

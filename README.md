@@ -8,7 +8,7 @@ Plug-and-play modular framework for React. Build frontend features as independen
 
 - [Architecture Overview](#architecture-overview)
 - [Getting Started](#getting-started)
-- [The Contract Package](#the-contract-package)
+- [The App-Shared Package](#the-app-shared-package)
 - [Creating a Module](#creating-a-module)
 - [Defining API Contracts](#defining-api-contracts)
 - [Fetching Data with React Query](#fetching-data-with-react-query)
@@ -16,6 +16,7 @@ Plug-and-play modular framework for React. Build frontend features as independen
 - [The Shell (Host App)](#the-shell-host-app)
 - [Navigation](#navigation)
 - [Cross-Module Communication](#cross-module-communication)
+- [React Compiler](#react-compiler)
 - [Testing Modules](#testing-modules)
 - [Lazy Loading Modules](#lazy-loading-modules)
 - [Project Structure](#project-structure)
@@ -41,9 +42,8 @@ Plug-and-play modular framework for React. Build frontend features as independen
 │  │  - Wires provider tree:                            │ │
 │  │    QueryClientProvider                             │ │
 │  │      → SharedDependenciesContext                   │ │
-│  │        → EventBusContext                           │ │
-│  │          → NavigationContext                       │ │
-│  │            → RouterProvider                        │ │
+│  │        → NavigationContext                         │ │
+│  │          → RouterProvider                          │ │
 │  └────────────────────────────────────────────────────┘ │
 │                                                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
@@ -56,7 +56,7 @@ Plug-and-play modular framework for React. Build frontend features as independen
 │  └──────────────┘  └──────────────┘  └──────────────┘  │
 │                                                         │
 │  ┌────────────────────────────────────────────────────┐ │
-│  │  @example/app-contract                             │ │
+│  │  @example/app-shared                             │ │
 │  │  - AppDependencies type (auth, config, httpClient) │ │
 │  │  - Typed hooks: useStore(), useService()           │ │
 │  │  - API contracts (zod schemas)                     │ │
@@ -92,35 +92,35 @@ Open http://localhost:5173. Click "Login as Demo User" to see the modules in act
 
 ---
 
-## The Contract Package
+## The App-Shared Package
 
-The contract package is the **single source of truth** for the types shared between the shell and all modules. It is a standalone npm package (e.g., `@myorg/app-contract`) that:
+The app-shared package is the **single source of truth** for the types shared between the shell and all modules. It is a standalone npm package (e.g., `@myorg/app-shared`) that:
 
 - Defines `AppDependencies` — the interface describing every zustand store and service the shell provides.
 - Exports typed hooks (`useStore`, `useService`) created via `createSharedHooks<AppDependencies>()`.
 - Contains API contracts (zod schemas) for all backend endpoints.
 - Contains shared domain types (`User`, `Invoice`, etc.).
 
-Both the shell and every module list this package as a dependency. The shell **implements** the contract (creates the actual stores and services). Modules **consume** it (import the types and hooks). This is what keeps everything type-safe across package boundaries.
+Both the shell and every module list this package as a dependency. The shell **implements** the shared interface (creates the actual stores and services). Modules **consume** it (import the types and hooks). This is what keeps everything type-safe across package boundaries.
 
 ### Distribution
 
-The contract package can live in the same monorepo during development (`workspace:*`) or be published to any npm registry (npm, GitHub Packages, Artifactory) for cross-repo consumption. When published, pin a version to coordinate breaking changes:
+The app-shared package can live in the same monorepo during development (`workspace:*`) or be published to any npm registry (npm, GitHub Packages, Artifactory) for cross-repo consumption. When published, pin a version to coordinate breaking changes:
 
 ```json
 // In a module's package.json (monorepo)
-"@myorg/app-contract": "workspace:*"
+"@myorg/app-shared": "workspace:*"
 
 // In a module's package.json (published)
-"@myorg/app-contract": "^2.0.0"
+"@myorg/app-shared": "^2.0.0"
 ```
 
-When the shell team adds a new shared dependency or changes a store shape, they bump the contract package version. Module teams update their dependency to pick up the new types.
+When the shell team adds a new shared dependency or changes a store shape, they bump the app-shared package version. Module teams update their dependency to pick up the new types.
 
 ### Structure
 
 ```
-app-contract/
+app-shared/
 ├── src/
 │   ├── index.ts           # AppDependencies type + typed hooks + re-exports
 │   ├── types.ts           # Shared domain types (User, Invoice, etc.)
@@ -133,7 +133,7 @@ app-contract/
 ### Defining AppDependencies
 
 ```typescript
-// app-contract/src/index.ts
+// app-shared/src/index.ts
 import { createSharedHooks } from '@reactive/core'
 import type { Wretch } from 'wretch'
 
@@ -163,7 +163,7 @@ export const { useStore, useService } = createSharedHooks<AppDependencies>()
 
 **Rules:**
 
-- The contract package is the **only** package that both the shell and modules depend on. It is the boundary between them.
+- The app-shared package is the **only** package that both the shell and modules depend on. It is the boundary between them.
 - Modules import `useStore` and `useService` from this package — never from `@reactive/core` directly.
 - Zustand store types go in `AppDependencies` for reactive state. Non-reactive services (HTTP client, loggers) also go in `AppDependencies`.
 - The shell must provide implementations for every key in `AppDependencies`. The registry validates this at `resolve()` time against each module's `requires` list.
@@ -195,7 +195,7 @@ modules/billing/
 // modules/billing/src/index.ts
 import { defineModule } from '@reactive/core'
 import { createRoute, lazyRouteComponent } from '@tanstack/react-router'
-import type { AppDependencies } from '@example/app-contract'
+import type { AppDependencies } from '@example/app-shared'
 
 export default defineModule<AppDependencies>({
   id: 'billing',
@@ -252,7 +252,7 @@ export default defineModule<AppDependencies>({
 
 ```typescript
 // modules/billing/src/pages/InvoiceList.tsx
-import { useStore, useService, listInvoicesContract } from '@example/app-contract'
+import { useStore, useService, listInvoicesContract } from '@example/app-shared'
 import { sendByContract } from '@lokalise/frontend-http-client'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
@@ -300,7 +300,7 @@ export default function InvoiceList() {
   "types": "./src/index.ts",
   "dependencies": {
     "@reactive/core": "workspace:*",
-    "@example/app-contract": "workspace:*",
+    "@example/app-shared": "workspace:*",
     "@lokalise/frontend-http-client": "^7.0.0"
   },
   "peerDependencies": {
@@ -316,12 +316,12 @@ export default function InvoiceList() {
 
 ## Defining API Contracts
 
-API contracts use `@lokalise/api-contracts` with zod schemas. Contracts are typically **owned and published by the backend team** as an npm package (e.g., `@myorg/billing-api-contracts`). The frontend consumes them — either by importing the backend's package directly, or by re-exporting contracts through the app-contract package for convenience.
+API contracts use `@lokalise/api-contracts` with zod schemas. Contracts are typically **owned and published by the backend team** as an npm package (e.g., `@myorg/billing-api-contracts`). The frontend consumes them — either by importing the backend's package directly, or by re-exporting contracts through the app-shared package for convenience.
 
-The examples below show contracts defined locally in the app-contract package for illustration.
+The examples below show contracts defined locally in the app-shared package for illustration.
 
 ```typescript
-// app-contract/src/contracts/invoices.ts
+// app-shared/src/contracts/invoices.ts
 import { buildRestContract } from '@lokalise/api-contracts'
 import { z } from 'zod/v4'
 
@@ -372,7 +372,7 @@ Contracts define the path, HTTP method, path params, query params, request body,
 ### Queries (GET)
 
 ```typescript
-import { useService, listInvoicesContract } from '@example/app-contract'
+import { useService, listInvoicesContract } from '@example/app-shared'
 import { sendByContract } from '@lokalise/frontend-http-client'
 import { useQuery } from '@tanstack/react-query'
 
@@ -389,7 +389,7 @@ function InvoiceList() {
 ### Queries with params
 
 ```typescript
-import { getInvoiceContract } from '@example/app-contract'
+import { getInvoiceContract } from '@example/app-shared'
 
 const { data: invoice } = useQuery({
   queryKey: ['invoices', invoiceId],
@@ -403,7 +403,7 @@ const { data: invoice } = useQuery({
 
 ```typescript
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { createInvoiceContract } from '@example/app-contract'
+import { createInvoiceContract } from '@example/app-shared'
 
 function CreateInvoiceForm() {
   const httpClient = useService('httpClient')
@@ -472,7 +472,7 @@ const httpClient = useService('httpClient')
 
 ### How it works
 
-1. The contract package defines `AppDependencies` — the type describing all shared state and services.
+1. The app-shared package defines `AppDependencies` — the type describing all shared state and services.
 2. `createSharedHooks<AppDependencies>()` produces typed `useStore` and `useService` hooks.
 3. The host app creates the actual zustand stores and service instances.
 4. `createRegistry()` receives them in `{ stores, services }`.
@@ -499,7 +499,7 @@ The shell is a Vite application that creates shared dependencies, registers modu
 ```typescript
 import { createRoot } from 'react-dom/client'
 import { createRegistry } from '@reactive/registry'
-import type { AppDependencies } from '@example/app-contract'
+import type { AppDependencies } from '@example/app-shared'
 import billing from '@example/billing-module'
 import users from '@example/users-module'
 import { authStore } from './stores/auth.js'
@@ -531,7 +531,7 @@ Use `zustand/vanilla` so stores can be accessed outside React (e.g., in the HTTP
 ```typescript
 // stores/auth.ts
 import { createStore } from 'zustand/vanilla'
-import type { AuthStore } from '@example/app-contract'
+import type { AuthStore } from '@example/app-shared'
 
 export const authStore = createStore<AuthStore>((set) => ({
   user: null,
@@ -568,6 +568,8 @@ export const httpClient = wretch().defer((w) => {
 ```
 
 ### Vite config with React Compiler
+
+See the [React Compiler](#react-compiler) section for details on why and how to enable it.
 
 ```typescript
 // vite.config.ts
@@ -653,61 +655,110 @@ function Sidebar() {
 
 ## Cross-Module Communication
 
-The event bus enables fire-and-forget communication between modules without direct imports.
+Modules communicate through **shared Zustand stores** (for reactive state) and **React Query cache invalidation** (for server data). No custom event bus is needed — native React patterns handle all cross-module coordination.
 
-### Emitting events
+### Via shared stores
+
+When one module changes a Zustand store, all components in other modules that subscribe to that store automatically re-render:
 
 ```typescript
-import { useEventBus } from '@reactive/core'
+// Users module — updates the auth store
+import { useStore } from '@example/app-shared'
+
+function UserSettings() {
+  const logout = useStore('auth', (s) => s.logout)
+  return <button onClick={logout}>Log Out</button>
+}
+
+// Billing module — reacts to auth changes automatically
+import { useStore } from '@example/app-shared'
+
+function BillingDashboard() {
+  const isAuthenticated = useStore('auth', (s) => s.isAuthenticated)
+  if (!isAuthenticated) return <p>Please log in to view billing.</p>
+  // ...
+}
+```
+
+### Via React Query cache invalidation
+
+When one module mutates server data that another module queries, use `invalidateQueries` to trigger automatic refetching:
+
+```typescript
+// Users module — deactivates a user and invalidates related queries
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 function UserDetail() {
-  const eventBus = useEventBus()
+  const httpClient = useService('httpClient')
+  const queryClient = useQueryClient()
 
-  function handleDeactivate() {
-    eventBus.emit('users:deactivated', { userId: '123' })
-  }
-
-  return <button onClick={handleDeactivate}>Deactivate</button>
+  const deactivate = useMutation({
+    mutationFn: (userId: string) =>
+      sendByContract(httpClient, deactivateUserContract, { pathParams: { userId } }),
+    onSuccess: () => {
+      // Both the users module and billing module will refetch their data
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+      queryClient.invalidateQueries({ queryKey: ['invoices'] })
+    },
+  })
 }
 ```
 
-### Subscribing to events
+### When to use which
+
+| Pattern | Use case | Example |
+|---|---|---|
+| Zustand store | Client state changes that affect UI across modules | Auth state, feature flags, UI preferences |
+| React Query invalidation | Server data changes that other modules also display | User deactivated → billing data needs refresh |
+
+---
+
+## React Compiler
+
+React Compiler is a build-time tool that automatically optimizes React components by inserting memoization where needed. This is particularly valuable in a modular architecture where components are composed dynamically across package boundaries.
+
+### Why it matters for Reactive
+
+In a module-based app, the shell composes a deep provider tree and modules are loaded lazily. Without memoization, a state change in one provider (e.g., auth store) could trigger unnecessary re-renders down through the entire tree. Traditionally you'd prevent this with manual `React.memo()`, `useMemo()`, and `useCallback()` — but this is tedious and error-prone across independently developed modules.
+
+React Compiler eliminates this problem automatically. It analyzes your components at build time and inserts fine-grained memoization, so:
+
+- Module components don't need `React.memo()` wrappers
+- Callbacks passed to child components are automatically stable
+- Selectors in `useStore('auth', (s) => s.user)` benefit from stable references
+- Independently developed modules get optimal re-render behavior without coordination
+
+### How to enable
+
+Enable React Compiler in each shell's Vite config via `@rolldown/plugin-babel`:
 
 ```typescript
-import { useEventBus } from '@reactive/core'
-import { useEffect } from 'react'
+// vite.config.ts
+import { defineConfig } from 'vite'
+import react, { reactCompilerPreset } from '@vitejs/plugin-react'
+import babel from '@rolldown/plugin-babel'
 
-function BillingAlerts() {
-  const eventBus = useEventBus()
-
-  useEffect(() => {
-    const unsubscribe = eventBus.on('users:deactivated', (payload) => {
-      console.log('User deactivated, cancelling billing:', payload.userId)
-    })
-    return unsubscribe
-  }, [eventBus])
-}
+export default defineConfig({
+  plugins: [
+    react(),
+    babel({ presets: [reactCompilerPreset()] }),
+  ],
+})
 ```
 
-### Type-safe events
+The compiler runs at the shell level during bundling, so it optimizes both shell code and all imported module code. Individual module packages don't need their own compiler setup.
 
-Extend `ReactiveEventMap` via TypeScript declaration merging:
+### Compatibility
 
-```typescript
-// In your module or contract package
-declare module '@reactive/core' {
-  interface ReactiveEventMap {
-    'users:deactivated': { userId: string }
-    'billing:invoice-paid': { invoiceId: string; amount: number }
-  }
-}
-```
+React Compiler requires React 19. All Reactive framework packages target React 19 as a peer dependency.
 
-Now `eventBus.emit('users:deactivated', ...)` and `eventBus.on('users:deactivated', ...)` are fully typed.
+The framework's hooks (`useStore`, `useService`, `useNavigation`) follow React's rules of hooks and are fully compatible with the compiler. Avoid patterns the compiler cannot optimize:
 
-### Naming convention
+- Don't mutate variables between renders
+- Don't call hooks conditionally
+- Don't read or write refs during render
 
-Prefix events with the module name: `'moduleName:eventName'`.
+See the [React Compiler documentation](https://react.dev/learn/react-compiler) for the full list of requirements.
 
 ---
 
@@ -718,7 +769,7 @@ Prefix events with the module name: `'moduleName:eventName'`.
 ```typescript
 import { renderModule, createMockStore } from '@reactive/testing'
 import billing from '@example/billing-module'
-import type { AuthStore } from '@example/app-contract'
+import type { AuthStore } from '@example/app-shared'
 import wretch from 'wretch'
 
 test('billing dashboard shows user name', async () => {
@@ -760,7 +811,6 @@ const authStore = createMockStore<AuthStore>({
 |---|---|
 | `route` | Initial route to navigate to (default: `'/'`). |
 | `deps` | Partial map of shared dependencies. `StoreApi` values go to stores context, plain values go to services context. |
-| `eventBus` | Custom event bus instance (default: fresh `createEventBus()`). |
 
 ---
 
@@ -785,11 +835,11 @@ The module's code is only loaded when the user first navigates to `/admin/*`.
 ```
 reactive/
 ├── packages/
-│   ├── core/                    # @reactive/core — module contract, hooks, events
+│   ├── core/                    # @reactive/core — module types, hooks, defineModule()
 │   ├── registry/                # @reactive/registry — composition, validation, providers
 │   └── testing/                 # @reactive/testing — test harness
 ├── examples/
-│   ├── app-contract/            # @example/app-contract — types, hooks, API contracts
+│   ├── app-shared/              # @example/app-shared — types, hooks, API contracts
 │   ├── shell/                   # Example host app (Vite 8 + React Compiler)
 │   └── modules/
 │       ├── billing/             # @example/billing-module
@@ -803,7 +853,7 @@ reactive/
 
 | Package | Purpose | Size |
 |---|---|---|
-| `@reactive/core` | Module contract types, `defineModule()`, `createSharedHooks()`, event bus | ~1.8 KB |
+| `@reactive/core` | Module types, `defineModule()`, `createSharedHooks()` | ~1.2 KB |
 | `@reactive/registry` | `createRegistry()`, route composition, validation, navigation manifest, `useNavigation()` | ~13.6 KB |
 | `@reactive/testing` | `renderModule()`, `createMockStore()` | ~8.9 KB |
 
@@ -826,17 +876,12 @@ pnpm --filter shell dev       # Run example shell in dev mode
 | Export | Type | Description |
 |---|---|---|
 | `defineModule(descriptor)` | Function | Identity function for type inference. Returns descriptor unchanged. |
-| `createSharedHooks<T>()` | Function | Returns typed `{ useStore, useService }` hooks. Call once in contract package. |
-| `createEventBus()` | Function | Creates an event bus instance. |
-| `useEventBus()` | Hook | Access the event bus from any component inside `<App />`. |
+| `createSharedHooks<T>()` | Function | Returns typed `{ useStore, useService }` hooks. Call once in app-shared package. |
 | `SharedDependenciesContext` | Context | React context holding stores and services. Used internally. |
-| `EventBusContext` | Context | React context holding the event bus. Used internally. |
 | `ReactiveModuleDescriptor<T>` | Type | Module descriptor shape. |
 | `LazyModuleDescriptor<T>` | Type | Lazy module descriptor shape. |
 | `NavigationItem` | Type | Navigation entry shape. |
 | `ModuleLifecycle<T>` | Type | Lifecycle hooks shape. |
-| `EventBus` | Type | Event bus interface. |
-| `ReactiveEventMap` | Interface | Augmentable event map for type-safe events. |
 
 ### @reactive/registry
 
@@ -847,7 +892,7 @@ pnpm --filter shell dev       # Run example shell in dev mode
 | `ModuleErrorBoundary` | Component | Error boundary that isolates module-level crashes. |
 | `ReactiveRegistry<T>` | Type | Registry interface with `register()`, `registerLazy()`, `resolve()`. |
 | `RegistryConfig<T>` | Type | Registry configuration shape. |
-| `ApplicationManifest<T>` | Type | Resolved app shape: `{ App, router, queryClient, navigation, eventBus }`. |
+| `ApplicationManifest<T>` | Type | Resolved app shape: `{ App, router, queryClient, navigation }`. |
 | `NavigationManifest` | Type | `{ items, groups, ungrouped }`. |
 | `NavigationGroup` | Type | `{ group, items }`. |
 | `ResolveOptions` | Type | `{ rootComponent, indexComponent, notFoundComponent }`. |
