@@ -859,14 +859,14 @@ Routes that don't set `staticData` simply contribute no zones — the shell rend
 Tab-based modules (rendered in workspace tabs rather than via routes) declare zones directly on the descriptor:
 
 ```typescript
-import { DDSetupContextualPanel } from "./DDSetupContextualPanel.js";
+import { PaymentsContextualPanel } from "./PaymentsContextualPanel.js";
 
 export default defineModule<AppDependencies, AppSlots, JourneyMeta>({
-  id: "dd-setup",
+  id: "my-module",
   version: "0.1.0",
-  component: lazy(() => import("./DDSetupJourney.js")),
+  component: lazy(() => import("./MyModuleComponent.js")),
   zones: {
-    contextualPanel: DDSetupContextualPanel,
+    contextualPanel: PaymentsContextualPanel,
   },
   meta: { name: "Set up Direct Debit", category: "payments", icon: "CreditCard" },
 });
@@ -984,12 +984,12 @@ import { lazy } from "react";
 import type { AppDependencies, AppSlots, JourneyMeta } from "@myorg/app-shared";
 
 export default defineModule<AppDependencies, AppSlots, JourneyMeta>({
-  id: "dd-setup",
+  id: "payments",
   version: "0.1.0",
-  component: lazy(() => import("./DDSetupJourney.js")),
+  component: lazy(() => import("./PaymentsComponent.js")),
   meta: {
-    name: "Set up Direct Debit",
-    description: "Configure a new Direct Debit mandate",
+    name: "Set up Credit Card",
+    description: "Configure a new Credit Card for payments",
     icon: "credit-card",
     category: "payments",
     estimatedTime: "2-3 mins",
@@ -1356,13 +1356,13 @@ Modules that use `component` instead of `createRoutes` (workspace-style journeys
 
 ```typescript
 import { renderModule, createMockStore } from "@tanstack-react-modules/testing";
-import ddSetup from "@myorg/module-dd-setup";
+import paymentsModule from "@myorg/module-payments";
 import type { AuthStore } from "@myorg/app-shared";
 
-test("dd-setup journey renders and completes", async () => {
+test("payments renders and completes", async () => {
   const onComplete = vi.fn();
 
-  const result = await renderModule(ddSetup, {
+  const result = await renderModule(paymentsModule, {
     deps: {
       auth: createMockStore<AuthStore>({
         isAuthenticated: true,
@@ -1375,13 +1375,12 @@ test("dd-setup journey renders and completes", async () => {
     },
     props: {
       customerId: "C001",
-      accountNumber: "A001",
       onComplete,
       onCancel: vi.fn(),
     },
   });
 
-  expect(result.getByText("Set up Direct Debit")).toBeDefined();
+  expect(result.getByText("Set up Credit Card")).toBeDefined();
 });
 ```
 
