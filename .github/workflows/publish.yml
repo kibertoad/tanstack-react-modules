@@ -276,7 +276,6 @@ jobs:
       - name: Publish packages to npm
         id: publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           MATRIX: ${{ needs.detect-changes.outputs.matrix }}
         run: |
           PUBLISHED=""
@@ -293,7 +292,7 @@ jobs:
               SKIPPED+="$NPM_NAME@$VERSION "
             else
               echo "Publishing $NPM_NAME@$VERSION..."
-              npm publish --provenance --access public
+              npm publish --access public
               PUBLISHED+="$NPM_NAME@$VERSION "
             fi
 
