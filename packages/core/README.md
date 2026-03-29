@@ -1,6 +1,6 @@
 # @tanstack-react-modules/core
 
-Core types and utilities for defining reactive modules. This is the package modules import — it provides `defineModule`, typed hooks (`useStore`, `useService`), scoped stores, and all shared type definitions.
+Core types and utilities for defining reactive modules. This is the package modules import - it provides `defineModule`, typed hooks (`useStore`, `useService`), scoped stores, and all shared type definitions.
 
 ## Installation
 

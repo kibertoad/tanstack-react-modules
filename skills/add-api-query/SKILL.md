@@ -10,9 +10,9 @@ metadata:
 
 Data fetching uses three layers:
 
-1. **API contract** (`@lokalise/api-contracts`) — defines the endpoint, method, and zod schemas. Typically owned and published by the backend team.
-2. **HTTP client** (`@lokalise/frontend-http-client`) — executes the contract with runtime validation.
-3. **React Query** (`@tanstack/react-query`) — manages caching, loading states, refetching, and invalidation.
+1. **API contract** (`@lokalise/api-contracts`) - defines the endpoint, method, and zod schemas. Typically owned and published by the backend team.
+2. **HTTP client** (`@lokalise/frontend-http-client`) - executes the contract with runtime validation.
+3. **React Query** (`@tanstack/react-query`) - manages caching, loading states, refetching, and invalidation.
 
 ## Understanding API contracts
 
@@ -197,7 +197,7 @@ Prefix query keys with the domain to avoid collisions between modules:
 
 ## Rules
 
-- Always use `sendByContract` from `@lokalise/frontend-http-client` — never raw `fetch`.
+- Always use `sendByContract` from `@lokalise/frontend-http-client` - never raw `fetch`.
 - Get the `httpClient` via `useService('httpClient')`, never import it directly.
 - Use `useQuery` for GET requests, `useMutation` for POST/PUT/PATCH/DELETE.
 - Always invalidate relevant queries in `onSuccess` after mutations.

@@ -135,7 +135,7 @@ export default function <PageName>() {
 - The module `id` must be unique across all registered modules.
 - Use `useStore` and `useService` from `@example/app-shared`, never from `@tanstack-react-modules/core` directly.
 - Navigation `to` paths must match the routes defined in `createRoutes`.
-- The `requires` array is validated when `registry.resolve()` is called — missing deps throw an error.
+- The `requires` array is validated when `registry.resolve()` is called - missing deps throw an error.
 - Do not import from other modules. Communicate via shared Zustand stores or React Query cache invalidation.
 
 ## After creating the module

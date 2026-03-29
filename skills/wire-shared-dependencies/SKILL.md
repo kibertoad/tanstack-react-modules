@@ -10,8 +10,8 @@ metadata:
 
 Shared dependencies are how modules access cross-cutting concerns (auth, config, HTTP client, analytics, feature flags). They come in two flavors:
 
-- **Zustand stores** — reactive state that components subscribe to.
-- **Plain services** — stable instances (HTTP clients, loggers) that don't trigger re-renders.
+- **Zustand stores** - reactive state that components subscribe to.
+- **Plain services** - stable instances (HTTP clients, loggers) that don't trigger re-renders.
 
 > **CLI shortcut for stores:** `reactive create store <name>` automates steps 1-4 for Zustand stores. Use manual wiring for plain services or when the CLI doesn't fit.
 
@@ -41,7 +41,7 @@ export interface AppDependencies {
 }
 ```
 
-The `useStore` and `useService` hooks are already typed against `AppDependencies` — no changes needed there.
+The `useStore` and `useService` hooks are already typed against `AppDependencies` - no changes needed there.
 
 ### Step 3: Create the store implementation in the shell
 
@@ -154,7 +154,7 @@ function SomeComponent() {
 - Use a **zustand store** when components need to react to state changes (re-render on update).
 - Use a **plain service** when the value is a stable object that doesn't change (HTTP client, logger, analytics).
 - Always use `zustand/vanilla` for store creation (not `zustand`), so stores can be accessed outside React components (e.g., in the HTTP client's `defer()` callback).
-- Update `requires` in any module that needs the new dependency — this is validated at `registry.resolve()`.
+- Update `requires` in any module that needs the new dependency - this is validated at `registry.resolve()`.
 - Never import store/service implementations in modules. Modules only depend on the contract interfaces.
 
 ## Choosing between store and service

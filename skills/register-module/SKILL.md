@@ -63,8 +63,8 @@ The module's code is only fetched when the user navigates to the base path.
 
 When `registry.resolve()` runs, it validates:
 
-- **No duplicate module IDs** — two modules with `id: 'billing'` will throw.
-- **All required dependencies exist** — if a module has `requires: ['auth', 'analytics']` and `analytics` is not in the registry config, it throws with a clear error listing available deps.
+- **No duplicate module IDs** - two modules with `id: 'billing'` will throw.
+- **All required dependencies exist** - if a module has `requires: ['auth', 'analytics']` and `analytics` is not in the registry config, it throws with a clear error listing available deps.
 
 If validation fails, the error message tells you exactly what's missing:
 
@@ -87,7 +87,7 @@ registry.register(billing)
 registry.register(users)
 registry.register(newModule)
 
-// 3. Resolve — validates everything, builds route tree, returns App
+// 3. Resolve - validates everything, builds route tree, returns App
 const { App } = registry.resolve({
   rootComponent: Layout,
   indexComponent: Home,
@@ -101,5 +101,5 @@ createRoot(document.getElementById('root')!).render(<App />)
 
 - Modules must be registered **before** calling `resolve()`. Registering after throws an error.
 - `resolve()` can only be called **once**. Calling it again throws an error.
-- Registration order does not affect route priority or navigation order — those are controlled by the `order` field in navigation items and the route paths themselves.
-- The registry is generic over `AppDependencies` — only modules typed with the same contract can be registered.
+- Registration order does not affect route priority or navigation order - those are controlled by the `order` field in navigation items and the route paths themselves.
+- The registry is generic over `AppDependencies` - only modules typed with the same contract can be registered.

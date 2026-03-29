@@ -1,6 +1,6 @@
 # Workspace Patterns
 
-This guide covers patterns for building **workspace-style applications** with the reactive framework — apps where the shell renders modules in tabs, panels, and drawers rather than via URL routes. Contact center agent desktops, trading platforms, and admin consoles are typical examples.
+This guide covers patterns for building **workspace-style applications** with the reactive framework - apps where the shell renders modules in tabs, panels, and drawers rather than via URL routes. Contact center agent desktops, trading platforms, and admin consoles are typical examples.
 
 > **Prerequisite:** This guide builds on [Shell Patterns](shell-patterns.md), which covers the shared foundation: layout grids, slots, command palettes, auth guards, cross-store coordination, and module-to-shell communication. Read that first.
 
@@ -8,10 +8,10 @@ This guide covers patterns for building **workspace-style applications** with th
 
 Use these patterns when your app has:
 
-- **Tabbed workspaces** — users open and close content tabs within a persistent shell
-- **Component-only modules** — modules render via the shell (not via URL routes)
-- **Per-session state** — each customer/ticket/case has its own tab state, notes, etc.
-- **Contextual panels that change per tab** — the active tab determines what shows in a sidebar
+- **Tabbed workspaces** - users open and close content tabs within a persistent shell
+- **Component-only modules** - modules render via the shell (not via URL routes)
+- **Per-session state** - each customer/ticket/case has its own tab state, notes, etc.
+- **Contextual panels that change per tab** - the active tab determines what shows in a sidebar
 
 If your app is a traditional page-navigated SPA where modules own routes, the core framework + [Shell Patterns](shell-patterns.md) are sufficient.
 
@@ -100,7 +100,7 @@ export interface AppDependencies {
 }
 
 // ---- Module metadata for catalog discovery ----
-// Define your own metadata shape — the framework passes it through via TMeta generic.
+// Define your own metadata shape - the framework passes it through via TMeta generic.
 
 export interface WorkflowMeta {
   readonly name: string;
@@ -203,7 +203,7 @@ export default defineModule<AppDependencies, AppSlots, WorkflowMeta>({
   // The shell renders this in a workspace tab
   component: lazy(() => import("./OnboardingFlow.js")),
 
-  // Catalog metadata — shell reads via useModules() + getModuleMeta()
+  // Catalog metadata - shell reads via useModules() + getModuleMeta()
   meta: {
     name: "Customer Onboarding",
     description: "Walk through the new customer setup process",
@@ -212,7 +212,7 @@ export default defineModule<AppDependencies, AppSlots, WorkflowMeta>({
     estimatedTime: "5-10 mins",
   },
 
-  // Zones — shell reads via useActiveZones() when this module's tab is active
+  // Zones - shell reads via useActiveZones() when this module's tab is active
   zones: {
     contextualPanel: OnboardingPanel,
   },
@@ -276,7 +276,7 @@ function ShellLayout() {
 
 1. Collects route zones via `useZones()` (from `staticData` on matched routes)
 2. If `activeModuleId` is provided, looks up the module's `zones` field from `useModules()`
-3. Merges both — **module wins** for the same key
+3. Merges both - **module wins** for the same key
 4. When `activeModuleId` is `null`, returns route zones only
 
 This gives the shell one code path regardless of whether the active content is route-based or tab-based.
@@ -326,7 +326,7 @@ function DirectoryPage() {
 }
 ```
 
-Category labels fall back to `capitalize(category)` — no hardcoded label map needed.
+Category labels fall back to `capitalize(category)` - no hardcoded label map needed.
 
 ## Step 6: Tab rendering from module catalog
 
@@ -344,7 +344,7 @@ function WorkspaceContent({ activeTab, customerId, accountNumber, sessionId }) {
     return <IframeContainer url={activeTab.iframeUrl} title={activeTab.title} />
   }
 
-  // native-workflow — look up the module
+  // native-workflow - look up the module
   const mod = modules.find((m) => m.id === activeTab.workflowId)
   if (!mod?.component) return <p>Module "{activeTab.workflowId}" not found</p>
 
@@ -401,8 +401,8 @@ function WorkflowWrapper({ workflowId, customerId, accountNumber, sessionId, tab
 
 Modules control their own completion behavior via `WorkflowMeta`:
 
-- `keepOpenOnComplete: true` — tab stays open, module shows its own post-completion UI
-- `addNoteOnComplete: false` — no automatic note on completion
+- `keepOpenOnComplete: true` - tab stays open, module shows its own post-completion UI
+- `addNoteOnComplete: false` - no automatic note on completion
 
 ## Step 7: Per-session state with scoped stores
 
@@ -416,7 +416,7 @@ const sessionTabs = createScopedStore<TabState>(() => ({
   activeTabId: "directory",
 }));
 
-// In a component — subscribe to this session's tab state
+// In a component - subscribe to this session's tab state
 function Workspace({ sessionId }: { sessionId: string }) {
   const { tabs, activeTabId } = sessionTabs.useScoped(sessionId);
   // ...
@@ -470,4 +470,4 @@ function InvoiceActions({ invoiceId }: { invoiceId: string }) {
 | Per-session state                    | Shell    | `createScopedStore`                                           |
 | Tab rendering                        | Shell    | Looks up module by id via `useModules()`, renders `component` |
 
-The framework provides the composition primitives. The shell owns the workspace architecture. Modules stay standalone and testable — they declare what they contribute, the shell decides where it goes.
+The framework provides the composition primitives. The shell owns the workspace architecture. Modules stay standalone and testable - they declare what they contribute, the shell decides where it goes.

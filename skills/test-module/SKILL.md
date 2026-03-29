@@ -95,7 +95,7 @@ const store = createMockStore<AuthStore>({
 });
 ```
 
-Every field in the store type must be provided — including action functions. Use `async () => {}` or `() => {}` for actions you don't need to verify.
+Every field in the store type must be provided - including action functions. Use `async () => {}` or `() => {}` for actions you don't need to verify.
 
 ## renderModule reference
 
@@ -114,8 +114,8 @@ Returns a standard `@testing-library/react` `RenderResult` with `getByText`, `qu
 ## Rules
 
 - Only provide the dependencies your module actually uses in `deps`.
-- Use `createMockStore` for zustand stores — plain objects won't work (the framework checks for `getState`/`setState`/`subscribe` methods).
+- Use `createMockStore` for zustand stores - plain objects won't work (the framework checks for `getState`/`setState`/`subscribe` methods).
 - Use plain objects or real instances for services.
 - The `route` must match one of the module's declared routes.
-- `renderModule` creates an isolated TanStack Router with memory history — no real navigation occurs.
+- `renderModule` creates an isolated TanStack Router with memory history - no real navigation occurs.
 - Run tests with `pnpm test` or `vitest run` from the repo root.
