@@ -6,6 +6,8 @@ Plug-and-play modular framework for React. Build frontend features as independen
 
 ## Table of Contents
 
+- [Philosophy](#philosophy)
+- [When You Need Modularization](#when-you-need-modularization)
 - [Architecture Overview](#architecture-overview)
 - [Getting Started](#getting-started)
 - [The App-Shared Package](#the-app-shared-package)
@@ -29,6 +31,54 @@ Plug-and-play modular framework for React. Build frontend features as independen
 - [CLI Reference](#cli-reference)
 - [E2E Testing](#e2e-testing)
 - [API Reference](#api-reference)
+
+---
+
+## Philosophy
+
+This framework does not reinvent routing, state management, or data fetching. React, TanStack Router, Zustand, and React Query are mature, battle-tested tools with excellent documentation, large communities, and proven track records. Replacing any of them with a custom abstraction would mean worse documentation, fewer answered Stack Overflow questions, and harder hiring.
+
+Instead, tanstack-react-modules provides **lightweight glue** on top of the ecosystem you already know. The framework's job is to solve the handful of problems that become genuinely painful when multiple independent teams need to ship features into a single application — without touching the parts that existing tools already handle well.
+
+Concretely, the framework handles:
+
+- **Dependency injection across package boundaries.** Modules need access to shared state (auth, config) and services (HTTP clients) owned by the host app. The `TSharedDependencies` pattern provides compile-time-safe, typed access to these without global singletons or prop drilling through layers of components that don't care about them.
+- **Route composition.** Each module declares its own routes. The registry merges them into a single TanStack Router tree. No module needs to know about any other module's routes, and the shell doesn't need a growing import list every time a new feature ships.
+- **UI extensibility primitives.** Navigation items, command palette entries, sidebar panels — these are places where every module needs to contribute a piece. Slots and zones provide structured extension points so the shell layout can stay generic while modules fill it with content.
+- **Validation at startup.** When a module declares `requires: ['auth', 'httpClient']`, the registry checks that these dependencies are actually provided before the app renders. Typos and missing wiring surface as explicit errors during development, not as undefined-is-not-a-function at runtime.
+
+Everything else — how you write components, how you fetch data, how you manage local state, how you style your UI — is just React. A developer who knows React, TanStack Router, and Zustand can be productive in a tanstack-react-modules codebase on day one, because the framework adds concepts only where vanilla React falls short for multi-team composition.
+
+---
+
+## When You Need Modularization
+
+Not every React application needs a module system. A single team building a single product can ship a well-structured monolith and be perfectly productive. Modularization becomes important when you have **one aggregate, complex system where one team owns the umbrella structure (the "shell") and external teams each want to contribute their distinct pieces (the "modules").**
+
+This is common in:
+
+- **Enterprise platforms** where a platform team maintains the shell (navigation, auth, layout) and domain teams own vertical features (billing, analytics, user management).
+- **Product suites** where separately developed products need to appear as one coherent application.
+- **White-label or extensible products** where third parties or customer teams add functionality.
+- **Large organizations** where frontend ownership is distributed across many teams with independent release cadences.
+
+### Pain points in monolithic architecture
+
+When multiple teams try to work within a single traditional React application, several problems compound:
+
+**Routing conflicts and coordination overhead.** Every team's routes live in the same file or directory. Adding a new page means touching shared routing config, which creates merge conflicts and requires cross-team coordination for something that should be an independent decision. Teams end up blocked waiting for PR reviews from the shell owners just to add a route.
+
+**Implicit coupling through imports.** Without clear boundaries, components inevitably start importing from each other. The billing page imports a helper from the users module, the users module imports a type from analytics, and soon you have a dependency graph that no one fully understands. Refactoring one team's code breaks another team's build. Extracting a feature into its own deployable unit becomes a multi-sprint project.
+
+**Shared state turns into a global grab bag.** A single Redux store or a growing pile of React contexts becomes the de facto communication channel between features. Every team adds their slice, and the store becomes a tightly coupled monolith of its own. Changing the shape of one team's state risks subtle breakage in components owned by other teams that happen to select from the same tree.
+
+**Testing in isolation is impractical.** Mounting a single feature for a unit test requires bootstrapping the entire application's provider tree, store setup, and routing config. Test setup becomes brittle and slow, and teams avoid writing integration tests because the harness is too painful to maintain.
+
+**Independent deployment is impossible.** All features ship together. A bug in billing blocks the release of a users feature that's been ready for a week. Teams lose autonomy over their own release cadence, and the blast radius of every deployment includes code from every team.
+
+**Onboarding and cognitive load scale with the whole codebase.** A new developer on the billing team needs to understand the full application structure just to find where their code lives. Conventions are inconsistent across team boundaries because there's no enforcement mechanism — only tribal knowledge and code review goodwill.
+
+tanstack-react-modules addresses these problems by giving each module a clear contract (`ReactiveModuleDescriptor`), enforcing dependency declarations at compile time, and composing independently developed packages into a running application at the registry level — without requiring teams to coordinate on anything beyond the shared dependency interface.
 
 ---
 
