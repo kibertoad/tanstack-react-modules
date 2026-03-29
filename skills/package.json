@@ -12,9 +12,12 @@
   "license": "MIT",
   "skills": [
     "create-module",
+    "register-module",
     "wire-shared-dependencies",
+    "add-slots",
+    "add-zones",
+    "add-scoped-store",
     "add-api-query",
-    "test-module",
-    "register-module"
+    "test-module"
   ]
 }
