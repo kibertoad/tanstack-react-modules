@@ -131,7 +131,7 @@ export interface WorkspaceTab {
   type: "directory" | "iframe" | "native-workflow";
   title: string;
   workflowId?: string; // for native-workflow tabs
-  iframeUrl?: string;  // for iframe tabs
+  iframeUrl?: string; // for iframe tabs
   closeable: boolean;
   lastAccessedAt: number;
 }
