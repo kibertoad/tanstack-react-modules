@@ -130,7 +130,7 @@ Note that the framework does **not** solve independent deployment. Modules are c
 | Framework entity              | What the user sees                                                                                  |
 | ----------------------------- | --------------------------------------------------------------------------------------------------- |
 | **Shell**                     | The persistent chrome: top bar, sidebar, footer. Always visible.                                    |
-| **Module**                    | A feature area. In route-based apps, a set of pages (`/billing/*`). In workspace apps, a tab.       |
+| **Module**                    | A feature area. In route-based apps, a set of pages (`/billing/*`). In workspace apps, a unit of content the shell renders — typically in a tab, but could be a panel, drawer, or any shell-managed content area. The module's content can have its own internal navigation (sub-tabs, wizards, etc.). |
 | **Route** (`createRoutes`)    | A page within a module. URL changes, content area updates.                                          |
 | **Component** (on descriptor) | A module's UI rendered by the shell in a tab, panel, or modal — not tied to a URL.                  |
 | **Zone**                      | A named layout region (sidebar, header actions, detail panel) whose content changes per page or tab. |

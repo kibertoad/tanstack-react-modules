@@ -38,7 +38,9 @@ If your app is a traditional page-navigated SPA where modules own routes, the co
 └─────────────────────────────────────────────────────────────┘
 ```
 
-The shell owns the layout. Modules contribute content through five channels:
+The shell owns the layout. In workspace apps, the **shell controls which module is currently rendered** — not the URL. The most common pattern is a tab strip where each tab renders one module's content, but the same architecture works for any shell-managed content switching: a single content area that swaps between modules, a drawer, a modal, or a split view. Modules don't know how the shell presents them; the shell decides when and where to render each module's `component`.
+
+Modules contribute content through five channels:
 
 | What                  | Mechanism                         | Example                                         |
 | --------------------- | --------------------------------- | ----------------------------------------------- |
