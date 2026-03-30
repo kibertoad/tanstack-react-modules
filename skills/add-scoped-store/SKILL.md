@@ -11,11 +11,13 @@ metadata:
 `createScopedStore()` creates a factory that manages a `Map<string, StoreApi<T>>` — one independent Zustand store per scope key. Each scope is lazily created on first access and can be cleaned up individually.
 
 Use scoped stores when:
+
 - You need per-entity state (per-interaction, per-conversation, per-tab, per-workspace).
 - Multiple instances of the same state shape exist simultaneously.
 - Entity lifecycle doesn't match component lifecycle (state survives tab switches, unmounts).
 
 Do NOT use scoped stores for:
+
 - App-wide singleton state — use a regular Zustand store in `AppDependencies`.
 - Server data — use React Query.
 
@@ -72,7 +74,7 @@ export const interactionTabs = createScopedStore<TabState>(() => {
   return {
     tabs: [createDirectoryTab()],
     activeTabId: "directory",
-    addTab: () => {},       // placeholder — overridden below
+    addTab: () => {}, // placeholder — overridden below
     removeTab: () => {},
     setActiveTab: () => {},
   };
@@ -84,15 +86,13 @@ export function getInteractionTabs(interactionId: string) {
 
   // Patch actions on first access (idempotent — setState merges)
   store.setState({
-    addTab: (tab: Tab) =>
-      store.setState((s) => ({ tabs: [...s.tabs, tab] })),
+    addTab: (tab: Tab) => store.setState((s) => ({ tabs: [...s.tabs, tab] })),
     removeTab: (tabId: string) =>
       store.setState((s) => ({
         tabs: s.tabs.filter((t) => t.id !== tabId),
-        activeTabId: s.activeTabId === tabId ? s.tabs[0]?.id ?? "" : s.activeTabId,
+        activeTabId: s.activeTabId === tabId ? (s.tabs[0]?.id ?? "") : s.activeTabId,
       })),
-    setActiveTab: (tabId: string) =>
-      store.setState({ activeTabId: tabId }),
+    setActiveTab: (tabId: string) => store.setState({ activeTabId: tabId }),
   });
 
   return store;
@@ -173,14 +173,14 @@ Failing to clean up leaks memory proportional to the number of unique scope IDs 
 
 ## ScopedStore API reference
 
-| Method / Hook              | Description                                                    |
-| -------------------------- | -------------------------------------------------------------- |
-| `getOrCreate(scopeId)`     | Returns existing store or creates one with the initializer     |
-| `has(scopeId)`             | Returns `true` if the scope exists                             |
-| `remove(scopeId)`          | Deletes the scope's store. No-op if it doesn't exist           |
-| `clear()`                  | Removes all scoped stores                                      |
-| `useScoped(scopeId)`       | React hook — subscribe to full state of a scope                |
-| `useScoped(scopeId, sel)`  | React hook — subscribe with selector, re-renders only on change|
+| Method / Hook             | Description                                                     |
+| ------------------------- | --------------------------------------------------------------- |
+| `getOrCreate(scopeId)`    | Returns existing store or creates one with the initializer      |
+| `has(scopeId)`            | Returns `true` if the scope exists                              |
+| `remove(scopeId)`         | Deletes the scope's store. No-op if it doesn't exist            |
+| `clear()`                 | Removes all scoped stores                                       |
+| `useScoped(scopeId)`      | React hook — subscribe to full state of a scope                 |
+| `useScoped(scopeId, sel)` | React hook — subscribe with selector, re-renders only on change |
 
 ## Rules
 

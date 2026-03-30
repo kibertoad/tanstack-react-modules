@@ -37,4 +37,13 @@ const { App } = registry.resolve({
   providers: [QueryProvider],
 });
 
-createRoot(document.getElementById("root")!).render(<App />);
+async function startApp() {
+  if (import.meta.env.DEV) {
+    const { worker } = await import("./mocks/browser.js");
+    await worker.start({ onUnhandledRequest: "bypass" });
+  }
+
+  createRoot(document.getElementById("root")!).render(<App />);
+}
+
+startApp();

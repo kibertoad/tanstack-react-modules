@@ -1524,16 +1524,16 @@ This project ships AI coding skills in the `skills/` directory, following the [s
 
 The `@tanstack-react-modules/skills` package declares the following skills:
 
-| Skill                      | Description                                                              |
-| -------------------------- | ------------------------------------------------------------------------ |
-| `create-module`            | Scaffold a new module with routes, navigation, and page components       |
-| `register-module`          | Wire an existing module into the shell host app                          |
+| Skill                      | Description                                                                |
+| -------------------------- | -------------------------------------------------------------------------- |
+| `create-module`            | Scaffold a new module with routes, navigation, and page components         |
+| `register-module`          | Wire an existing module into the shell host app                            |
 | `wire-shared-dependencies` | Add a zustand store, plain service, or reactive service to AppDependencies |
 | `add-slots`                | Define slot types, contribute items from modules, consume via `useSlots()` |
-| `add-zones`                | Add dynamic layout regions that modules populate per-route or per-tab    |
-| `add-scoped-store`         | Create per-entity state with `createScopedStore()` (tabs, conversations) |
-| `add-api-query`            | Add data fetching with React Query, HTTP client, and API contracts       |
-| `test-module`              | Write tests with `renderModule()`, `resolveModule()`, `createMockStore()`|
+| `add-zones`                | Add dynamic layout regions that modules populate per-route or per-tab      |
+| `add-scoped-store`         | Create per-entity state with `createScopedStore()` (tabs, conversations)   |
+| `add-api-query`            | Add data fetching with React Query, HTTP client, and API contracts         |
+| `test-module`              | Write tests with `renderModule()`, `resolveModule()`, `createMockStore()`  |
 
 Each skill lives in `skills/<skill-name>/SKILL.md` and contains step-by-step instructions with code templates, rules, and framework conventions.
 
@@ -1656,56 +1656,56 @@ npx playwright test
 
 ### @tanstack-react-modules/core
 
-| Export                            | Type     | Description                                                                                     |
-| --------------------------------- | -------- | ----------------------------------------------------------------------------------------------- |
-| `defineModule(descriptor)`        | Function | Identity function for type inference. Returns descriptor unchanged.                             |
-| `defineSlots(id, slots)`          | Function | Shorthand for headless modules that only contribute slots. No component, routes, or lifecycle.  |
-| `createSharedHooks<T>()`          | Function | Returns typed `{ useStore, useService, useReactiveService, useOptional }` hooks.                |
-| `createScopedStore<T>(initializer)` | Function | Creates a per-key store factory with `getOrCreate`, `useScoped`, and `remove`.                |
-| `isStoreApi(value)`               | Function | Duck-type check for zustand `StoreApi` instances.                                               |
-| `isReactiveService(value)`        | Function | Duck-type check for `ReactiveService` instances (has `subscribe` + `getSnapshot`).              |
-| `separateDeps(deps)`              | Function | Splits a flat deps record into `{ stores, services, reactiveServices }` buckets.                |
-| `SharedDependenciesContext`       | Context  | React context holding stores, services, and reactive services. Used internally.                 |
-| `ReactiveModuleDescriptor<T, S>`  | Type     | Module descriptor shape. `T` = shared deps, `S` = slots.                                       |
-| `LazyModuleDescriptor<T, S>`      | Type     | Lazy module descriptor shape.                                                                   |
-| `NavigationItem`                  | Type     | Navigation entry shape. `icon` accepts `string \| React.ComponentType`.                         |
-| `ModuleLifecycle<T>`              | Type     | Lifecycle hooks shape.                                                                          |
-| `ReactiveService<T>`              | Type     | External source contract: `{ subscribe, getSnapshot }`. Used with `useSyncExternalStore`.       |
-| `SlotMap`                         | Type     | Constraint type for slot definitions: `Record<string, readonly unknown[]>`.                     |
-| `SlotMapOf<T>`                    | Type     | F-bounded constraint for slot types — accepts interfaces without index signatures.              |
-| `ZoneMap`                         | Type     | Constraint type for zone definitions: `Record<string, ComponentType \| undefined>`.             |
-| `ZoneMapOf<T>`                    | Type     | F-bounded constraint for zone types — accepts interfaces without index signatures.              |
-| `ScopedStore<T>`                  | Type     | Return type of `createScopedStore`. Provides `getOrCreate`, `useScoped`, `remove`, `clear`.     |
+| Export                              | Type     | Description                                                                                    |
+| ----------------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
+| `defineModule(descriptor)`          | Function | Identity function for type inference. Returns descriptor unchanged.                            |
+| `defineSlots(id, slots)`            | Function | Shorthand for headless modules that only contribute slots. No component, routes, or lifecycle. |
+| `createSharedHooks<T>()`            | Function | Returns typed `{ useStore, useService, useReactiveService, useOptional }` hooks.               |
+| `createScopedStore<T>(initializer)` | Function | Creates a per-key store factory with `getOrCreate`, `useScoped`, and `remove`.                 |
+| `isStoreApi(value)`                 | Function | Duck-type check for zustand `StoreApi` instances.                                              |
+| `isReactiveService(value)`          | Function | Duck-type check for `ReactiveService` instances (has `subscribe` + `getSnapshot`).             |
+| `separateDeps(deps)`                | Function | Splits a flat deps record into `{ stores, services, reactiveServices }` buckets.               |
+| `SharedDependenciesContext`         | Context  | React context holding stores, services, and reactive services. Used internally.                |
+| `ReactiveModuleDescriptor<T, S>`    | Type     | Module descriptor shape. `T` = shared deps, `S` = slots.                                       |
+| `LazyModuleDescriptor<T, S>`        | Type     | Lazy module descriptor shape.                                                                  |
+| `NavigationItem`                    | Type     | Navigation entry shape. `icon` accepts `string \| React.ComponentType`.                        |
+| `ModuleLifecycle<T>`                | Type     | Lifecycle hooks shape.                                                                         |
+| `ReactiveService<T>`                | Type     | External source contract: `{ subscribe, getSnapshot }`. Used with `useSyncExternalStore`.      |
+| `SlotMap`                           | Type     | Constraint type for slot definitions: `Record<string, readonly unknown[]>`.                    |
+| `SlotMapOf<T>`                      | Type     | F-bounded constraint for slot types — accepts interfaces without index signatures.             |
+| `ZoneMap`                           | Type     | Constraint type for zone definitions: `Record<string, ComponentType \| undefined>`.            |
+| `ZoneMapOf<T>`                      | Type     | F-bounded constraint for zone types — accepts interfaces without index signatures.             |
+| `ScopedStore<T>`                    | Type     | Return type of `createScopedStore`. Provides `getOrCreate`, `useScoped`, `remove`, `clear`.    |
 
 ### @tanstack-react-modules/runtime
 
-| Export                         | Type      | Description                                                                                   |
-| ------------------------------ | --------- | --------------------------------------------------------------------------------------------- |
-| `createRegistry<T, S>(config)` | Function  | Creates a module registry. `T` = shared deps, `S` = slots. Config has `{ stores, services }`. |
-| `buildSlotsManifest(modules, defaults?)` | Function | Concatenates slot contributions from multiple modules. Used internally and by testing. |
-| `useNavigation()`              | Hook      | Access the navigation manifest from any component inside `<App />`.                           |
-| `useSlots<S>()`                | Hook      | Access collected slot contributions from all modules.                                         |
-| `useZones<Z>()`                | Hook      | Access zone components from the currently matched route's `staticData`.                       |
-| `useActiveZones<Z>(moduleId?)` | Hook      | Merge route zones with the active module's descriptor zones. Module wins for same key.        |
-| `useModules()`                 | Hook      | Access registered module summaries (id, version, meta, component).                            |
-| `getModuleMeta<T>(entry)`      | Function  | Type-safe accessor for module metadata. Returns `T \| undefined`.                             |
-| `SlotsContext`                 | Context   | React context holding the slots manifest. Used internally.                                    |
-| `ModulesContext`               | Context   | React context holding module entries. Used internally and by testing.                          |
-| `ModuleErrorBoundary`          | Component | Error boundary that isolates module-level crashes.                                            |
-| `ReactiveRegistry<T, S>`       | Type      | Registry interface with `register()`, `registerLazy()`, `resolve()`.                          |
-| `RegistryConfig<T>`            | Type      | Registry configuration shape.                                                                 |
-| `ApplicationManifest<T, S>`    | Type      | Resolved app shape: `{ App, router, navigation, slots, modules }`.                            |
-| `ModuleEntry`                  | Type      | `{ id, version, meta?, component?, zones? }`.                                                 |
-| `NavigationManifest`           | Type      | `{ items, groups, ungrouped }`.                                                               |
-| `NavigationGroup`              | Type      | `{ group, items }`.                                                                           |
-| `ResolveOptions`               | Type      | `{ rootComponent, indexComponent, notFoundComponent }`.                                       |
+| Export                                   | Type      | Description                                                                                   |
+| ---------------------------------------- | --------- | --------------------------------------------------------------------------------------------- |
+| `createRegistry<T, S>(config)`           | Function  | Creates a module registry. `T` = shared deps, `S` = slots. Config has `{ stores, services }`. |
+| `buildSlotsManifest(modules, defaults?)` | Function  | Concatenates slot contributions from multiple modules. Used internally and by testing.        |
+| `useNavigation()`                        | Hook      | Access the navigation manifest from any component inside `<App />`.                           |
+| `useSlots<S>()`                          | Hook      | Access collected slot contributions from all modules.                                         |
+| `useZones<Z>()`                          | Hook      | Access zone components from the currently matched route's `staticData`.                       |
+| `useActiveZones<Z>(moduleId?)`           | Hook      | Merge route zones with the active module's descriptor zones. Module wins for same key.        |
+| `useModules()`                           | Hook      | Access registered module summaries (id, version, meta, component).                            |
+| `getModuleMeta<T>(entry)`                | Function  | Type-safe accessor for module metadata. Returns `T \| undefined`.                             |
+| `SlotsContext`                           | Context   | React context holding the slots manifest. Used internally.                                    |
+| `ModulesContext`                         | Context   | React context holding module entries. Used internally and by testing.                         |
+| `ModuleErrorBoundary`                    | Component | Error boundary that isolates module-level crashes.                                            |
+| `ReactiveRegistry<T, S>`                 | Type      | Registry interface with `register()`, `registerLazy()`, `resolve()`.                          |
+| `RegistryConfig<T>`                      | Type      | Registry configuration shape.                                                                 |
+| `ApplicationManifest<T, S>`              | Type      | Resolved app shape: `{ App, router, navigation, slots, modules }`.                            |
+| `ModuleEntry`                            | Type      | `{ id, version, meta?, component?, zones? }`.                                                 |
+| `NavigationManifest`                     | Type      | `{ items, groups, ungrouped }`.                                                               |
+| `NavigationGroup`                        | Type      | `{ group, items }`.                                                                           |
+| `ResolveOptions`                         | Type      | `{ rootComponent, indexComponent, notFoundComponent }`.                                       |
 
 ### @tanstack-react-modules/testing
 
 | Export                            | Type     | Description                                                                                                               |
 | --------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `renderModule(module, options)`   | Function | Render a module in isolation. Returns `@testing-library/react` RenderResult. Options include `deps` and optional `slots`. |
-| `resolveModule(module, options?)` | Function | Resolve a module without rendering — runs slot merging and lifecycle hooks. For headless modules.                          |
+| `resolveModule(module, options?)` | Function | Resolve a module without rendering — runs slot merging and lifecycle hooks. For headless modules.                         |
 | `createMockStore<T>(state)`       | Function | Create a zustand store pre-populated with given state.                                                                    |
 | `RenderModuleOptions<T>`          | Type     | Options for `renderModule`: `{ route?, deps, slots?, props? }`.                                                           |
 | `ResolveModuleOptions<T, S>`      | Type     | Options for `resolveModule`: `{ deps?, defaults? }`.                                                                      |

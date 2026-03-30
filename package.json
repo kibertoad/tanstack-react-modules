@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "pnpm -r run build",
-    "dev": "pnpm --filter shell dev",
+    "example:dev": "pnpm --filter shell dev",
     "test": "vitest run",
     "test:e2e": "pnpm --filter @tanstack-react-modules/cli test:e2e",
     "typecheck": "tsc --build",

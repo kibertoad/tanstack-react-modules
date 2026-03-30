@@ -205,9 +205,9 @@ Returns a standard `@testing-library/react` `RenderResult` with `getByText`, `qu
 
 ```typescript
 const { slots, entry, onRegisterCalled } = resolveModule(moduleDescriptor, {
-  deps: { httpClient },          // Optional deps passed to onRegister
-  defaults: { commands: [] },    // Default slot values
-})
+  deps: { httpClient }, // Optional deps passed to onRegister
+  defaults: { commands: [] }, // Default slot values
+});
 ```
 
 Returns `{ slots, entry, onRegisterCalled }`. No rendering — tests slot contributions and lifecycle hooks only.

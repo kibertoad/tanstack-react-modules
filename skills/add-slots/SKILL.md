@@ -11,10 +11,12 @@ metadata:
 Slots are the extensibility primitive for collecting contributions from many modules into a single place. Each slot is a named array — modules contribute items, and the registry concatenates them at resolve time. The shell reads the merged result via `useSlots()`.
 
 Use slots when:
+
 - The shell has a UI region that should display items from multiple modules (command palette, dashboard widgets, system integrations).
 - The shell doesn't know at build time what items will exist — modules declare them.
 
 Do NOT use slots for:
+
 - Per-route UI regions — use [zones](#) instead.
 - Shared state — use stores.
 
@@ -130,9 +132,7 @@ import { defineSlots } from "@tanstack-react-modules/core";
 import type { AppDependencies, AppSlots } from "@example/app-shared";
 
 export default defineSlots<AppDependencies, AppSlots>("external-systems", {
-  systems: [
-    { id: "salesforce", name: "Salesforce", icon: "cloud" },
-  ],
+  systems: [{ id: "salesforce", name: "Salesforce", icon: "cloud" }],
 });
 ```
 
@@ -151,6 +151,7 @@ When you need a new extensibility point:
 ## How slot merging works
 
 At `registry.resolve()`:
+
 1. Start with the `slots` defaults from `createRegistry()` config.
 2. For each registered module, append its `slots[key]` items to the corresponding array.
 3. The final merged object is provided via `SlotsContext`.

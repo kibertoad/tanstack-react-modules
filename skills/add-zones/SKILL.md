@@ -11,10 +11,12 @@ metadata:
 Zones are named layout regions in the shell that modules populate with React components. Unlike slots (arrays concatenated across all modules), each zone holds a single component contributed by the currently active route or module.
 
 Use zones when:
+
 - The shell has a sidebar, detail panel, or header area whose content depends on the current page.
 - Different routes need to show different components in the same layout region.
 
 Do NOT use zones for:
+
 - Collecting multiple items from all modules — use [slots](#) instead.
 - Shared state — use stores.
 
