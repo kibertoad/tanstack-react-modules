@@ -16,7 +16,7 @@
     "@tanstack-react-modules/core": "workspace:*",
     "@tanstack-react-modules/runtime": "workspace:*",
     "@tanstack/react-query": "^5.95.0",
-    "@tanstack/react-router": "^1.120.0",
+    "@tanstack/react-router": "^1.168.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "wretch": "^2.11.0",
