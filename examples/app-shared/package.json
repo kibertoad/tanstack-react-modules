@@ -11,7 +11,7 @@
     }
   },
   "dependencies": {
-    "@lokalise/api-contracts": "^6.0.0",
+    "@lokalise/api-contracts": "^6.8.0",
     "@lokalise/frontend-http-client": "^7.0.0",
     "@tanstack-react-modules/core": "workspace:*",
     "wretch": "^2.11.0",
