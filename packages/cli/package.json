@@ -27,7 +27,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@clack/prompts": "^1.1.0",
+    "@clack/prompts": "^1.2.0",
     "citty": "^0.2.1",
     "magicast": "^0.5.2",
     "pathe": "^2.0.3"
