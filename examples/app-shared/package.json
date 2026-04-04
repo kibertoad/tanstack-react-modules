@@ -18,14 +18,14 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@tanstack/router-core": "^1.168.7",
+    "@tanstack/router-core": "^1.168.9",
     "@types/react": "^19.0.0",
     "react": "^19.0.0",
     "typescript": "^6.0.2",
     "zustand": "^5.0.0"
   },
   "peerDependencies": {
-    "@tanstack/router-core": "^1.168.7",
+    "@tanstack/router-core": "^1.168.9",
     "react": "^19.0.0",
     "zustand": "^5.0.0"
   }
